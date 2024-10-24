@@ -81,12 +81,10 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
 
     void IEligible<IMethod>.BuildEligibility( IEligibilityBuilder<IMethod> builder )
     {
-        builder.ReturnType().MustEqual( SpecialType.Void );
-        builder.MustSatisfy( m => m.Parameters.Count is 0 or 1, m => $"{m} must have zero or one parameter" );
         builder.MustNotHaveRefOrOutParameter();
         builder.MustSatisfy( m => m.TypeParameters.Count == 0, m => $"{m} must not be generic" );
 
-        builder.ReturnType().MustSatisfyAny( b => b.MustBe( typeof(void) ), b => b.MustBe( typeof(Task) ) );
+        builder.ReturnType().MustSatisfyAny( b => b.MustEqual( SpecialType.Void ), b => b.MustEqual( SpecialType.Task ) );
 
         // Rules for void (non-async) methods.
         builder.If( b => b.ReturnType.SpecialType == SpecialType.Void )
@@ -98,7 +96,7 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
                 b => b.MustSatisfy( m => m.Parameters.Count <= 2, m => $"{m} must have 2 or fewer parameters" ),
                 b => b.If( m => m.Parameters.Count == 2 )
                     .MustSatisfy(
-                        m => m.Parameters[^1].Type.Is( typeof(CancellationToken) ),
+                        m => m.Parameters[^1].Type.Equals( typeof(CancellationToken) ),
                         m => $"if {m} has two parameters, the last one must be a CancellationToken" ) );
     }
 
@@ -320,7 +318,7 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
 
                     break;
 
-                case 1 when executeMethod.Parameters[0].Type.Is( typeof(CancellationToken) ):
+                case 1 when executeMethod.Parameters[0].Type.IsConvertibleTo( typeof(CancellationToken) ):
                     executeExpression = ExpressionFactory.Capture(
                         new Func<object?, CancellationToken, Task>( ( _, ct ) => { return executeMethod.Invoke( ct )!; } ) );
 
