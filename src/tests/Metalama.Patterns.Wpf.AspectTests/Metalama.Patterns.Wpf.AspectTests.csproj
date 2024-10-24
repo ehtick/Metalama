@@ -20,4 +20,19 @@
     <ProjectReference Include="..\..\Metalama.Patterns.Wpf\Metalama.Patterns.Wpf.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="CommandTests\Callbacks\CanExecuteMethodAsync.cs">
+      <DependentUpon>$([System.String]::Copy('CanExecuteMethod').Substring( %(Filename.IndexOf('.') ).cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="CommandTests\Callbacks\CanExecutePropertyAsync.cs">
+      <DependentUpon>$([System.String]::Copy('CanExecuteProperty').Substring( %(Filename.IndexOf('.') ).cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="CommandTests\Eligibility\MustHaveValidParametersAsync.cs">
+      <DependentUpon>$([System.String]::Copy('MustHaveZeroOrOneParameter').Substring( %(Filename.IndexOf('.') ).cs</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

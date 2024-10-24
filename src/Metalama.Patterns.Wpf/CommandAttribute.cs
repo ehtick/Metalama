@@ -81,10 +81,23 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
 
     void IEligible<IMethod>.BuildEligibility( IEligibilityBuilder<IMethod> builder )
     {
-        builder.ReturnType().MustBe( typeof(void) );
-        builder.MustSatisfy( m => m.Parameters.Count is 0 or 1, m => $"{m} must have zero or one parameter" );
         builder.MustNotHaveRefOrOutParameter();
         builder.MustSatisfy( m => m.TypeParameters.Count == 0, m => $"{m} must not be generic" );
+
+        builder.ReturnType().MustSatisfyAny( b => b.MustBe( typeof(void) ), b => b.MustBe( typeof(Task) ) );
+
+        // Rules for void (non-async) methods.
+        builder.If( b => b.ReturnType.SpecialType == SpecialType.Void )
+            .MustSatisfy( m => m.Parameters.Count is 0 or 1, m => $"{m} must have zero or one parameter" );
+
+        // Rules for async methods.
+        builder.If( b => b.ReturnType.SpecialType == SpecialType.Task )
+            .MustSatisfyAll(
+                b => b.MustSatisfy( m => m.Parameters.Count <= 2, m => $"{m} must have 2 or fewer parameters" ),
+                b => b.If( m => m.Parameters.Count == 2 )
+                    .MustSatisfy(
+                        m => m.Parameters[^1].Type.Is( typeof(CancellationToken) ),
+                        m => $"if {m} has two parameters, the last one must be a CancellationToken" ) );
     }
 
     void IAspect<IMethod>.BuildAspect( IAspectBuilder<IMethod> builder )
@@ -140,9 +153,11 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
                 throw new NotSupportedException( "Expected a method or property." );
         }
 
+        var isAsyncCommand = target.ReturnType.SpecialType == SpecialType.Task;
+
         var introducePropertyResult = builder.Advice.IntroduceProperty(
             declaringType,
-            nameof(CommandProperty),
+            isAsyncCommand ? nameof(AsyncCommandProperty) : nameof(CommandProperty),
             IntroductionScope.Instance,
             OverrideStrategy.Fail,
             b =>
@@ -204,7 +219,7 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
 
         builder.Advice.AddInitializer(
             declaringType,
-            nameof(InitializeCommand),
+            nameof(this.InitializeCommand),
             InitializerKind.BeforeInstanceConstructor,
             args: new
             {
@@ -212,7 +227,8 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
                 executeMethod = target,
                 canExecuteMethod,
                 canExecuteProperty,
-                useInpcIntegration
+                useInpcIntegration,
+                isAsyncCommand
             } );
     }
 
@@ -220,15 +236,19 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     [Template]
     private static ICommand CommandProperty { get; }
+
+    [Template]
+    private static IAsyncCommand AsyncCommandProperty { get; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     [Template]
-    private static void InitializeCommand(
+    private void InitializeCommand(
         [CompileTime] IProperty commandProperty,
         [CompileTime] IMethod executeMethod,
         [CompileTime] IMethod? canExecuteMethod,
         [CompileTime] IProperty? canExecuteProperty,
-        [CompileTime] bool useInpcIntegration )
+        [CompileTime] bool useInpcIntegration,
+        [CompileTime] bool isAsyncCommand )
     {
         IExpression? canExecuteExpression = null;
 
@@ -252,32 +272,107 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
             }
         }
 
+#pragma warning disable IDE0053
+
+// ReSharper disable ConvertToLambdaExpression
+
         IExpression? executeExpression;
 
-        if ( executeMethod.Parameters.Count == 0 )
+        if ( !isAsyncCommand )
         {
-            executeExpression = ExpressionFactory.Capture( new Action<object>( _ => { executeMethod.Invoke(); } ) );
+            if ( executeMethod.Parameters.Count == 0 )
+            {
+                executeExpression = ExpressionFactory.Capture( new Action<object>( _ => { executeMethod.Invoke(); } ) );
+            }
+            else
+            {
+                executeExpression = ExpressionFactory.Capture(
+                    new Action<object>(
+                        parameter =>
+                        {
+                            executeMethod.Invoke( meta.Cast( executeMethod.Parameters[0].Type, parameter ) );
+                        } ) );
+            }
+
+            if ( useInpcIntegration )
+            {
+                commandProperty.Value = new DelegateCommand( executeExpression.Value!, canExecuteExpression!.Value!, meta.This, canExecuteProperty!.Name );
+            }
+            else
+            {
+                // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0031 // Use null propagation
+                commandProperty.Value = new DelegateCommand( executeExpression.Value!, canExecuteExpression == null ? null : canExecuteExpression.Value );
+#pragma warning restore IDE0031 // Use null propagation
+            }
         }
         else
         {
-            executeExpression = ExpressionFactory.Capture(
-                new Action<object>(
-                    parameter =>
-                    {
-                        executeMethod.Invoke( meta.Cast( executeMethod.Parameters[0].Type, parameter ) );
-                    } ) );
+            var supportsCancellation = meta.CompileTime( false );
+
+            switch ( executeMethod.Parameters.Count )
+            {
+                case 0:
+                    executeExpression =
+                        ExpressionFactory.Capture( new Func<object?, CancellationToken, Task>( ( _, _ ) => { return executeMethod.Invoke()!; } ) );
+
+                    break;
+
+                case 1 when executeMethod.Parameters[0].Type.Is( typeof(CancellationToken) ):
+                    executeExpression = ExpressionFactory.Capture(
+                        new Func<object?, CancellationToken, Task>( ( _, ct ) => { return executeMethod.Invoke( ct )!; } ) );
+
+                    supportsCancellation = true;
+
+                    break;
+
+                case 1:
+                    executeExpression = ExpressionFactory.Capture(
+                        new Func<object?, CancellationToken, Task>( ( arg, _ ) => { return executeMethod.Invoke( arg )!; } ) );
+
+                    break;
+
+                case 2:
+                    executeExpression = ExpressionFactory.Capture(
+                        new Func<object?, CancellationToken, Task>( ( arg, ct ) => { return executeMethod.Invoke( arg, ct )!; } ) );
+
+                    supportsCancellation = true;
+
+                    break;
+
+                default:
+                    // This should never happen, but we cannot throw a compile-time exception.
+                    executeExpression = null!;
+                    
+                    break;
+            }
+
+            if ( useInpcIntegration )
+            {
+                commandProperty.Value = new AsyncDelegateCommand(
+                    executeExpression.Value!,
+                    canExecuteExpression!.Value!,
+                    meta.This,
+                    canExecuteProperty!.Name,
+                    supportsCancellation,
+                    this.SupportsConcurrentExecution );
+            }
+            else
+            {
+                // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0031 // Use null propagation
+                commandProperty.Value = new AsyncDelegateCommand(
+                    executeExpression.Value!,
+                    canExecuteExpression == null ? null : canExecuteExpression.Value,
+                    supportsCancellation,
+                    this.SupportsConcurrentExecution );
+#pragma warning restore IDE0031 // Use null propagation
+            }
         }
 
-        if ( useInpcIntegration )
-        {
-            commandProperty.Value = new DelegateCommand( executeExpression.Value!, canExecuteExpression!.Value!, meta.This, canExecuteProperty!.Name );
-        }
-        else
-        {
-            // ReSharper disable once MergeConditionalExpression
-#pragma warning disable IDE0031 // Use null propagation
-            commandProperty.Value = new DelegateCommand( executeExpression.Value!, canExecuteExpression == null ? null : canExecuteExpression.Value );
-#pragma warning restore IDE0031 // Use null propagation
-        }
+// ReSharper restore ConvertToLambdaExpression        
+#pragma warning restore IDE0053
     }
+
+    public bool SupportsConcurrentExecution { get; init; }
 }

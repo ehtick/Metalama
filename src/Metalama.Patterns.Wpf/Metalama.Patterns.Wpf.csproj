@@ -13,8 +13,10 @@
       Automatically implements WPF dependency properties from a C# automatic property and WPF commands from a C# method
       thanks to Metalama.
     </PackageDescription>
+
     <PackageTags>Metalama PostSharp WPF dependency property DependencyProperty command</PackageTags>    
 
+    <MetalamaFormatCompileTimeCode>True</MetalamaFormatCompileTimeCode>
   </PropertyGroup>
 
   <ItemGroup>
