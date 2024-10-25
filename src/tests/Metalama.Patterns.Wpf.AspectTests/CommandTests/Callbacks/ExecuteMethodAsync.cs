@@ -15,13 +15,13 @@ public class ExecuteMethodAsync
 
     [Command]
     private static Task ExecuteStaticWithParameterAsync( int v ) => Task.CompletedTask;
-    
+
     [Command]
     private Task ExecuteInstanceWithCancellationTokenAsync( CancellationToken cancellationToken ) => Task.CompletedTask;
 
     [Command]
     private static Task ExecuteStaticWithCancellationTokenAsync( CancellationToken cancellationToken ) => Task.CompletedTask;
-    
+
     [Command]
     private Task ExecuteInstanceWithCancellationTokenAndParameterAsync( int v, CancellationToken cancellationToken ) => Task.CompletedTask;
 

@@ -5,7 +5,7 @@ using Metalama.Patterns.Observability;
 namespace Metalama.Patterns.Wpf.UnitTests.Assets.Command;
 
 [Observable]
-public partial class ObservableAspectIntegrationTestClass : CommandTestBase
+public partial class ObservableAspectIntegrationTestClass : CommandAssetBase
 {
     [Command]
     private void ExecuteFoo( int v )

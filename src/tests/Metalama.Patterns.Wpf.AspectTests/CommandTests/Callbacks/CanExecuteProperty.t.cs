@@ -1,5 +1,3 @@
-using System.Windows.Input;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class CanExecuteProperty
 {
@@ -15,9 +13,9 @@ public class CanExecuteProperty
   private static bool CanExecuteStatic => true;
   public CanExecuteProperty()
   {
-    InstanceCommand = new DelegateCommand(_ => ExecuteInstance(), _ => CanExecuteInstance);
-    StaticCommand = new DelegateCommand(_ => ExecuteStatic(), _ => CanExecuteStatic);
+    InstanceCommand = new DelegateCommand(() => ExecuteInstance(), () => CanExecuteInstance);
+    StaticCommand = new DelegateCommand(() => ExecuteStatic(), () => CanExecuteStatic);
   }
-  public ICommand InstanceCommand { get; }
-  public ICommand StaticCommand { get; }
+  public DelegateCommand InstanceCommand { get; }
+  public DelegateCommand StaticCommand { get; }
 }

@@ -1,4 +1,3 @@
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class CanExecutePropertysync
 {
@@ -10,15 +9,15 @@ public class CanExecutePropertysync
   private static bool CanExecuteStatic => true;
   public CanExecutePropertysync()
   {
-    InstanceCommand = new AsyncDelegateCommand((_, _) =>
+    InstanceCommand = new AsyncDelegateCommand(_ =>
     {
       return ExecuteInstanceAsync();
-    }, _ => CanExecuteInstance, false, false);
-    StaticCommand = new AsyncDelegateCommand((_, _) =>
+    }, () => CanExecuteInstance, false, false);
+    StaticCommand = new AsyncDelegateCommand(_ =>
     {
       return ExecuteStaticAsync();
-    }, _ => CanExecuteStatic, false, false);
+    }, () => CanExecuteStatic, false, false);
   }
-  public IAsyncCommand InstanceCommand { get; }
-  public IAsyncCommand StaticCommand { get; }
+  public AsyncDelegateCommand InstanceCommand { get; }
+  public AsyncDelegateCommand StaticCommand { get; }
 }

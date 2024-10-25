@@ -1,5 +1,3 @@
-using System.Windows.Input;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class ExplicitlyConfiguredByCommandAttribute
 {
@@ -21,11 +19,11 @@ public class ExplicitlyConfiguredByCommandAttribute
   private bool CanExec2 => true;
   public ExplicitlyConfiguredByCommandAttribute()
   {
-    Exec1Command = new DelegateCommand(_ => Exec1(), _ => SomeWeirdName1());
-    ConfiguredCanExecuteMethodCommand = new DelegateCommand(_ => ExecuteConfiguredCanExecuteMethod(), _ => CanExec1());
-    ConfiguredCanExecutePropertyCommand = new DelegateCommand(_ => ExecuteConfiguredCanExecuteProperty(), _ => CanExec2);
+    Exec1Command = new DelegateCommand(() => Exec1(), () => SomeWeirdName1());
+    ConfiguredCanExecuteMethodCommand = new DelegateCommand(() => ExecuteConfiguredCanExecuteMethod(), () => CanExec1());
+    ConfiguredCanExecutePropertyCommand = new DelegateCommand(() => ExecuteConfiguredCanExecuteProperty(), () => CanExec2);
   }
-  public ICommand ConfiguredCanExecuteMethodCommand { get; }
-  public ICommand ConfiguredCanExecutePropertyCommand { get; }
-  public ICommand Exec1Command { get; }
+  public DelegateCommand ConfiguredCanExecuteMethodCommand { get; }
+  public DelegateCommand ConfiguredCanExecutePropertyCommand { get; }
+  public DelegateCommand Exec1Command { get; }
 }

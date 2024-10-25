@@ -1,6 +1,4 @@
 using System.ComponentModel;
-using System.Windows.Input;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.INotifyPropertyChangedIntegration.AnyImplementation;
 public class AnyImplementation : INotifyPropertyChanged
 {
@@ -12,9 +10,9 @@ public class AnyImplementation : INotifyPropertyChanged
   public bool CanExecuteFoo1 => true;
   public AnyImplementation()
   {
-    Foo1Command = new DelegateCommand(_ => ExecuteFoo1(), _ => CanExecuteFoo1, this, "CanExecuteFoo1");
+    Foo1Command = new DelegateCommand(() => ExecuteFoo1(), () => CanExecuteFoo1, this, "CanExecuteFoo1");
   }
-  public ICommand Foo1Command { get; }
+  public DelegateCommand Foo1Command { get; }
 }
 public class ImplementedByBase : AnyImplementation
 {
@@ -25,7 +23,7 @@ public class ImplementedByBase : AnyImplementation
   public bool CanExecuteFoo2 => true;
   public ImplementedByBase()
   {
-    Foo2Command = new DelegateCommand(_ => ExecuteFoo2(), _ => CanExecuteFoo2, this, "CanExecuteFoo2");
+    Foo2Command = new DelegateCommand(() => ExecuteFoo2(), () => CanExecuteFoo2, this, "CanExecuteFoo2");
   }
-  public ICommand Foo2Command { get; }
+  public DelegateCommand Foo2Command { get; }
 }

@@ -1,10 +1,8 @@
 using System.ComponentModel;
-using System.Windows.Input;
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 // TODO: #34044 Can't use RequireOrderedAspects yet. If not fixed, re-enable when DependencyPropertyAttribute aspect is also ordered.
 // __RequireOrderedAspects__
 using Metalama.Patterns.Observability;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.INotifyPropertyChangedIntegration.ImplementedByObservableAspect;
 [Observable]
 public class ImplementedByObservableAspect : INotifyPropertyChanged
@@ -31,9 +29,9 @@ public class ImplementedByObservableAspect : INotifyPropertyChanged
   }
   public ImplementedByObservableAspect()
   {
-    Foo1Command = new DelegateCommand(_ => ExecuteFoo1(), _ => CanExecuteFoo1, this, "CanExecuteFoo1");
+    Foo1Command = new DelegateCommand(() => ExecuteFoo1(), () => CanExecuteFoo1, this, "CanExecuteFoo1");
   }
-  public ICommand Foo1Command { get; }
+  public DelegateCommand Foo1Command { get; }
   protected virtual void OnPropertyChanged(string propertyName)
   {
     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -64,9 +62,9 @@ public class ImplementedByBase : ImplementedByObservableAspect
   }
   public ImplementedByBase()
   {
-    Foo2Command = new DelegateCommand(_ => ExecuteFoo2(), _ => CanExecuteFoo2, this, "CanExecuteFoo2");
+    Foo2Command = new DelegateCommand(() => ExecuteFoo2(), () => CanExecuteFoo2, this, "CanExecuteFoo2");
   }
-  public ICommand Foo2Command { get; }
+  public DelegateCommand Foo2Command { get; }
   protected override void OnPropertyChanged(string propertyName)
   {
     base.OnPropertyChanged(propertyName);

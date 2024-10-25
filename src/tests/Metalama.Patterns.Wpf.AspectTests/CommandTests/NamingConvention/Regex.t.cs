@@ -24,11 +24,11 @@ internal class Regex
   private bool ItCanFoo() => true;
   public Regex()
   {
-    TheBeepCommand = new DelegateCommand(_ => MakeItBeep(), _ => CanItBeep());
-    TheUseTheForceCommand = new DelegateCommand(_ => MakeItUseTheForce(), _ => UseTheForceItCan());
-    FooCommand = new DelegateCommand(_ => ExecuteFoo(), _ => CanExecuteFoo());
+    TheBeepCommand = new DelegateCommand(() => MakeItBeep(), () => CanItBeep());
+    TheUseTheForceCommand = new DelegateCommand(() => MakeItUseTheForce(), () => UseTheForceItCan());
+    FooCommand = new DelegateCommand(() => ExecuteFoo(), () => CanExecuteFoo());
   }
-  public ICommand FooCommand { get; }
-  public ICommand TheBeepCommand { get; }
-  public ICommand TheUseTheForceCommand { get; }
+  public DelegateCommand FooCommand { get; }
+  public DelegateCommand TheBeepCommand { get; }
+  public DelegateCommand TheUseTheForceCommand { get; }
 }

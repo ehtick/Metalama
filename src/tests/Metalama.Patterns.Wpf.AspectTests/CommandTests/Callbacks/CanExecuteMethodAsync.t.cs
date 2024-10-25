@@ -1,4 +1,3 @@
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class CanExecuteMethodAsync
 {
@@ -16,25 +15,25 @@ public class CanExecuteMethodAsync
   private static bool CanExecuteStaticWithParameter(int v) => true;
   public CanExecuteMethodAsync()
   {
-    InstanceNoParametersCommand = new AsyncDelegateCommand((_, _) =>
+    InstanceNoParametersCommand = new AsyncDelegateCommand(_ =>
     {
       return ExecuteInstanceNoParametersAsync();
-    }, _ => CanExecuteInstanceNoParameters(), false, false);
-    StaticNoParametersCommand = new AsyncDelegateCommand((_, _) =>
+    }, () => CanExecuteInstanceNoParameters(), false, false);
+    StaticNoParametersCommand = new AsyncDelegateCommand(_ =>
     {
       return ExecuteStaticNoParametersAsync();
-    }, _ => CanExecuteStaticNoParameters(), false, false);
-    InstanceWithParameterCommand = new AsyncDelegateCommand((arg, _) =>
+    }, () => CanExecuteStaticNoParameters(), false, false);
+    InstanceWithParameterCommand = new AsyncDelegateCommand<int>((arg, _) =>
     {
-      return ExecuteInstanceWithParameterAsync((int)arg);
-    }, parameter => CanExecuteInstanceWithParameter((int)parameter), false, false);
-    StaticWithParameterCommand = new AsyncDelegateCommand((arg_1, _) =>
+      return ExecuteInstanceWithParameterAsync(arg);
+    }, parameter => CanExecuteInstanceWithParameter(parameter), false, false);
+    StaticWithParameterCommand = new AsyncDelegateCommand<int>((arg_1, _) =>
     {
-      return ExecuteStaticWithParameterAsync((int)arg_1);
-    }, parameter_1 => CanExecuteStaticWithParameter((int)parameter_1), false, false);
+      return ExecuteStaticWithParameterAsync(arg_1);
+    }, parameter_1 => CanExecuteStaticWithParameter(parameter_1), false, false);
   }
-  public IAsyncCommand InstanceNoParametersCommand { get; }
-  public IAsyncCommand InstanceWithParameterCommand { get; }
-  public IAsyncCommand StaticNoParametersCommand { get; }
-  public IAsyncCommand StaticWithParameterCommand { get; }
+  public AsyncDelegateCommand InstanceNoParametersCommand { get; }
+  public AsyncDelegateCommand<int> InstanceWithParameterCommand { get; }
+  public AsyncDelegateCommand StaticNoParametersCommand { get; }
+  public AsyncDelegateCommand<int> StaticWithParameterCommand { get; }
 }

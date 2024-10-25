@@ -5,7 +5,7 @@
 
 namespace Metalama.Patterns.Wpf.UnitTests.Assets.Command;
 
-public sealed partial class CallbackTestClass : CommandTestBase
+public sealed partial class CallbackTestClass : CommandAssetBase
 {
     [Command]
     private void ExecuteImplicitInstanceMethodNoParameter()

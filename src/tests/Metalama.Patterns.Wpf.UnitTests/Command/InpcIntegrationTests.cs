@@ -2,6 +2,7 @@
 
 using FluentAssertions;
 using Metalama.Patterns.Wpf.UnitTests.Assets.Command;
+using System.Collections.Concurrent;
 using System.Windows.Input;
 using Xunit;
 
@@ -11,7 +12,7 @@ public sealed class InpcIntegrationTests
 {
     private static void TestCanExecuteChanged( ICommand command, Action<bool> setCanExecute )
     {
-        var events = new List<string>();
+        var events = new BlockingCollection<string>();
 
         command.CanExecuteChanged += ( sender, args ) =>
         {
@@ -22,11 +23,13 @@ public sealed class InpcIntegrationTests
 
         setCanExecute( true );
 
-        events.Should().Equal( "CanExecute=True" );
-        events.Clear();
+        var e = events.Take();
+        Assert.Equal( "CanExecute=True", e );
 
         setCanExecute( false );
-        events.Should().Equal( "CanExecute=False" );
+
+        e = events.Take();
+        Assert.Equal( "CanExecute=False", e );
     }
 
     [Fact]

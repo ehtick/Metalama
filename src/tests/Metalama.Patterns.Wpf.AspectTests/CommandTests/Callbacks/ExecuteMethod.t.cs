@@ -1,5 +1,3 @@
-using System.Windows.Input;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class ExecuteMethod
 {
@@ -21,13 +19,13 @@ public class ExecuteMethod
   }
   public ExecuteMethod()
   {
-    InstanceNoParametersCommand = new DelegateCommand(_ => ExecuteInstanceNoParameters(), null);
-    StaticNoParametersCommand = new DelegateCommand(_ => ExecuteStaticNoParameters(), null);
-    InstanceWithParameterCommand = new DelegateCommand(parameter => ExecuteInstanceWithParameter((int)parameter), null);
-    StaticWithParameterCommand = new DelegateCommand(parameter_1 => ExecuteStaticWithParameter((int)parameter_1), null);
+    InstanceNoParametersCommand = new DelegateCommand(() => ExecuteInstanceNoParameters(), null);
+    StaticNoParametersCommand = new DelegateCommand(() => ExecuteStaticNoParameters(), null);
+    InstanceWithParameterCommand = new DelegateCommand<int>(parameter => ExecuteInstanceWithParameter(parameter), null);
+    StaticWithParameterCommand = new DelegateCommand<int>(parameter_1 => ExecuteStaticWithParameter(parameter_1), null);
   }
-  public ICommand InstanceNoParametersCommand { get; }
-  public ICommand InstanceWithParameterCommand { get; }
-  public ICommand StaticNoParametersCommand { get; }
-  public ICommand StaticWithParameterCommand { get; }
+  public DelegateCommand InstanceNoParametersCommand { get; }
+  public DelegateCommand<int> InstanceWithParameterCommand { get; }
+  public DelegateCommand StaticNoParametersCommand { get; }
+  public DelegateCommand<int> StaticWithParameterCommand { get; }
 }
