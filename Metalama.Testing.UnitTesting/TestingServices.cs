@@ -10,6 +10,6 @@ internal static class TestingServices
     public static void Initialize()
     {
         BackstageServiceFactoryInitializer.Initialize(
-            new BackstageInitializationOptions( new TestApiApplicationInfo() ) { AddSupportServices = true, AddLicensing = true, AddDumperService = true} );
+            new BackstageInitializationOptions( new TestApiApplicationInfo() ) { AddSupportServices = true, AddLicensing = true, AddDumperService = true } );
     }
 }
