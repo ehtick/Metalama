@@ -364,9 +364,11 @@ internal abstract partial class BaseTestRunner
 
             ValidateCustomAttributes( initialCompilation );
 
+            testContext.SetMetadataReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
+
             testResult.InputProject = mainProject;
             testResult.InputCompilation = initialCompilation;
-            testResult.TestContext = testContext.WithReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
+            testResult.TestContext = testContext;
 
             if ( this.ShouldStopOnInvalidInput( testInput.Options ) )
             {

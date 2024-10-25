@@ -83,7 +83,7 @@ public record TestContextOptions
     /// <summary>
     /// Gets the test timeout period, after which the <see cref="TestContext.CancellationToken"/> of the <see cref="TestContext"/> is signalled.
     /// </summary>
-    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds( 30 );
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds( 1 );
 
     public string? ProjectName { get; init; }
 

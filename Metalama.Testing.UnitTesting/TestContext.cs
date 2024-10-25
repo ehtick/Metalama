@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
@@ -26,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Metalama.Testing.UnitTesting;
 
@@ -45,8 +47,10 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     // We keep the domain in a strongbox so that we share domain instances with TestContext instances created with With* method.
     private readonly StrongBox<CompileTimeDomain?> _domain;
 
-    private volatile CancellationTokenSource? _timeout;
-    private CancellationTokenRegistration? _timeoutAction;
+    private readonly CancellationTokenSource? _timeoutCancellationTokenSource;
+    private readonly CancellationTokenRegistration? _timeoutAction;
+
+    private bool _isDisposed;
 
     internal TestProjectOptions ProjectOptions { get; }
 
@@ -58,30 +62,13 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     /// <summary>
     /// Gets the <see cref="ProjectServiceProvider"/> for the current context.
     /// </summary>
-    public ProjectServiceProvider ServiceProvider { get; }
+    public ProjectServiceProvider ServiceProvider { get; private set; }
 
     /// <summary>
     /// Gets a <see cref="CancellationToken"/> used to cancel the test in case of timeout. The timeout period is defined
     /// by the <see cref="TestContextOptions.Timeout"/> option.
     /// </summary>
-    public CancellationToken CancellationToken
-    {
-        get
-        {
-            if ( this._timeout == null )
-            {
-                if ( Interlocked.CompareExchange( ref this._timeout, new CancellationTokenSource( TimeSpan.FromSeconds( 240 ) ), null ) == null )
-                {
-                    this._timeoutAction = this._timeout.Token.Register(
-                        () => this.ServiceProvider.GetLoggerFactory()
-                            .GetLogger( "Test" )
-                            .Error?.Log( $"Test timeout. It has been running {this._stopwatch?.Elapsed}. Cancelling." ) );
-                }
-            }
-
-            return this._timeout.Token;
-        }
-    }
+    public CancellationToken CancellationToken => this._timeoutCancellationTokenSource.Token;
 
     // ReSharper disable once RedundantOverload.Global
 
@@ -107,6 +94,16 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
         TestContextOptions contextOptions,
         IAdditionalServiceCollection? additionalServices = null )
     {
+        if ( !Debugger.IsAttached )
+        {
+            this._timeoutCancellationTokenSource = new CancellationTokenSource( contextOptions.Timeout );
+            this._timeoutAction = this._timeoutCancellationTokenSource.Token.Register( this.OnTimeout );
+        }
+        else
+        {
+            // We don't kill tests when a debugger is attached because it's then normal that a test runs during a long time.
+        }
+
         this._throttlingHandle = TestThrottlingHelper.StartTest( contextOptions.RequiresExclusivity );
 
         // Start the Stopwatch only after we get after the throttle wall.
@@ -163,15 +160,36 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
         }
     }
 
-    private TestContext( TestContext prototype, IEnumerable<PortableExecutableReference> newReferences )
+#pragma warning disable VSTHRD100
+    private async void OnTimeout()
+#pragma warning restore VSTHRD100
     {
-        this._domain = prototype._domain;
-        this.ProjectOptions = prototype.ProjectOptions;
-        this._backstageTempFileManager = prototype._backstageTempFileManager;
-        this.ServiceProvider = prototype.ServiceProvider.Global.Underlying.WithProjectScopedServices( this.ProjectOptions, newReferences );
+        var logger = this.ServiceProvider.GetLoggerFactory().GetLogger( "TestRunner" );
+
+        logger.Error?.Log( $"Test timeout. It has been running {this._stopwatch?.Elapsed}. Cancelling." );
+
+        // Wait a few seconds before taking a dump and killing the process.
+        await Task.Delay( TimeSpan.FromSeconds( 10 ), default );
+
+        if ( this._isDisposed )
+        {
+            // The test has completed or was properly cancelled.
+            return;
+        }
+
+        // The process must be killed.
+        MemoryLeakHelper.CaptureMiniDumpOnce();
+        Environment.Exit( 100 );
     }
 
-    public TestContext WithReferences( IEnumerable<PortableExecutableReference> newReferences ) => new( this, newReferences );
+    /// <summary>
+    /// Replaces the <see cref="ServiceProvider"/> with a new instance initialized with a specified list of <see cref="PortableExecutableReference"/>.
+    /// </summary>
+    /// <param name="newReferences"></param>
+    internal void SetMetadataReferences( IEnumerable<PortableExecutableReference> newReferences )
+    {
+        this.ServiceProvider = this.ServiceProvider.Global.Underlying.WithProjectScopedServices( this.ProjectOptions, newReferences );
+    }
 
     /// <summary>
     /// Creates an <see cref="ICompilation"/> made of a single source file.
@@ -331,11 +349,13 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 
     protected virtual void Dispose( bool disposing )
     {
+        this._isDisposed = true;
+
         if ( this._isRoot )
         {
             this.ProjectOptions.Dispose();
             this._domain.Value?.Dispose();
-            this._timeout?.Dispose();
+            this._timeoutCancellationTokenSource?.Dispose();
             this._timeoutAction?.Dispose();
             this._throttlingHandle?.Dispose();
         }
