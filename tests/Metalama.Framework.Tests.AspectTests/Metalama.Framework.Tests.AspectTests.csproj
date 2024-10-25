@@ -47,6 +47,10 @@
           <DependentUpon>$([System.String]::Copy('Property_Set').Substring( %(Filename.IndexOf('.') ).cs</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
+        <Compile Update="Tests\Aspects\Annotations\AddAnnotationToDifferentType.cs">
+          <DependentUpon>$([System.String]::Copy('AddAnnotation').Substring( %(Filename.IndexOf('.') ).cs</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

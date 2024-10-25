@@ -13,7 +13,9 @@ namespace Metalama.Framework.Engine.Utilities.Roslyn;
 /// </summary>
 internal sealed class SyntaxProcessingException : Exception
 {
-    internal SyntaxProcessingException( Exception innerException, SyntaxNode? node ) : base( GetMessage( node, innerException ), innerException )
+    internal SyntaxProcessingException( Exception innerException, SyntaxNode? node ) : base(
+        "An exception occurred when processing a syntax tree.",
+        innerException )
     {
         this.SyntaxNode = node;
     }
@@ -24,49 +26,61 @@ internal sealed class SyntaxProcessingException : Exception
         => exception is not (SyntaxProcessingException or OperationCanceledException or TaskCanceledException)
            && node?.GetLocation().SourceTree?.FilePath != null;
 
-    private static string GetMessage( SyntaxNode? node, Exception innerException )
+    // We render the message lazily to avoid a stack overflow. When the exception is thrown, the stack may be in high used. However, when the
+    // exception is processed, the stack should be much lower.
+    public override string Message
     {
-        if ( node != null )
+        get
         {
-            // Get the node text. We need to remove CR and LF otherwise it is not well parsed by MSBuild.
-            var nodeText = node.NormalizeWhitespace().ToString().Replace( "\r\n", " " ).Replace( "\n", " " ).Replace( "\n", " " );
-
-            if ( nodeText.Length > 40 )
+            try
             {
-                nodeText = nodeText.Substring( 0, 37 ) + "...";
-            }
-
-            // Get the node path.
-            var nodePath = "";
-
-            for ( var n = node; n != null; n = n.Parent )
-            {
-                if ( nodePath != "" )
+                if ( this.SyntaxNode != null )
                 {
-                    nodePath = "/" + nodePath;
-                }
+                    // Get the node text. We need to remove CR and LF otherwise it is not well parsed by MSBuild.
+                    var nodeText = this.SyntaxNode.NormalizeWhitespace().ToString().Replace( "\r\n", " " ).Replace( "\n", " " ).Replace( "\n", " " );
 
-                var identifier = n.GetType().GetProperty( "Identifier" )?.GetValue( n )?.ToString();
+                    if ( nodeText.Length > 40 )
+                    {
+                        nodeText = nodeText.Substring( 0, 37 ) + "...";
+                    }
 
-                if ( identifier != null )
-                {
-                    nodePath = $"{n.Kind()}[{identifier}]" + nodePath;
+                    // Get the node path.
+                    var nodePath = "";
+
+                    for ( var n = this.SyntaxNode; n != null; n = n.Parent )
+                    {
+                        if ( nodePath != "" )
+                        {
+                            nodePath = "/" + nodePath;
+                        }
+
+                        var identifier = n.GetType().GetProperty( "Identifier" )?.GetValue( n )?.ToString();
+
+                        if ( identifier != null )
+                        {
+                            nodePath = $"{n.Kind()}[{identifier}]" + nodePath;
+                        }
+                        else
+                        {
+                            nodePath = $"{n.Kind()}" + nodePath;
+                        }
+                    }
+
+                    var location = this.SyntaxNode.GetLocation();
+
+                    return
+                        $"{this.InnerException!.GetType().Name} while processing the {this.SyntaxNode.Kind()} with code `{nodeText}` at '{nodePath}' in '{location.SourceTree?.FilePath}' ({FormatLinePosition( location.GetMappedLineSpan().StartLinePosition )}-{FormatLinePosition( location.GetMappedLineSpan().EndLinePosition )}): {this.InnerException.Message}";
                 }
                 else
                 {
-                    nodePath = $"{n.Kind()}" + nodePath;
+                    // We should never get here because the caller should call ShouldWrapException and not create an exception of our type if the method returns false.  
+                    return this.InnerException!.Message;
                 }
             }
-
-            var location = node.GetLocation();
-
-            return
-                $"{innerException.GetType().Name} while processing the {node.Kind()} with code `{nodeText}` at '{nodePath}' in '{location.SourceTree?.FilePath}' ({FormatLinePosition( location.GetMappedLineSpan().StartLinePosition )}-{FormatLinePosition( location.GetMappedLineSpan().EndLinePosition )}): {innerException.Message}";
-        }
-        else
-        {
-            // We should never get here because the caller should call ShouldWrapException and not create an exception of our type if the method returns false.  
-            return innerException.Message;
+            catch
+            {
+                return "An exception occurred while attempting to generate a full error message.";
+            }
         }
     }
 
