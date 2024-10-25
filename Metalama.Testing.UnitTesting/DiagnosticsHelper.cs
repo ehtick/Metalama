@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Metalama.Testing.UnitTesting;
 
-internal static class MemoryLeakHelper
+internal static class DiagnosticsHelper
 {
     private static int _miniDumps;
 

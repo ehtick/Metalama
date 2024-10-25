@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
@@ -178,7 +177,9 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
         }
 
         // The process must be killed.
-        MemoryLeakHelper.CaptureMiniDumpOnce();
+#if NET6_0_OR_GREATER || NETFRAMEWORK
+        DiagnosticsHelper.CaptureMiniDumpOnce();
+#endif
         Environment.Exit( 100 );
     }
 
@@ -300,7 +301,7 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 #if NET5_0_OR_GREATER
     {
         var domain = new UnloadableCompileTimeDomain( this.ServiceProvider.Global );
-        domain.UnloadTimeout += MemoryLeakHelper.CaptureDotMemoryDumpAndThrow;
+        domain.UnloadTimeout += DiagnosticsHelper.CaptureDotMemoryDumpAndThrow;
 
         return domain;
     }
