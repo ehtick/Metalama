@@ -12,7 +12,7 @@ public static class BackstageServiceFactoryInitializer
     public static bool IsInitialized => BackstageServiceFactory.IsInitialized;
 
     private static BackstageInitializationOptions WithTools( BackstageInitializationOptions options )
-        => options with { AddToolsExtractor = builder => builder.AddTools(), AddDumperService = true };
+        => options with { AddToolsExtractor = builder => builder.AddTools() };
 
     private static void InitializeMetalamaServices() => Logger.Initialize();
 
