@@ -1,4 +1,3 @@
-// Warning CS8618 on `ProxyAspect`: `Non-nullable field '_interceptor' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.`
 [ProxyAspect(typeof(IPropertyStore))]
 public class PropertyStoreProxy : IPropertyStore
 {

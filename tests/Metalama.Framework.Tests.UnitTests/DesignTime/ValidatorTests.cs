@@ -197,7 +197,7 @@ public interface I {}
 
             if ( output.Compilation.TryGetTarget( out _ ) )
             {
-                MemoryLeakHelper.CaptureDotMemoryDumpAndThrow();
+                DiagnosticsHelper.CaptureDotMemoryDumpAndThrow();
             }
 
             GC.KeepAlive( output.Pipeline );

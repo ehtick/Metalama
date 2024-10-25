@@ -54,7 +54,7 @@ internal sealed class AttributeClassificationService : IGlobalService, IDisposab
         {
             return false;
         }
-
+        
         var templateAttributeType = attribute.GetCompilationModel().Cache.ITemplateAttributeType;
 
         return !attribute.Type.IsConvertibleTo( templateAttributeType ) && !attribute.Type.Name.Equals( nameof(DynamicAttribute), StringComparison.Ordinal );
@@ -79,7 +79,8 @@ internal sealed class AttributeClassificationService : IGlobalService, IDisposab
                  "System.Runtime.CompilerServices.IteratorStateMachineAttribute" or
                  "System.Runtime.CompilerServices.AsyncIteratorStateMachineAttribute" or
                  "System.Diagnostics.DebuggerBrowsableAttribute" or
-                 "System.Diagnostics.DebuggerStepThroughAttribute" )
+                 "System.Diagnostics.DebuggerStepThroughAttribute" or 
+                 "System.Runtime.CompilerServices.DynamicAttribute" )
         {
             return true;
         }

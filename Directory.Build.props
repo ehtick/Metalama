@@ -14,6 +14,7 @@
         <EnforceExtendedAnalyzerRules>True</EnforceExtendedAnalyzerRules>
     </PropertyGroup>
 
+
     <Import Project="eng/Versions.props"/>
     <Import Project="eng/StrongName.props"/>
     <Import Project="eng/Packaging.props"/>
