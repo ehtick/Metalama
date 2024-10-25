@@ -176,11 +176,21 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
             return;
         }
 
-        // The process must be killed.
+        // The process must be killed. We do FailFast to skip the ProcessExit event, which would raise other exceptions.
 #if NET6_0_OR_GREATER || NETFRAMEWORK
-        DiagnosticsHelper.CaptureMiniDumpOnce();
+        var dumpFile = DiagnosticsHelper.CaptureMiniDumpOnce();
+
+        if ( dumpFile != null )
+        {
+            Environment.FailFast( $"A test has timed out. A dump file was captured: '{dumpFile}'." );
+        }
+        else
+        {
+            Environment.FailFast( $"A test has timed out. No dump file was captured." );
+        }
+#else
+    Environment.FailFast( $"A test has timed out. No dump file was captured." );
 #endif
-        Environment.Exit( 100 );
     }
 
     /// <summary>

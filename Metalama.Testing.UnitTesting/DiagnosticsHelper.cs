@@ -15,17 +15,18 @@ internal static class DiagnosticsHelper
 {
     private static int _miniDumps;
 
-    public static void CaptureMiniDumpOnce()
+    public static string? CaptureMiniDumpOnce()
     {
         if ( Interlocked.Increment( ref _miniDumps ) == 1 )
         {
             var dumper = BackstageServiceFactory.ServiceProvider.GetBackstageService<IMiniDumper>();
-            dumper?.Write();
+            return dumper?.Write();
         }
         else
         {
             // Do not capture more than one dump during tests because it can make things very slow
             // and give the impression that tests are stuck.
+            return null;
         }
     }
 
