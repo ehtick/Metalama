@@ -135,6 +135,7 @@ internal abstract partial class BaseTestRunner
                     };
 
                 using var testContext = new TestContext( transformedOptions );
+                testContext.TestName = testInput.FullPath;
 
                 using var testResult = this.CreateTestResult();
                 await this.RunAsync( testInput, testResult, testContext );

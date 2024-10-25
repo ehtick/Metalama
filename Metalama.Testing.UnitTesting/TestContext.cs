@@ -36,6 +36,7 @@ namespace Metalama.Testing.UnitTesting;
 [PublicAPI]
 public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvider, IDateTimeProvider
 {
+    private readonly TestContextOptions _contextOptions;
     private static readonly IApplicationInfo _applicationInfo = new TestApiApplicationInfo();
     private readonly ITempFileManager _backstageTempFileManager;
     private readonly bool _isRoot;
@@ -93,6 +94,8 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
         TestContextOptions contextOptions,
         IAdditionalServiceCollection? additionalServices = null )
     {
+        this._contextOptions = contextOptions;
+
         if ( !Debugger.IsAttached )
         {
             this._timeoutCancellationTokenSource = new CancellationTokenSource( contextOptions.Timeout );
@@ -181,11 +184,11 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 
         if ( dumpFile != null )
         {
-            Environment.FailFast( $"A test has timed out. A dump file was captured: '{dumpFile}'. Test creation stack:\n{this._stackTrace}" );
+            Environment.FailFast( $"A test has timed out after {this._contextOptions.Timeout}. A dump file was captured: '{dumpFile}'. Test name: '{this.TestName}'." );
         }
         else
         {
-            Environment.FailFast( $"A test has timed out. No dump file was captured. Test creation stack:\n{this._stackTrace}" );
+            Environment.FailFast( $"A test has timed out after {this._contextOptions.Timeout}. No dump file was captured. Test name: '{this.TestName}'." );
         }
     }
 
@@ -353,6 +356,11 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     }
 
     DateTime IDateTimeProvider.UtcNow => DateTime.UtcNow;
+    
+    /// <summary>
+    /// Gets the test name, for diagnostics.
+    /// </summary>
+    public string? TestName { get; internal set; }
 
     protected virtual void Dispose( bool disposing )
     {
