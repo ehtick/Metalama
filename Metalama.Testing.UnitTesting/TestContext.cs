@@ -68,7 +68,7 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     /// Gets a <see cref="CancellationToken"/> used to cancel the test in case of timeout. The timeout period is defined
     /// by the <see cref="TestContextOptions.Timeout"/> option.
     /// </summary>
-    public CancellationToken CancellationToken => this._timeoutCancellationTokenSource.Token;
+    public CancellationToken CancellationToken => this._timeoutCancellationTokenSource?.Token ?? default;
 
     // ReSharper disable once RedundantOverload.Global
 
