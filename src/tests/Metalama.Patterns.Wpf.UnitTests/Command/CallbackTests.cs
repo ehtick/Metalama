@@ -10,18 +10,18 @@ public sealed class CallbackTests
 {
     private CallbackTestClass Instance { get; }
 
-    private readonly CommandTestBase.ThreadContext _threadContext;
+    private readonly CommandAssetBase.ThreadContext _threadContext;
 
     public CallbackTests()
     {
-        this._threadContext = CommandTestBase.ThreadContext.Current;
+        this._threadContext = CommandAssetBase.ThreadContext.Current;
         this._threadContext.Reset();
         this.Instance = new CallbackTestClass();
     }
 
     private void ThrowIfThreadContextHasChanged()
     {
-        if ( this._threadContext != CommandTestBase.ThreadContext.Current )
+        if ( this._threadContext != CommandAssetBase.ThreadContext.Current )
         {
             throw new InvalidOperationException( "Test harness problem: CallbackTestClass.ThreadContext.Current has changed." );
         }
@@ -48,16 +48,16 @@ public sealed class CallbackTests
     {
         var log = this.Log;
 
-        this.Instance.ImplicitInstanceMethodNoParameterCommand.CanExecute( 42 ).Should().BeTrue();
+        this.Instance.ImplicitInstanceMethodNoParameterCommand.CanExecute.Should().BeTrue();
         log.Should().Equal( "CanExecuteImplicitInstanceMethodNoParameter" );
         log.Clear();
 
-        this.Instance.Invoking( c => c.ImplicitInstanceMethodNoParameterCommand.Execute( 42 ) ).Should().NotThrow();
+        this.Instance.Invoking( c => c.ImplicitInstanceMethodNoParameterCommand.Execute() ).Should().NotThrow();
         log.Should().Equal( "CanExecuteImplicitInstanceMethodNoParameter", "ExecuteImplicitInstanceMethodNoParameter" );
 
         this.SetCanExecute( _ => false );
-        this.Instance.ImplicitInstanceMethodNoParameterCommand.CanExecute( 42 ).Should().BeFalse();
-        this.Instance.Invoking( c => c.ImplicitInstanceMethodNoParameterCommand.Execute( 42 ) ).Should().Throw<InvalidOperationException>();
+        this.Instance.ImplicitInstanceMethodNoParameterCommand.CanExecute.Should().BeFalse();
+        this.Instance.Invoking( c => c.ImplicitInstanceMethodNoParameterCommand.Execute() ).Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -82,16 +82,16 @@ public sealed class CallbackTests
     {
         var log = this.Log;
 
-        this.Instance.ImplicitStaticMethodNoParameterCommand.CanExecute( 42 ).Should().BeTrue();
+        this.Instance.ImplicitStaticMethodNoParameterCommand.CanExecute.Should().BeTrue();
         log.Should().Equal( "CanExecuteImplicitStaticMethodNoParameter" );
         log.Clear();
 
-        this.Instance.Invoking( c => c.ImplicitStaticMethodNoParameterCommand.Execute( 42 ) ).Should().NotThrow();
+        this.Instance.Invoking( c => c.ImplicitStaticMethodNoParameterCommand.Execute() ).Should().NotThrow();
         log.Should().Equal( "CanExecuteImplicitStaticMethodNoParameter", "ExecuteImplicitStaticMethodNoParameter" );
 
         this.SetCanExecute( _ => false );
-        this.Instance.ImplicitStaticMethodNoParameterCommand.CanExecute( 42 ).Should().BeFalse();
-        this.Instance.Invoking( c => c.ImplicitStaticMethodNoParameterCommand.Execute( 42 ) ).Should().Throw<InvalidOperationException>();
+        this.Instance.ImplicitStaticMethodNoParameterCommand.CanExecute.Should().BeFalse();
+        this.Instance.Invoking( c => c.ImplicitStaticMethodNoParameterCommand.Execute() ).Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -116,16 +116,16 @@ public sealed class CallbackTests
     {
         var log = this.Log;
 
-        this.Instance.ImplicitInstancePropertyCommand.CanExecute( 42 ).Should().BeTrue();
+        this.Instance.ImplicitInstancePropertyCommand.CanExecute.Should().BeTrue();
         log.Should().Equal( "CanExecuteImplicitInstanceProperty" );
         log.Clear();
 
-        this.Instance.Invoking( c => c.ImplicitInstancePropertyCommand.Execute( 42 ) ).Should().NotThrow();
+        this.Instance.Invoking( c => c.ImplicitInstancePropertyCommand.Execute() ).Should().NotThrow();
         log.Should().Equal( "CanExecuteImplicitInstanceProperty", "ExecuteImplicitInstanceProperty" );
 
         this.SetCanExecute( _ => false );
-        this.Instance.ImplicitInstancePropertyCommand.CanExecute( 42 ).Should().BeFalse();
-        this.Instance.Invoking( c => c.ImplicitInstancePropertyCommand.Execute( 42 ) ).Should().Throw<InvalidOperationException>();
+        this.Instance.ImplicitInstancePropertyCommand.CanExecute.Should().BeFalse();
+        this.Instance.Invoking( c => c.ImplicitInstancePropertyCommand.Execute() ).Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -133,15 +133,15 @@ public sealed class CallbackTests
     {
         var log = this.Log;
 
-        this.Instance.ImplicitStaticPropertyCommand.CanExecute( 42 ).Should().BeTrue();
+        this.Instance.ImplicitStaticPropertyCommand.CanExecute.Should().BeTrue();
         log.Should().Equal( "CanExecuteImplicitStaticProperty" );
         log.Clear();
 
-        this.Instance.Invoking( c => c.ImplicitStaticPropertyCommand.Execute( 42 ) ).Should().NotThrow();
+        this.Instance.Invoking( c => c.ImplicitStaticPropertyCommand.Execute() ).Should().NotThrow();
         log.Should().Equal( "CanExecuteImplicitStaticProperty", "ExecuteImplicitStaticProperty" );
 
         this.SetCanExecute( _ => false );
-        this.Instance.ImplicitStaticPropertyCommand.CanExecute( 42 ).Should().BeFalse();
-        this.Instance.Invoking( c => c.ImplicitStaticPropertyCommand.Execute( 42 ) ).Should().Throw<InvalidOperationException>();
+        this.Instance.ImplicitStaticPropertyCommand.CanExecute.Should().BeFalse();
+        this.Instance.Invoking( c => c.ImplicitStaticPropertyCommand.Execute() ).Should().Throw<InvalidOperationException>();
     }
 }

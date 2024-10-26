@@ -1,7 +1,5 @@
 using Metalama.Patterns.Wpf;
-using Metalama.Patterns.Wpf.Implementation;
 using System.Windows;
-using System.Windows.Input;
 namespace Doc.Command.CanExecute_Czech;
 public class MojeOkno : Window
 {
@@ -20,9 +18,9 @@ public class MojeOkno : Window
   public bool MůžemeSnížit => this.Počitadlo > 0;
   public MojeOkno()
   {
-    ZvýšeníPříkaz = new DelegateCommand(_ => VykonatZvýšení(), _ => MůžemeVykonatZvýšení);
-    SnížitPříkaz = new DelegateCommand(_ => Snížit(), _ => MůžemeSnížit);
+    ZvýšeníPříkaz = DelegateCommandFactory.CreateDelegateCommand(VykonatZvýšení, () => MůžemeVykonatZvýšení);
+    SnížitPříkaz = DelegateCommandFactory.CreateDelegateCommand(Snížit, () => MůžemeSnížit);
   }
-  public ICommand SnížitPříkaz { get; }
-  public ICommand ZvýšeníPříkaz { get; }
+  public DelegateCommand SnížitPříkaz { get; }
+  public DelegateCommand ZvýšeníPříkaz { get; }
 }

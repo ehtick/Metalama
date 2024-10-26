@@ -9,4 +9,7 @@ internal class MustReturnVoid
 
     [Command]
     private int ReturnsInt() => 42;
+
+    [Command]
+    private Task<int> ReturnsIntAsync() => Task.FromResult( 42 );
 }

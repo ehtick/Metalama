@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace Metalama.Patterns.Wpf.UnitTests.Assets.Command;
 
-public partial class ManualInpcIntegrationTestClass : CommandTestBase, INotifyPropertyChanged
+public partial class ManualInpcIntegrationTestClass : CommandAssetBase, INotifyPropertyChanged
 {
     [Command]
     private void ExecuteFoo( int v )

@@ -1,5 +1,3 @@
-using System.Windows.Input;
-using Metalama.Patterns.Wpf.Implementation;
 namespace Metalama.Patterns.Wpf.AspectTests.CommandTests.Callbacks;
 public class CanExecuteMethod
 {
@@ -25,13 +23,13 @@ public class CanExecuteMethod
   private static bool CanExecuteStaticWithParameter(int v) => true;
   public CanExecuteMethod()
   {
-    InstanceNoParametersCommand = new DelegateCommand(_ => ExecuteInstanceNoParameters(), _ => CanExecuteInstanceNoParameters());
-    StaticNoParametersCommand = new DelegateCommand(_ => ExecuteStaticNoParameters(), _ => CanExecuteStaticNoParameters());
-    InstanceWithParameterCommand = new DelegateCommand(parameter_1 => ExecuteInstanceWithParameter((int)parameter_1), parameter => CanExecuteInstanceWithParameter((int)parameter));
-    StaticWithParameterCommand = new DelegateCommand(parameter_3 => ExecuteStaticWithParameter((int)parameter_3), parameter_2 => CanExecuteStaticWithParameter((int)parameter_2));
+    InstanceNoParametersCommand = DelegateCommandFactory.CreateDelegateCommand(ExecuteInstanceNoParameters, CanExecuteInstanceNoParameters);
+    StaticNoParametersCommand = DelegateCommandFactory.CreateDelegateCommand(ExecuteStaticNoParameters, CanExecuteStaticNoParameters);
+    InstanceWithParameterCommand = DelegateCommandFactory.CreateDelegateCommand<int>(ExecuteInstanceWithParameter, CanExecuteInstanceWithParameter);
+    StaticWithParameterCommand = DelegateCommandFactory.CreateDelegateCommand<int>(ExecuteStaticWithParameter, CanExecuteStaticWithParameter);
   }
-  public ICommand InstanceNoParametersCommand { get; }
-  public ICommand InstanceWithParameterCommand { get; }
-  public ICommand StaticNoParametersCommand { get; }
-  public ICommand StaticWithParameterCommand { get; }
+  public DelegateCommand InstanceNoParametersCommand { get; }
+  public DelegateCommand<int> InstanceWithParameterCommand { get; }
+  public DelegateCommand StaticNoParametersCommand { get; }
+  public DelegateCommand<int> StaticWithParameterCommand { get; }
 }

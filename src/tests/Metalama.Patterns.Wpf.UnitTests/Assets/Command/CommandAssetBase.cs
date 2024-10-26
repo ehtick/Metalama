@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Metalama.Patterns.Wpf.UnitTests.Assets.Command;
 
-public abstract class CommandTestBase
+public abstract class CommandAssetBase
 {
     public sealed class ThreadContext
     {
