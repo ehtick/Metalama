@@ -41,14 +41,19 @@ internal class GeneratedCodeAnalyzer : DiagnosticAnalyzer
     {
         var tree = context.Symbol.GetClosestPrimaryDeclarationSyntax()?.SyntaxTree;
 
-        if ( MetalamaCompilerInfo.IsActive )
+        if ( tree == null )
         {
-            if ( tree == null || !SourceGeneratedCodeTracker.IsGenerated( tree ) )
-            {
-                return;
-            }
+            return;
         }
-        else
+
+        var isGenerated = SourceGeneratedCodeTracker.IsGenerated( tree );
+
+        if ( isGenerated == false )
+        {
+            // Based on information from Metalama Compiler, this is not a source generated file.
+            return;
+        }
+        else if ( isGenerated == null )
         {
             // At design time, source generated files have relative paths, other files seem to have absolute paths.
             if ( !context.IsGeneratedCode || Path.IsPathRooted( tree?.FilePath ) )
