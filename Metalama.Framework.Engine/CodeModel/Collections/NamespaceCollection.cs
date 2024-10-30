@@ -3,6 +3,8 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Engine.CodeModel.References;
+using Metalama.Framework.Engine.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +16,14 @@ namespace Metalama.Framework.Engine.CodeModel.Collections
             declaringType,
             sourceItems ) { }
 
-        public INamespace? OfName( string name ) => this.SingleOrDefault( ns => ns.Name == name );
+        public INamespace? OfName( string name )
+        {
+            if ( name.ContainsOrdinal( '.' ) )
+            {
+                throw new ArgumentOutOfRangeException( nameof(name), "The name cannot contain a period." );
+            }
+
+            return this.SingleOrDefault( ns => ns.Name == name );
+        }
     }
 }

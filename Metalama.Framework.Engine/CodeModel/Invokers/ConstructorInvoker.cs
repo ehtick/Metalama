@@ -54,7 +54,7 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
         return new DelegateUserExpression(
             context =>
             {
-                var type = context.SyntaxGenerator.Type( this.Member.DeclaringType );
+                var type = context.SyntaxGenerator.TypeSyntax( this.Member.DeclaringType );
 
                 var arguments = this.Member.GetArguments(
                     this.Member.Parameters,
@@ -118,7 +118,7 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
         protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext )
         {
             return CreateObjectCreationExpression(
-                syntaxSerializationContext.SyntaxGenerator.Type( this._constructor.DeclaringType ),
+                syntaxSerializationContext.SyntaxGenerator.TypeSyntax( this._constructor.DeclaringType ),
                 this._argumentFactory( syntaxSerializationContext ).Select( Argument ),
                 null );
         }
@@ -154,7 +154,7 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
         protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext )
         {
             return CreateObjectCreationExpression(
-                syntaxSerializationContext.SyntaxGenerator.Type( this._constructor.DeclaringType ),
+                syntaxSerializationContext.SyntaxGenerator.TypeSyntax( this._constructor.DeclaringType ),
                 this._argumentFactory( syntaxSerializationContext ).Select( Argument ),
                 InitializerExpression(
                     SyntaxKind.ObjectInitializerExpression,

@@ -35,7 +35,7 @@ internal sealed partial class LinkerRewritingDriver
                         TokenList( TokenWithTrailingSpace( SyntaxKind.PrivateKeyword ), TokenWithTrailingSpace( SyntaxKind.ReadOnlyKeyword ) ),
                         VariableDeclaration(
                             context.SyntaxGenerator
-                                .Type( primaryConstructorField.Type )
+                                .TypeSyntax( primaryConstructorField.Type )
                                 .WithOptionalTrailingTrivia( ElasticSpace, context.Options ),
                             SingletonSeparatedList(
                                 VariableDeclarator(
@@ -49,7 +49,7 @@ internal sealed partial class LinkerRewritingDriver
                     PropertyDeclaration(
                         List<AttributeListSyntax>(),
                         TokenList( TokenWithTrailingSpace( SyntaxKind.PublicKeyword ) ),
-                        context.SyntaxGenerator.Type( primaryConstructorProperty.Type ),
+                        context.SyntaxGenerator.TypeSyntax( primaryConstructorProperty.Type ),
                         null,
                         Identifier( TriviaList( ElasticSpace ), primaryConstructorProperty.Name, default ),
                         AccessorList(

@@ -63,12 +63,12 @@ internal abstract class OverrideMethodBaseTransformation : OverrideMemberTransfo
 
             if ( this.OverriddenDeclaration.ReturnType.Equals( SpecialType.Void ) )
             {
-                returnType = context.SyntaxGenerator.Type(
+                returnType = context.SyntaxGenerator.TypeSyntax(
                     this.OverriddenDeclaration.GetCompilationModel().CompilationContext.ReflectionMapper.GetTypeSymbol( typeof(ValueTask) ) );
             }
         }
 
-        returnType ??= context.SyntaxGenerator.Type( this.OverriddenDeclaration.ReturnType );
+        returnType ??= context.SyntaxGenerator.TypeSyntax( this.OverriddenDeclaration.ReturnType );
 
         var introducedMethod = MethodDeclaration(
             List<AttributeListSyntax>(),

@@ -51,34 +51,16 @@ namespace Metalama.Framework.Engine.Utilities.Roslyn
         /// Creates an id string used to reference type symbols (not strictly declarations, includes
         /// arrays, pointers, type parameters, etc.)
         /// </summary>
-        public static string CreateReferenceId( IType type )
+        public static string CreateReferenceId( ICompilationElement declaration )
         {
-            if ( type == null )
+            if ( declaration == null )
             {
-                throw new ArgumentNullException( nameof(type) );
+                throw new ArgumentNullException( nameof(declaration) );
             }
 
             using var builder = StringBuilderPool.Default.Allocate();
             var generator = new ReferenceGenerator( builder.Value, typeParameterContext: null );
-            generator.Visit( type );
-
-            return builder.Value.ToString();
-        }
-
-        /// <summary>
-        /// Creates an id string used to reference type symbols (not strictly declarations, includes
-        /// arrays, pointers, type parameters, etc.)
-        /// </summary>
-        public static string CreateReferenceId( INamespace ns )
-        {
-            if ( ns == null )
-            {
-                throw new ArgumentNullException( nameof(ns) );
-            }
-
-            using var builder = StringBuilderPool.Default.Allocate();
-            var generator = new ReferenceGenerator( builder.Value, typeParameterContext: null );
-            generator.Visit( ns );
+            generator.Visit( declaration );
 
             return builder.Value.ToString();
         }
@@ -390,7 +372,26 @@ namespace Metalama.Framework.Engine.Utilities.Roslyn
                 this._builder.Append( EncodeName( ns.Name ) );
             }
 
-            public bool Visit( INamespace ns )
+            public void Visit( ICompilationElement declaration )
+            {
+                switch ( declaration )
+                {
+                    case INamespace ns:
+                        this.Visit( ns );
+
+                        break;
+
+                    case IType type:
+                        this.Visit( type );
+
+                        break;
+
+                    default:
+                        throw new AssertionFailedException();
+                }
+            }
+
+            private bool Visit( INamespace ns )
             {
                 if ( ns.IsGlobalNamespace )
                 {

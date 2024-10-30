@@ -10,7 +10,7 @@ public static class SerializableTypeIdGenerator
 {
     public static SerializableTypeId GetSerializableTypeId( this ITypeSymbol symbol )
     {
-        var id = SyntaxGenerationContext.Contextless.SyntaxGenerator.Type( symbol ).ToString();
+        var id = SyntaxGenerationContext.Contextless.SyntaxGenerator.TypeSyntax( symbol ).ToString();
 
         if ( symbol.NullableAnnotation != NullableAnnotation.None )
         {
@@ -26,7 +26,7 @@ public static class SerializableTypeIdGenerator
 
     public static SerializableTypeId GetSerializableTypeId( this IType type, bool bypassSymbols = false )
     {
-        var id = SyntaxGenerationContext.Contextless.SyntaxGenerator.Type( type, bypassSymbols ).ToString();
+        var id = SyntaxGenerationContext.Contextless.SyntaxGenerator.TypeSyntax( type, bypassSymbols ).ToString();
 
         if ( type.IsNullable == false && type.IsReferenceType != false )
         {

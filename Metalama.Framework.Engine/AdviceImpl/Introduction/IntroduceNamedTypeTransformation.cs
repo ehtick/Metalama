@@ -32,7 +32,7 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
         {
             baseList = BaseList(
                 SingletonSeparatedList<BaseTypeSyntax>(
-                    SimpleBaseType( context.SyntaxGenerator.Type( this.IntroducedDeclaration.BaseType.ToNonNullableType() ) ) ) );
+                    SimpleBaseType( context.SyntaxGenerator.TypeSyntax( this.IntroducedDeclaration.BaseType.ToNonNullableType() ) ) ) );
         }
         else
         {
