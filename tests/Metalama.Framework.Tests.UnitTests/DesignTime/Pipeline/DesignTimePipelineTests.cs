@@ -847,8 +847,8 @@ class C
             GC.WaitForPendingFinalizers();
         }
 
-        MemoryLeakHelper.CaptureMiniDumpOnce();
-        MemoryLeakHelper.CaptureDotMemoryDumpAndThrow();
+        DiagnosticsHelper.CaptureMiniDumpOnce();
+        DiagnosticsHelper.CaptureDotMemoryDumpAndThrow();
 
         GC.KeepAlive( output.Configuration );
     }

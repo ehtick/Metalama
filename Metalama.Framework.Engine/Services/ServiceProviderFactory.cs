@@ -124,7 +124,7 @@ public static class ServiceProviderFactory
 
             if ( projectOptions.IsTest )
             {
-                concurrentTaskRunner = new RandomizingSingleThreadedTaskRunner( serviceProvider );
+                concurrentTaskRunner = new RandomizingSingleThreadedTaskRunner( ((ProjectServiceProvider) projectServiceProvider).Global );
             }
             else
             {
@@ -136,6 +136,7 @@ public static class ServiceProviderFactory
 
         projectServiceProvider = projectServiceProvider
             .WithServiceConditional<SerializerFactoryProvider>( sp => new BuiltInSerializerFactoryProvider( sp ) )
+            .WithServiceConditional<IDeserializationSurrogateProvider>( sp => new DeserializationSurrogateProvider() )
             .WithServiceConditional<IAssemblyLocator>( sp => new AssemblyLocator( sp, metadataReferences ) )
             .WithService( _ => new SyntaxSerializationService() )
             .WithServiceConditional( sp => new SystemTypeResolver.Provider( sp ) )

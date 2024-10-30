@@ -72,8 +72,8 @@ public static class SymbolExtensions
             case IMethodSymbol { IsPartialDefinition: true, PartialImplementationPart: { } partialDefinitionSymbol }:
                 return GetReferenceOfShortestPath( partialDefinitionSymbol );
 
-            case IMethodSymbol { AssociatedSymbol: not null } methodSymbol:
-                return GetReferenceOfShortestPath( symbol ) ?? GetReferenceOfShortestPath( methodSymbol.AssociatedSymbol );
+            case IMethodSymbol { AssociatedSymbol: { } associatedSymbol }:
+                return GetReferenceOfShortestPath( symbol ) ?? GetReferenceOfShortestPath( associatedSymbol );
 
             // We have to use reflection here, because the properties don't exist in Roslyn 4.4, which is the only target of this project.
             case IPropertySymbol propertySymbol when _isPartialDefinition( propertySymbol ) && _getPartialImplementationPart( propertySymbol ) is { } partialDefinitionSymbol:

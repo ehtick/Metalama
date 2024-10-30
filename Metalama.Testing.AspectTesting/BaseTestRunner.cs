@@ -47,6 +47,7 @@ internal abstract partial class BaseTestRunner
 {
     private static readonly AsyncLocal<bool> _isTestRunning = new();
 
+    private readonly GlobalServiceProvider _serviceProvider;
     private readonly TestProjectReferences _references;
 
     protected ILicenseKeyProvider LicenseKeyProvider { get; }
@@ -61,6 +62,7 @@ internal abstract partial class BaseTestRunner
         ITestOutputHelper? logger,
         ILicenseKeyProvider? licenseKeyProvider )
     {
+        this._serviceProvider = serviceProvider;
         this._references = references;
         this.LicenseKeyProvider = licenseKeyProvider ?? new NullLicenseKeyProvider();
         this.ProjectDirectory = projectDirectory;
@@ -129,10 +131,12 @@ internal abstract partial class BaseTestRunner
                 var transformedOptions = this.GetContextOptions( testContextOptions )
                     with
                     {
-                        ProjectName = testInput.Options.ProjectName ?? testInput.TestName
+                        ProjectName = testInput.Options.ProjectName ?? testInput.TestName, RunnerServiceProvider = this._serviceProvider
                     };
 
                 using var testContext = new TestContext( transformedOptions );
+                testContext.TestName = testInput.FullPath;
+                testContext.TestOutputWriter = this.Logger;
 
                 using var testResult = this.CreateTestResult();
                 await this.RunAsync( testInput, testResult, testContext );
@@ -362,9 +366,11 @@ internal abstract partial class BaseTestRunner
 
             ValidateCustomAttributes( initialCompilation );
 
+            testContext.SetMetadataReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
+
             testResult.InputProject = mainProject;
             testResult.InputCompilation = initialCompilation;
-            testResult.TestContext = testContext.WithReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
+            testResult.TestContext = testContext;
 
             if ( this.ShouldStopOnInvalidInput( testInput.Options ) )
             {

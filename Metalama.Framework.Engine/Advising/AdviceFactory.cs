@@ -263,7 +263,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
     public AdviceFactory<TNewTarget> WithDeclaration<TNewTarget>( TNewTarget target )
         where TNewTarget : IDeclaration
     {
-        this.ValidateTarget( target );
+        // We don't validate that the target is "under" the current declaration because some advice type, e.g. annotations, are valid on any target.
 
         return new AdviceFactory<TNewTarget>( target, this._state, this._templateClassInstance, this._layerName, this._explicitlyImplementedInterfaceType );
     }
@@ -283,7 +283,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
                     $"Cannot add an {adviceKind} advice to '{declaration}' because {justification}. Check the {nameof(EligibilityExtensions.IsAdviceEligible)}({nameof(AdviceKind)}.{adviceKind}) method." ) );
         }
 
-        this.ValidateExplicitInterfaceImplementation( adviceKind );
+        this.ValidateNotExplicitInterfaceImplementation( adviceKind );
 
         this.ValidateTarget( declaration, otherTargets );
     }
@@ -340,7 +340,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
         }
     }
 
-    private void ValidateExplicitInterfaceImplementation( AdviceKind adviceKind )
+    private void ValidateNotExplicitInterfaceImplementation( AdviceKind adviceKind )
     {
         if ( this._explicitlyImplementedInterfaceType != null
              && adviceKind is not (AdviceKind.IntroduceMethod or AdviceKind.IntroduceEvent or AdviceKind.IntroduceOperator or AdviceKind.IntroduceProperty
@@ -1444,7 +1444,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
         IAttributeData attribute,
         OverrideStrategy whenExists = OverrideStrategy.Default )
     {
-        this.ValidateExplicitInterfaceImplementation( AdviceKind.IntroduceAttribute );
+        this.ValidateNotExplicitInterfaceImplementation( AdviceKind.IntroduceAttribute );
 
         return new AddAttributeAdvice(
             this.GetAdviceConstructorParameters( targetDeclaration ),
@@ -1456,7 +1456,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
     {
         using ( this.WithNonUserCode() )
         {
-            this.ValidateExplicitInterfaceImplementation( AdviceKind.RemoveAttributes );
+            this.ValidateNotExplicitInterfaceImplementation( AdviceKind.RemoveAttributes );
 
             return new RemoveAttributesAdvice(
                 this.GetAdviceConstructorParameters( targetDeclaration ),
@@ -1514,7 +1514,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
     {
         using ( this.WithNonUserCode() )
         {
-            this.ValidateExplicitInterfaceImplementation( AdviceKind.IntroduceType );
+            this.ValidateNotExplicitInterfaceImplementation( AdviceKind.IntroduceType );
 
             return AsAdviser(
                 this,
@@ -1552,7 +1552,7 @@ internal sealed partial class AdviceFactory<T> : IAdviser<T>, IAdviceFactoryImpl
     {
         using ( this.WithNonUserCode() )
         {
-            this.ValidateExplicitInterfaceImplementation( AdviceKind.AddAnnotation );
+            this.ValidateNotExplicitInterfaceImplementation( AdviceKind.AddAnnotation );
 
             if ( this._templateClassInstance == null )
             {

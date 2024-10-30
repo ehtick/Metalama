@@ -6,7 +6,6 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Diagnostics;
-using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -137,8 +136,6 @@ public class GenerateBuilderAttribute : TypeAspect
                 baseConstructor = baseTypeConstructors[0];
             }
 
-            Debugger.Break();
-
             var baseBuilderTypes =
                 sourceType.BaseType.Types.OfName( "Builder" ).ToList();
 
@@ -180,8 +177,6 @@ public class GenerateBuilderAttribute : TypeAspect
 
                     if (baseBuilderCopyConstructor == null)
                     {
-                        Debugger.Break();
-
                         builder.Diagnostics.Report(
                             BuilderDiagnosticDefinitions.BaseBuilderMustContainCopyConstructor
                                 .WithArguments(

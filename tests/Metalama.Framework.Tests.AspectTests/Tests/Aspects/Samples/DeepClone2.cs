@@ -10,6 +10,7 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using System;
 using System.Linq;
+using Metalama.Framework.Code.SyntaxBuilders;
 
 namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Samples.DeepClone2;
 
@@ -58,7 +59,7 @@ public class DeepCloneAttribute : TypeAspect
         var clonableFields =
             meta.Target.Type.FieldsAndProperties.Where(
                 f => f.IsAutoPropertyOrField == true &&
-                     ( ( f.Type.Is( typeof(ICloneable) ) && f.Type.SpecialType != SpecialType.String ) ||
+                     ( ( f.Type.IsConvertibleTo( typeof(ICloneable) ) && f.Type.SpecialType != SpecialType.String ) ||
                        ( f.Type is INamedType { BelongsToCurrentProject: true } fieldNamedType &&
                          fieldNamedType.Enhancements().HasAspect<DeepCloneAttribute>() ) ) );
 
@@ -79,13 +80,13 @@ public class DeepCloneAttribute : TypeAspect
             else
             {
                 // If no, explicitly cast to the interface.
-                callClone = (IExpression)( (ICloneable?)field.Value )?.Clone()!;
+                callClone = ExpressionFactory.Capture( ( (ICloneable?)field.Value )?.Clone()! );
             }
 
-            if (cloneMethod == null || !cloneMethod.ReturnType.ToNullable().Is( fieldType ))
+            if (cloneMethod == null || !cloneMethod.ReturnType.ToNullable().IsConvertibleTo( fieldType ))
             {
                 // If necessary, cast the return value of Clone to the field type.
-                callClone = (IExpression)meta.Cast( fieldType, callClone.Value );
+                callClone = ExpressionFactory.Capture( (IExpression)meta.Cast( fieldType, callClone.Value ) );
             }
 
             // Finally, set the field value.
