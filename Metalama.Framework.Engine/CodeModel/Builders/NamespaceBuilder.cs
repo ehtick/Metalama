@@ -32,7 +32,7 @@ internal sealed class NamespaceBuilder : NamedDeclarationBuilder, INamespace
     [Memo]
     public INamespaceCollection Namespaces => new EmptyNamespaceCollection();
 
-    public bool IsPartial => throw new NotImplementedException();
+    public bool IsPartial => false;
 
     public override IDeclaration? ContainingDeclaration => this.ContainingNamespace;
 
