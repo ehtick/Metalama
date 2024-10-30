@@ -6,11 +6,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Metalama.Framework.Engine.Linking.Substitution;
 
-internal sealed class EmptyPartialAccessorSubstitution : SyntaxNodeSubstitution
+internal sealed class EmptyPartialAccessorSubstitution : EmptyPartialMemberSubstitution
 {
     private readonly AccessorDeclarationSyntax _rootNode;
 
-    public EmptyPartialAccessorSubstitution( CompilationContext compilationContext, AccessorDeclarationSyntax rootNode ) : base( compilationContext )
+    public EmptyPartialAccessorSubstitution( CompilationContext compilationContext, AccessorDeclarationSyntax rootNode, bool usingSimpleInlining, string? returnVariableIdentifier )
+        : base(compilationContext, usingSimpleInlining, returnVariableIdentifier)
     {
         this._rootNode = rootNode;
     }
@@ -20,8 +21,9 @@ internal sealed class EmptyPartialAccessorSubstitution : SyntaxNodeSubstitution
     public override SyntaxNode Substitute( SyntaxNode currentNode, SubstitutionContext substitutionContext )
         => currentNode switch
         {
-            AccessorDeclarationSyntax => substitutionContext.SyntaxGenerationContext.SyntaxGenerator.FormattedBlock()
-                .WithLinkerGeneratedFlags( LinkerGeneratedFlags.FlattenableBlock ),
+            AccessorDeclarationSyntax => this.Substitute( substitutionContext ),
             _ => throw new AssertionFailedException( $"Unsupported syntax: {currentNode}" ),
         };
+
+    protected override bool IsVoid => false;
 }

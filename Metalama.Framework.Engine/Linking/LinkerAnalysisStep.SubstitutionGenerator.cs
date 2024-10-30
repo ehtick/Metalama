@@ -482,10 +482,10 @@ internal sealed partial class LinkerAnalysisStep
                     returnVariableIdentifier ),
 
                 MethodDeclarationSyntax { Body: null, ExpressionBody: null } emptyPartialMethod
-                    => new EmptyPartialMethodSubstitution( this._intermediateCompilationContext, emptyPartialMethod ),
+                    => new EmptyPartialMethodSubstitution( this._intermediateCompilationContext, emptyPartialMethod, usingSimpleInlining, returnVariableIdentifier ),
 
                 AccessorDeclarationSyntax { Body: null, ExpressionBody: null } emptyPartialAccessor
-                    => new EmptyPartialAccessorSubstitution( this._intermediateCompilationContext, emptyPartialAccessor ),
+                    => new EmptyPartialAccessorSubstitution( this._intermediateCompilationContext, emptyPartialAccessor, usingSimpleInlining, returnVariableIdentifier ),
 
                 ParameterSyntax { Parent: ParameterListSyntax { Parent: RecordDeclarationSyntax } } recordParameter
                     => new RecordParameterSubstitution( this._intermediateCompilationContext, recordParameter, targetSymbol, returnVariableIdentifier ),

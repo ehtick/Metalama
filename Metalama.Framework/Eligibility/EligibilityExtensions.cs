@@ -226,7 +226,7 @@ public static partial class EligibilityExtensions
             } );
 
     /// <summary>
-    /// Requires the target method to not be partial.
+    /// Requires the target method not to be partial.
     /// </summary>
     public static void MustNotBePartial( this IEligibilityBuilder<IMethod> eligibilityBuilder )
         => eligibilityBuilder.MustSatisfy(
@@ -234,7 +234,7 @@ public static partial class EligibilityExtensions
             method => $"{method} must not be partial" );
 
     /// <summary>
-    /// Requires the target declaration to not be partial.
+    /// Requires the target declaration not to be partial.
     /// </summary>
     public static void MustNotBePartial( this IEligibilityBuilder<IMemberOrNamedType> eligibilityBuilder )
         => eligibilityBuilder.MustSatisfy(

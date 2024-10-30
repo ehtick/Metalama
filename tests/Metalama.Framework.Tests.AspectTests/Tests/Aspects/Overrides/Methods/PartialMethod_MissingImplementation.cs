@@ -50,5 +50,14 @@ internal partial class TargetClass
 
     [Override3]
     public partial int TargetMethod3();
+
+    [Override1]
+    public partial void TargetMethod4();
+
+    [Override2]
+    public partial void TargetMethod5();
+
+    [Override3]
+    public partial void TargetMethod6();
 #endif
 }

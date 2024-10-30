@@ -2,15 +2,17 @@
 
 using Metalama.Framework.Engine.Services;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Metalama.Framework.Engine.Linking.Substitution;
 
-internal sealed class EmptyPartialMethodSubstitution : SyntaxNodeSubstitution
+internal sealed class EmptyPartialMethodSubstitution : EmptyPartialMemberSubstitution
 {
     private readonly MethodDeclarationSyntax _rootNode;
 
-    public EmptyPartialMethodSubstitution( CompilationContext compilationContext, MethodDeclarationSyntax rootNode ) : base( compilationContext )
+    public EmptyPartialMethodSubstitution( CompilationContext compilationContext, MethodDeclarationSyntax rootNode, bool usingSimpleInlining, string? returnVariableIdentifier )
+        : base( compilationContext, usingSimpleInlining, returnVariableIdentifier )
     {
         this._rootNode = rootNode;
     }
@@ -20,8 +22,9 @@ internal sealed class EmptyPartialMethodSubstitution : SyntaxNodeSubstitution
     public override SyntaxNode Substitute( SyntaxNode currentNode, SubstitutionContext substitutionContext )
         => currentNode switch
         {
-            MethodDeclarationSyntax => substitutionContext.SyntaxGenerationContext.SyntaxGenerator.FormattedBlock()
-                .WithLinkerGeneratedFlags( LinkerGeneratedFlags.FlattenableBlock ),
-            _ => throw new AssertionFailedException( $"Unsupported syntax: {currentNode}" )
+            MethodDeclarationSyntax => this.Substitute( substitutionContext ),
+            _ => throw new AssertionFailedException( $"Unsupported syntax: {currentNode}" ),
         };
+
+    protected override bool IsVoid => this._rootNode.ReturnType is PredefinedTypeSyntax predefinedType && predefinedType.Keyword.IsKind( SyntaxKind.VoidKeyword );
 }

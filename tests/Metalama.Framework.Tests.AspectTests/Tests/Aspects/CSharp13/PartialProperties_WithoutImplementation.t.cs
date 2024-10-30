@@ -1,6 +1,3 @@
-// Final Compilation.Emit failed.
-// Error CS0161 on `get`: `'Target.P1.get': not all code paths return a value`
-// Error CS0161 on `get`: `'Target.P2.get': not all code paths return a value`
 partial class Target
 {
   [TheAspect]
@@ -10,6 +7,7 @@ partial class Target
     get
     {
       global::System.Console.WriteLine("This is aspect code.");
+      return default;
     }
     set
     {
@@ -23,6 +21,7 @@ partial class Target
     get
     {
       global::System.Console.WriteLine("This is aspect code.");
+      return default;
     }
   }
 }
