@@ -48,7 +48,7 @@ internal sealed partial class ContextualSyntaxGenerator
     private readonly ConcurrentDictionary<IRef<IType>, TypeSyntax> _typeSyntaxCache;
     private readonly ConcurrentDictionary<ITypeSymbol, TypeSyntax> _typeSymbolSyntaxCache;
     private readonly ConcurrentDictionary<IRef<IType>, ExpressionSyntax> _typeExpressionCache;
-
+    private readonly ConcurrentDictionary<ITypeSymbol, ExpressionSyntax> _typeSymbolExpressionCache;
 
     public bool IsNullAware { get; }
 
@@ -60,7 +60,8 @@ internal sealed partial class ContextualSyntaxGenerator
         this._syntaxGeneratorForIType = new SyntaxGeneratorForIType( context.Options );
         this._typeSyntaxCache = new ConcurrentDictionary<IRef<IType>, TypeSyntax>( RefEqualityComparer<IType>.IncludeNullability );
         this._typeSymbolSyntaxCache = new ConcurrentDictionary<ITypeSymbol, TypeSyntax>( SymbolEqualityComparer.IncludeNullability );
-        this._typeExpressionCache = new ConcurrentDictionary<IRef<IType>, ExpressionSyntax>( RefEqualityComparer<IType>.Default );
+        this._typeExpressionCache = new ConcurrentDictionary<IRef<IType>, ExpressionSyntax>( RefEqualityComparer<IType>.IncludeNullability );
+        this._typeSymbolExpressionCache = new ConcurrentDictionary<ITypeSymbol, ExpressionSyntax>( SymbolEqualityComparer.IncludeNullability );
         this.IsNullAware = nullAware;
     }
 
@@ -159,25 +160,11 @@ internal sealed partial class ContextualSyntaxGenerator
         return (TypeOfExpressionSyntax) _roslynSyntaxGenerator.TypeOfExpression( rewrittenTypeSyntax );
     }
 
-    private sealed class NormalizeSpaceRewriter : SafeSyntaxRewriter
-    {
-        private readonly string _endOfLine;
-
-        public NormalizeSpaceRewriter( string endOfLine )
-        {
-            this._endOfLine = endOfLine;
-        }
-
-#pragma warning disable LAMA0830 // NormalizeWhitespace is expensive.
-        public override SyntaxNode VisitTupleType( TupleTypeSyntax node ) => base.VisitTupleType( node )!.NormalizeWhitespace( eol: this._endOfLine );
-#pragma warning restore LAMA0830
-    }
-
     public ExpressionSyntax DefaultExpression( IType type, IType? targetType = null )
     {
         if ( targetType == null )
         {
-            return SyntaxFactory.DefaultExpression( this.Type( type ) )
+            return SyntaxFactory.DefaultExpression( this.TypeSyntax( type ) )
                 .WithSimplifierAnnotationIfNecessary( this.SyntaxGenerationContext );
         }
         else if ( type.IsReferenceType == true )
@@ -453,7 +440,7 @@ internal sealed partial class ContextualSyntaxGenerator
             var elementType = type.AssertNotNull().AssertCast<IArrayType>().ElementType;
 
             return this.ArrayCreationExpression(
-                this.Type( elementType ),
+                this.TypeSyntax( elementType ),
                 array.AsEnumerable<TypedConstantRef>().Select( item => this.TypedConstant( item, refFactory ) ) );
         }
         else
@@ -547,7 +534,7 @@ internal sealed partial class ContextualSyntaxGenerator
         {
             return this._typeExpressionCache.AssertNotNull()
                 .GetOrAdd(
-                    type.ToValueTypedRef(),
+                    type.ToRef(),
                     static ( _, x ) => x.This.TypeExpressionCore( x.Type ),
                     (This: this, Type: type) );
         }
@@ -576,8 +563,8 @@ internal sealed partial class ContextualSyntaxGenerator
     {
         if ( this.SyntaxGenerationContext.HasCompilationContext && symbol.BelongsToCompilation( this.SyntaxGenerationContext.CompilationContext ) == true )
         {
-            return this._typeExpressionCache.GetOrAdd(
-                symbol.ToValueTypedRef<IType>( this.SyntaxGenerationContext.CompilationContext ),
+            return this._typeSymbolExpressionCache.GetOrAdd(
+                symbol,
                 static ( _, x ) => x.This.TypeExpressionCore( x.Type ),
                 (This: this, Type: symbol) );
         }
@@ -1067,7 +1054,7 @@ internal sealed partial class ContextualSyntaxGenerator
                 {
                     var nullable = operandType.IsNullable;
 
-                    if ( nullable == false || ( nullable == null && operandType.TypeKind != TypeKind.TypeParameter) )
+                    if ( nullable == false || (nullable == null && operandType.TypeKind != TypeKind.TypeParameter) )
                     {
                         // Non-nullable and non-annotated types don't need suppression, except generic type parameters that are not explicitly marked as non nullable.
                         isSuppressionEnabled = false;

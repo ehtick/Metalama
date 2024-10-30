@@ -30,19 +30,17 @@ internal sealed class IntroduceNamespaceAdvice : IntroduceDeclarationAdvice<INam
         for ( var index = 0; index < nameParts.Length - 1; index++ )
         {
             var childNs = parentNamespace.Namespaces.OfName( nameParts[index] )
-                          ?? new NamespaceBuilder( this, parentNamespace, nameParts[index] );
+                          ?? new NamespaceBuilder( this.AspectLayerInstance, parentNamespace, nameParts[index] );
 
             parentNamespace = childNs;
         }
 
-        return new NamespaceBuilder( this, parentNamespace, nameParts[^1] );
+        return new NamespaceBuilder( this.AspectLayerInstance, parentNamespace, nameParts[^1] );
     }
 
     protected override IntroductionAdviceResult<INamespace> ImplementCore( NamespaceBuilder builder, in AdviceImplementationContext context )
     {
-        builder.Freeze();
         var contextCopy = context;
-        var targetDeclaration = (INamespace) this.TargetDeclaration.ForCompilation( context.MutableCompilation );
      
         void AddTransformationRecursive( NamespaceBuilder ns )
         {
@@ -52,7 +50,7 @@ internal sealed class IntroduceNamespaceAdvice : IntroduceDeclarationAdvice<INam
                 AddTransformationRecursive( parentBuilder );
             }
 
-            contextCopy.AddTransformation( ns.ToTransformation() );
+            contextCopy.AddTransformation( ns.CreateTransformation() );
         }
 
         var existingNamespace = builder.ContainingNamespace.TryForCompilation( context.MutableCompilation, out var containingNamespace )

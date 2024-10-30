@@ -24,6 +24,7 @@ internal sealed class NamespaceBuilder : NamedDeclarationBuilder, INamespace
         this._name = name;
         this.ContainingNamespace = containingNamespace;
         this.Ref = new IntroducedRef<INamespace>( this.Compilation.RefFactory );
+        this.Freeze();
     }
 
     public override string Name

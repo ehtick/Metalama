@@ -3,8 +3,6 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Types;
 using Metalama.Framework.Engine.CodeModel.Helpers;
-using Metalama.Framework.Engine.CodeModel.Visitors;
-using Metalama.Framework.Engine.SerializableIds;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -247,5 +245,4 @@ internal sealed partial class SyntaxGeneratorForIType
             return typeSyntax;
         }
     }
-    
 }
