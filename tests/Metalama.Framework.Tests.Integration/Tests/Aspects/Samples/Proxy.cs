@@ -9,7 +9,6 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.SyntaxBuilders;
-using Metalama.Framework.Code.SyntaxBuilders;
 using Metalama.Framework.Tests.Integration.Tests.Aspects.Samples;
 
 [assembly: GenerateProxyAspect( typeof(ISomeInterface), "Metalama.Samples.Proxy.Tests", "SomeProxy" )]

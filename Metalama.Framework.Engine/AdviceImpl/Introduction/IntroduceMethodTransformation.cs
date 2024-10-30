@@ -27,8 +27,7 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
         var syntaxGenerator = context.SyntaxGenerationContext.SyntaxGenerator;
 
         var explicitInterfaceSpecifier = methodBuilder.ExplicitInterfaceImplementations.Count > 0
-            ? ExplicitInterfaceSpecifier(
-                (NameSyntax) syntaxGenerator.Type( methodBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
+            ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.TypeSyntax( methodBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
             : null;
 
         if ( methodBuilder.DeclarationKind == DeclarationKind.Finalizer )
@@ -55,7 +54,7 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                     SyntaxFactoryEx.TokenWithTrailingSpace( methodBuilder.OperatorKind.ToOperatorKeyword() ),
                     explicitInterfaceSpecifier,
                     SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
-                    context.SyntaxGenerator.Type( methodBuilder.ReturnType )
+                    context.SyntaxGenerator.TypeSyntax( methodBuilder.ReturnType )
                         .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
                     context.SyntaxGenerator.ParameterList( methodBuilder, context.Compilation ),
                     null,
@@ -71,7 +70,7 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                 var syntax = OperatorDeclaration(
                     methodBuilder.GetAttributeLists( context ),
                     methodBuilder.GetSyntaxModifierList(),
-                    context.SyntaxGenerator.Type( methodBuilder.ReturnType )
+                    context.SyntaxGenerator.TypeSyntax( methodBuilder.ReturnType )
                         .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
                     explicitInterfaceSpecifier,
                     SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
@@ -107,7 +106,7 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                         [
                             ReturnStatement(
                                 SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.ReturnKeyword ),
-                                DefaultExpression( syntaxGenerator.Type( methodBuilder.ReturnParameter.Type ) ),
+                                DefaultExpression( syntaxGenerator.TypeSyntax( methodBuilder.ReturnParameter.Type ) ),
                                 Token( SyntaxKind.SemicolonToken ) )
                         ]
                     : [] );

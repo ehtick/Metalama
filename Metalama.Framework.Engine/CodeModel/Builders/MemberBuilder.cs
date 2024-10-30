@@ -204,7 +204,7 @@ internal abstract class MemberBuilder : MemberOrNamedTypeBuilder, IMemberBuilder
                     TokenList(
                         SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.PrivateKeyword ),
                         SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.StaticKeyword ) ),
-                    context.SyntaxGenerator.Type( targetType )
+                    context.SyntaxGenerator.TypeSyntax( targetType )
                         .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
                     null,
                     Identifier( initializerName ),

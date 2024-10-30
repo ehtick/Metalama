@@ -47,10 +47,10 @@ internal class IntroducePropertyTransformation : IntroduceMemberTransformation<P
             PropertyDeclaration(
                 propertyBuilder.GetAttributeLists( context, Ref.FromBuilder( this.IntroducedDeclaration ) ).AddRange( GetAdditionalAttributeLists() ),
                 propertyBuilder.GetSyntaxModifierList(),
-                syntaxGenerator.Type( propertyBuilder.Type ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
+                syntaxGenerator.TypeSyntax( propertyBuilder.Type ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
                 propertyBuilder.ExplicitInterfaceImplementations.Count > 0
                     ? ExplicitInterfaceSpecifier(
-                        (NameSyntax) syntaxGenerator.Type( propertyBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
+                        (NameSyntax) syntaxGenerator.TypeSyntax( propertyBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
                     : null,
                 propertyBuilder.GetCleanName(),
                 GenerateAccessorList(),
@@ -141,8 +141,8 @@ internal class IntroducePropertyTransformation : IntroduceMemberTransformation<P
                                 SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.ReturnKeyword ),
                                 syntaxGenerator.SuppressNullableWarningExpression(
                                     syntaxGenerator.DefaultExpression( propertyBuilder.Type ),
-                                    propertyBuilder.Type.IsReferenceType == false 
-                                        ? propertyBuilder.Type 
+                                    propertyBuilder.Type.IsReferenceType == false
+                                        ? propertyBuilder.Type
                                         : propertyBuilder.Type.ToNullableType() ),
                                 Token( TriviaList(), SyntaxKind.SemicolonToken, context.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) ) ),
                     null,

@@ -215,6 +215,8 @@ namespace Metalama.Framework.Engine.CodeModel
             this._namespaces = ImmutableDictionary.Create<Ref<INamespace>, NamespaceUpdatableCollection>()
                 .WithComparers( RefEqualityComparer<INamespace>.Default );
 
+            this._namespaceBuilders = ImmutableDictionary<string, NamespaceBuilder>.Empty.WithComparers( StringComparer.Ordinal );
+
             this._parameters = ImmutableDictionary.Create<Ref<IHasParameters>, ParameterUpdatableCollection>()
                 .WithComparers( RefEqualityComparer<IHasParameters>.Default );
 
@@ -324,6 +326,7 @@ namespace Metalama.Framework.Engine.CodeModel
             this._attributes = prototype._attributes;
             this._namedTypes = prototype._namedTypes;
             this._namespaces = prototype._namespaces;
+            this._namespaceBuilders = prototype._namespaceBuilders;
 
             this.Factory = new DeclarationFactory( this );
             this.SerializableTypeIdResolver = new SerializableTypeIdResolverForIType( this );

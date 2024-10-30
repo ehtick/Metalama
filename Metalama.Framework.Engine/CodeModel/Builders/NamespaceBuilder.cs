@@ -44,6 +44,8 @@ internal sealed class NamespaceBuilder : NamedDeclarationBuilder, INamespace
 
     public NamespaceBuilder( Advice advice, INamespace containingNamespace, string name ) : base( advice, name )
     {
+        Invariant.Assert( !name.ContainsOrdinal( '.' ) );
+
         this.ContainingNamespace = containingNamespace;
     }
 
@@ -58,7 +60,7 @@ internal sealed class NamespaceBuilder : NamedDeclarationBuilder, INamespace
     public override string ToDisplayString( CodeDisplayFormat? format = null, CodeDisplayContext? context = null ) => this.FullName;
 
     [Memo]
-    public BoxedRef<INamespace> BoxedRef => new BoxedRef<INamespace>( this.ToValueTypedRef() );
+    public BoxedRef<INamespace> BoxedRef => new( this.ToValueTypedRef() );
 
     public override IRef<IDeclaration> ToIRef() => this.BoxedRef;
 

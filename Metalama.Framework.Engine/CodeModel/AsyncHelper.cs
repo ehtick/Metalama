@@ -119,8 +119,8 @@ namespace Metalama.Framework.Engine.CodeModel
             TypeSyntax? returnTypeSyntax,
             SyntaxGenerationContext generationContext )
             => method is { IsAsync: true, ReturnsVoid: true }
-                ? generationContext.SyntaxGenerator.Type( generationContext.ReflectionMapper.GetTypeSymbol( typeof(ValueTask) ) )
-                : returnTypeSyntax ?? generationContext.SyntaxGenerator.Type( method.ReturnType );
+                ? generationContext.SyntaxGenerator.TypeSyntax( generationContext.ReflectionMapper.GetTypeSymbol( typeof(ValueTask) ) )
+                : returnTypeSyntax ?? generationContext.SyntaxGenerator.TypeSyntax( method.ReturnType );
 
         private sealed record AsyncInfoSymbol( ITypeSymbol ResultType, bool HasMethodBuilder );
     }

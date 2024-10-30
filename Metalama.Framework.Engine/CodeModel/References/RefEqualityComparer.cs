@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Framework.Code;
+using Metalama.Framework.Engine.CodeModel.Builders;
 using Metalama.Framework.Engine.Utilities.Comparers;
 using Microsoft.CodeAnalysis;
 using System;
@@ -58,6 +59,10 @@ namespace Metalama.Framework.Engine.CodeModel.References
             {
                 return this.StructuralSymbolComparer.Equals( xSymbol, GetSymbol( yImpl ) );
             }
+            else if ( xImpl.Target is NamespaceBuilder xNamespaceBuilder && yImpl.Target is NamespaceBuilder yNamespaceBuilder )
+            {
+                return xNamespaceBuilder.FullName.Equals( yNamespaceBuilder.FullName, StringComparison.Ordinal );
+            }
             else
             {
                 return ReferenceEquals( xImpl.Target, yImpl.Target );
@@ -76,9 +81,24 @@ namespace Metalama.Framework.Engine.CodeModel.References
             {
                 var xSymbol = GetSymbol( impl );
 
-                var targetHashCode = xSymbol != null
-                    ? this.StructuralSymbolComparer.GetHashCode( xSymbol )
-                    : RuntimeHelpers.GetHashCode( impl.Target );
+                int targetHashCode;
+
+                if ( xSymbol != null )
+                {
+                    targetHashCode = this.StructuralSymbolComparer.GetHashCode( xSymbol );
+                }
+                else if ( impl.Target is NamespaceBuilder namespaceBuilder )
+                {
+#if NET6_0_OR_GREATER
+                    targetHashCode = namespaceBuilder.FullName.GetHashCode( StringComparison.Ordinal );
+#else
+                    targetHashCode = namespaceBuilder.FullName.GetHashCode();
+#endif
+                }
+                else
+                {
+                    targetHashCode = RuntimeHelpers.GetHashCode( impl.Target );
+                }
 
                 // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
                 return HashCode.Combine( targetHashCode, (int) impl.TargetKind );

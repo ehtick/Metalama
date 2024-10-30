@@ -35,6 +35,7 @@ public sealed partial class CompilationModel
     private ImmutableDictionary<Ref<INamedType>, IMethodBuilder> _finalizers;
     private ImmutableDictionary<Ref<INamespaceOrNamedType>, TypeUpdatableCollection> _namedTypes;
     private ImmutableDictionary<Ref<INamespace>, NamespaceUpdatableCollection> _namespaces;
+    private ImmutableDictionary<string, NamespaceBuilder> _namespaceBuilders;
 
     internal ImmutableDictionaryOfArray<Ref<IDeclaration>, AnnotationInstance> Annotations { get; private set; }
 
@@ -91,11 +92,10 @@ public sealed partial class CompilationModel
            && namedTypes.Contains( namedTypeBuilder.ToValueTypedRef<INamedType>() );
 
     internal bool Contains( NamespaceBuilder namespaceBuilder )
-        => this._namespaces.TryGetValue(
-               (namespaceBuilder.ContainingNamespace ?? namespaceBuilder.ContainingNamespace ?? throw new AssertionFailedException())
-               .ToValueTypedRef(),
-               out var namespaces )
-           && namespaces.Contains( namespaceBuilder.ToValueTypedRef<INamespace>() );
+    {
+        // Anomaly with namespaces: many instances of the NamespaceBuilder class can represent the same entity, so we rely on the full name.
+        return this._namespaceBuilders.ContainsKey( namespaceBuilder.FullName );
+    }
 
     private bool Contains( DeclarationBuilder builder )
         => builder switch
@@ -552,12 +552,21 @@ public sealed partial class CompilationModel
 
                 break;
 
-            case INamespace @namespace:
-                var namespaces = this.GetNamespaceCollection(
-                    @namespace.ContainingNamespace.AssertNotNull().ToValueTypedRef().As<INamespace>(),
-                    true );
+            case NamespaceBuilder @namespace:
+                // Anomaly with namespaces:
+                // Aspects on different types of the same depth can independently introduce identical namespaces.
+                // This must be resolved here.
+                // It means we will have several instances of NamespaceBuilder pointing to the same entity.
 
-                namespaces.Add( @namespace.ToMemberRef() );
+                if ( !this._namespaceBuilders.ContainsKey( @namespace.FullName ) )
+                {
+                    var namespaces = this.GetNamespaceCollection(
+                        @namespace.ContainingNamespace.AssertNotNull().ToValueTypedRef().As<INamespace>(),
+                        true );
+
+                    namespaces.Add( ((INamespace) @namespace).ToMemberRef() );
+                    this._namespaceBuilders = this._namespaceBuilders.Add( @namespace.FullName, @namespace );
+                }
 
                 break;
 
