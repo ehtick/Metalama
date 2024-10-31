@@ -333,10 +333,10 @@ internal abstract partial class BaseTestRunner
             if ( testInput.Options.SkipAddingSystemFiles != true )
             {
                 // Add system files.
-                mainProject = await AddPlatformDocuments( mainProject, mainParseOptions );
+                mainProject = await AddPlatformDocumentsAsync( mainProject, mainParseOptions );
             }
 
-            mainProject = await AddAdditionalDocuments( mainProject, mainParseOptions );
+            mainProject = await AddAdditionalDocumentsAsync( mainProject, mainParseOptions );
 
             // We are done creating the project.
 
@@ -384,7 +384,7 @@ internal abstract partial class BaseTestRunner
                 }
             }
 
-            async Task<Project> AddAdditionalDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddAdditionalDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 if ( this._references.GlobalUsingsFile != null )
                 {
@@ -404,7 +404,7 @@ internal abstract partial class BaseTestRunner
 
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once LocalFunctionCanBeMadeStatic
-            async Task<Project> AddPlatformDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddPlatformDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 // ReSharper enable UnusedParameter.Local
                 // Add system documents.
@@ -447,10 +447,10 @@ internal abstract partial class BaseTestRunner
 
                 if ( testInput.Options.SkipAddingSystemFiles != true )
                 {
-                    dependencyProject = await AddPlatformDocuments( dependencyProject, dependencyParseOptions );
+                    dependencyProject = await AddPlatformDocumentsAsync( dependencyProject, dependencyParseOptions );
                 }
 
-                dependencyProject = await AddAdditionalDocuments( dependencyProject, dependencyParseOptions );
+                dependencyProject = await AddAdditionalDocumentsAsync( dependencyProject, dependencyParseOptions );
 
                 // Add dependencies recursively.
                 (dependencyProject, var recursiveReferences) = await AddDependencyProjectAsync( dependencyProject, dependencyName );

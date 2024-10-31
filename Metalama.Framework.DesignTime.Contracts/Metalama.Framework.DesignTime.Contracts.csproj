@@ -5,6 +5,10 @@
         <RootNamespace>Metalama.Framework.DesignTime.Contracts</RootNamespace>
 
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+
     </PropertyGroup>
 
     <ItemGroup>
