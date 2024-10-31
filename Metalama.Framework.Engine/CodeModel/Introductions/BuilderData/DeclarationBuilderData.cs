@@ -13,6 +13,8 @@ using System.Collections.Immutable;
 
 namespace Metalama.Framework.Engine.CodeModel.Introductions.BuilderData;
 
+#pragma warning disable CS0659
+
 internal abstract class DeclarationBuilderData
 {
     public abstract DeclarationKind DeclarationKind { get; }
