@@ -8,6 +8,10 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <AssemblyName>Metalama.Framework.DesignTime.VisualStudio.$(ThisRoslynVersionNoPreview)</AssemblyName>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+
     </PropertyGroup>
 
     <ItemGroup>

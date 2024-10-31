@@ -13,6 +13,10 @@
 
     <ItemGroup>
       <ProjectReference Include="../../Metalama.Framework.Engine/Metalama.Framework.Engine.csproj" />
+
+       <!-- Override dependencies to avoid vulnarability warnings. -->
+       <PackageReference Include="System.Text.Json" VersionOverride="$(SystemTextJsonLatestVersion)" />
+     
     </ItemGroup>
 
 </Project>

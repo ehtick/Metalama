@@ -26,8 +26,9 @@
         <ProjectReference Include="../Metalama.Framework.Engine.Analyzers/Metalama.Framework.Engine.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
         <!-- Explicitly add Microsoft.VisualStudio.Threading and StreamJsonRpc because the reference to Metalama.Framework.DesignTime must have PrivateAssets="all" -->
-        <PackageReference Include="Microsoft.VisualStudio.Threading" />
-        <PackageReference Include="StreamJsonRpc" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" VersionOverride="$(MicrosoftVisualStudioThreadingLatestVersion)"/>
+        <PackageReference Include="StreamJsonRpc" VersionOverride="$(StreamJsonRpcLatestVersion)"/>
+        <PackageReference Include="MessagePack" VersionOverride="$(MessagePackLatestVersion)"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -37,6 +38,9 @@
         <ProjectReference Include="../Metalama.Framework.Sdk/Metalama.Framework.Sdk.csproj" />
         <ProjectReference Include="../Metalama.Framework/Metalama.Framework.csproj" />
         <ProjectReference Include="../Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix)/Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix).csproj" />
+
+
+
     </ItemGroup>
 
     <ItemGroup>
