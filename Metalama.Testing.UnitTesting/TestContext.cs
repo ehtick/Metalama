@@ -39,7 +39,6 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     private static readonly IApplicationInfo _applicationInfo = new TestApiApplicationInfo();
     private readonly ITempFileManager _backstageTempFileManager;
     private readonly bool _isRoot;
-    private readonly IDisposable? _throttlingHandle;
     private readonly StackTrace _stackTrace = new();
 
     // We keep the domain in a strongbox so that we share domain instances with TestContext instances created with With* method.
@@ -92,7 +91,6 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
             // We don't cancel tests when a debugger is attached because it's then normal that a test runs during a long time.
         }
 
-        this._throttlingHandle = TestThrottlingHelper.StartTest( contextOptions.RequiresExclusivity );
         this._domain = new StrongBox<CompileTimeDomain?>();
         this._isRoot = true;
 
@@ -323,7 +321,6 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
             this.ProjectOptions.Dispose();
             this._domain.Value?.Dispose();
             this._timeoutCancellationTokenSource?.Dispose();
-            this._throttlingHandle?.Dispose();
         }
 
         if ( disposing )

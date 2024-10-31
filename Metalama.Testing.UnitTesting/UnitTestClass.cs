@@ -1,10 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
-using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Maintenance;
 using Metalama.Framework.Engine;
-using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.SyntaxGeneration;
 using Metalama.Framework.Services;
@@ -20,15 +17,9 @@ namespace Metalama.Testing.UnitTesting
     /// </summary>
     public abstract class UnitTestClass
     {
-        // PERF: Intentionally as a global instance so that it can be shared among all tests.
-        private static readonly ReferenceAssemblyLocatorProvider _referenceAssemblyLocatorProvider;
-        
         static UnitTestClass()
         {
             TestingServices.Initialize();
-
-            _referenceAssemblyLocatorProvider =
-                new ReferenceAssemblyLocatorProvider( BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<ITempFileManager>() );
         }
 
         private readonly ITestOutputHelper? _testOutputHelper;
@@ -70,7 +61,7 @@ namespace Metalama.Testing.UnitTesting
             this.AddSyntaxGenerationOptions( services );
             this.AddXunitLogging( services );
             
-            services.AddGlobalService( _ => _referenceAssemblyLocatorProvider );
+            services.AddGlobalService( _ => TestingServices.ReferenceAssemblyLocatorProvider );
         }
 
         protected virtual void AddSyntaxGenerationOptions( IAdditionalServiceCollection services )
