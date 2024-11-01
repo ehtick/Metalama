@@ -207,4 +207,31 @@ public sealed class DiagnosticSuppressorTests : FrameworkBaseTestClass
 
         Assert.Equal( "code.cs(19,9): warning CS0169: The field 'TargetClass._field' is never used", suppression.SuppressedDiagnostic.ToString() );
     }
+    
+    
+    [Fact]
+    public async Task SuppressTemplateWarnings()
+    {
+        const string code = """
+                            using Metalama.Framework.Advising;
+                            using Metalama.Framework.Aspects; 
+                            using Metalama.Framework.Code;
+                            using Metalama.Framework.Diagnostics;
+
+                            internal sealed class SomeAspect : TypeAspect
+                            {
+                                [Template]
+                                protected void SuspendInvariants()
+                                {
+                                }
+                            
+                            }
+                            """;
+
+        var suppressions = await this.ExecuteSuppressorAsync( code, "CS0628" );
+
+        var suppression = Assert.Single( suppressions );
+
+        Assert.Equal( "code.cs(9,20): warning CS0628: 'SomeAspect.SuspendInvariants()': new protected member declared in sealed type", suppression.SuppressedDiagnostic.ToString() );
+    }
 }

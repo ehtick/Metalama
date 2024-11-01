@@ -32,6 +32,7 @@ class X { void M() { IMethod m; } }
                 testContext.ServiceProvider,
                 semanticModel,
                 diagnostics.Add,
+                null,
                 false,
                 false,
                 CancellationToken.None );
@@ -58,6 +59,7 @@ class X : Metalama.Framework.Aspects.OverrideMethodAspect {  public override dyn
                 testContext.ServiceProvider,
                 semanticModel,
                 diagnostics.Add,
+                null,
                 false,
                 false,
                 CancellationToken.None );

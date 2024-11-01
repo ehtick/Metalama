@@ -40,7 +40,7 @@ namespace Metalama.Testing.AspectTesting
 
                 var introducedSyntaxTrees = pipelineResult.AdditionalSyntaxTrees;
 
-                testResult.DiagnosticSuppressions = pipelineResult.Suppressions;
+                testResult.AddDiagnosticSuppressions( pipelineResult.Suppressions );
 
                 if ( introducedSyntaxTrees.Length > 0 )
                 {

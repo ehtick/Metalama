@@ -12,8 +12,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -88,7 +88,15 @@ internal class TestResult : IDisposable
         }
     }
 
-    public ImmutableArray<ScopedSuppression> DiagnosticSuppressions { get; set; } = ImmutableArray<ScopedSuppression>.Empty;
+    public ConcurrentBag<ScopedSuppression> DiagnosticSuppressions { get; } = new();
+
+    public void AddDiagnosticSuppressions( IEnumerable<ScopedSuppression> suppressions )
+    {
+        foreach ( var suppression in suppressions )
+        {
+            this.DiagnosticSuppressions.Add( suppression );
+        }
+    }
 
     public IReadOnlyList<TestSyntaxTree> SyntaxTrees => this._syntaxTrees;
 

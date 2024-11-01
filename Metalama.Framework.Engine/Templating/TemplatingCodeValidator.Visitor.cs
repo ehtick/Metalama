@@ -37,6 +37,7 @@ namespace Metalama.Framework.Engine.Templating
             private readonly SemanticModel _semanticModel;
             private readonly ClassifyingCompilationContext _compilationContext;
             private readonly Action<Diagnostic> _reportDiagnostic;
+            private readonly Action<ScopedSuppression>? _reportSuppression;
             private readonly CancellationToken _cancellationToken;
             private readonly bool _hasCompileTimeCodeFast;
             private readonly ITypeSymbol _typeFabricType;
@@ -56,6 +57,7 @@ namespace Metalama.Framework.Engine.Templating
                 SemanticModel semanticModel,
                 ClassifyingCompilationContext compilationContext,
                 Action<Diagnostic> reportDiagnostic,
+                Action<ScopedSuppression>? reportSuppression,
                 bool reportCompileTimeTreeOutdatedError,
                 bool isDesignTime,
                 CancellationToken cancellationToken )
@@ -64,6 +66,7 @@ namespace Metalama.Framework.Engine.Templating
                 this._semanticModel = semanticModel;
                 this._compilationContext = compilationContext;
                 this._reportDiagnostic = reportDiagnostic;
+                this._reportSuppression = reportSuppression;
                 this._classifier = compilationContext.SymbolClassifier;
                 this._reportCompileTimeTreeOutdatedError = reportCompileTimeTreeOutdatedError;
                 this._isDesignTime = isDesignTime;
@@ -665,21 +668,6 @@ namespace Metalama.Framework.Engine.Templating
                 var compilation = this._compilationContext.SourceCompilation;
                 var reflectionMapper = this._compilationContext.ReflectionMapper;
 
-                bool IsAspect( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(IAspect) ) );
-                }
-
-                bool IsFabric( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(Fabric) ) );
-                }
-
-                bool IsTemplateProvider( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(ITemplateProvider) ) );
-                }
-
                 // Report an error for struct aspect.
                 if ( declaredSymbol is INamedTypeSymbol { IsValueType: true } typeSymbol && IsAspect( typeSymbol ) )
                 {
@@ -725,6 +713,15 @@ namespace Metalama.Framework.Engine.Templating
                             TemplatingDiagnosticDescriptors.TemplatesHaveToBeInTemplateProvider.CreateRoslynDiagnostic(
                                 declaredSymbol.GetDiagnosticLocation(),
                                 (declaredSymbol, containingType) ) );
+                    }
+
+                    // Suppress well-known warnings.
+                    if ( this._reportSuppression != null )
+                    {
+                        foreach ( var suppression in WellKnownTemplateWarningSuppressions.SuppressionDescriptors.Values )
+                        {
+                            this._reportSuppression( new ScopedSuppression( suppression, declaredSymbol ) );
+                        }
                     }
                 }
 
@@ -772,6 +769,21 @@ namespace Metalama.Framework.Engine.Templating
                 this._currentTemplateInfo = templateInfo;
 
                 return context;
+
+                bool IsTemplateProvider( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(ITemplateProvider) ) );
+                }
+
+                bool IsFabric( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(Fabric) ) );
+                }
+
+                bool IsAspect( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(IAspect) ) );
+                }
             }
 
             private static bool IsSupportedTemplateDeclaration( ISymbol declaredSymbol )

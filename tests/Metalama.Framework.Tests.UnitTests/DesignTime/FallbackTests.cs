@@ -156,9 +156,9 @@ public class TargetClass
                 domain,
                 ExecutionScenario.CompileTime );
 
-            var diagnosticList = new ThrowingDiagnosticAdder();
+            var diagnosticAdder = new ThrowingDiagnosticAdder();
 
-            var compileTimeResult = await compileTimePipeline.ExecuteAsync( diagnosticList, inputCompilation, default );
+            var compileTimeResult = await compileTimePipeline.ExecuteAsync( diagnosticAdder.Report, null, inputCompilation, default );
 
             if ( !compileTimeResult.IsSuccessful )
             {

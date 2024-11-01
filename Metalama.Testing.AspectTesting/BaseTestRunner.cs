@@ -513,7 +513,8 @@ internal abstract partial class BaseTestRunner
         var compilation = (await project.GetCompilationAsync())!.WithAssemblyName( name );
 
         var pipelineResult = await pipeline.ExecuteAsync(
-            testResult.InputCompilationDiagnostics,
+            testResult.InputCompilationDiagnostics.Report,
+            null,
             compilation,
             default );
 

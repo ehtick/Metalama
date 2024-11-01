@@ -23,7 +23,7 @@ internal sealed class CacheableScopedSuppression : IScopedSuppression
     public CacheableScopedSuppression( ScopedSuppression suppression )
     {
         this.Suppression = suppression.Suppression;
-        this.DeclarationId = suppression.Declaration.GetSourceSerializableId();
+        this.DeclarationId = suppression.ScopeSymbol.GetSerializableId();
     }
 
     public override string ToString() => $"{this.Suppression} on {this.DeclarationId}";
