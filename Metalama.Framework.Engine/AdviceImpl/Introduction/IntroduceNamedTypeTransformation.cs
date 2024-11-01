@@ -25,14 +25,14 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
 
     public override IEnumerable<InjectedMember> GetInjectedMembers( MemberInjectionContext context )
     {
-        var typeBuilder = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
+        var introducedType = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
 
         BaseListSyntax? baseList;
 
-        if ( typeBuilder.BaseType != null && typeBuilder.BaseType.SpecialType != SpecialType.Object )
+        if ( introducedType.BaseType != null && introducedType.BaseType.SpecialType != SpecialType.Object )
         {
             baseList = BaseList(
-                SingletonSeparatedList<BaseTypeSyntax>( SimpleBaseType( context.SyntaxGenerator.Type( typeBuilder.BaseType.ToNonNullable() ) ) ) );
+                SingletonSeparatedList<BaseTypeSyntax>( SimpleBaseType( context.SyntaxGenerator.Type( introducedType.BaseType.ToNonNullable() ) ) ) );
         }
         else
         {
@@ -40,19 +40,45 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
         }
 
         var type =
-            ClassDeclaration(
-                    AdviceSyntaxGenerator.GetAttributeLists( typeBuilder, context ),
-                    typeBuilder.GetSyntaxModifierList(),
-                    Identifier( typeBuilder.Name ),
-                    typeBuilder.TypeParameters.Count == 0
-                        ? null
-                        : TypeParameterList( SeparatedList( typeBuilder.TypeParameters.SelectAsReadOnlyList( tp => TypeParameter( Identifier( tp.Name ) ) ) ) ),
-                    baseList,
-                    List<TypeParameterConstraintClauseSyntax>(),
-                    List<MemberDeclarationSyntax>() )
-                .NormalizeWhitespaceIfNecessary( context.SyntaxGenerationContext );
+            (this.BuilderData.TypeKind switch
+            {
+                TypeKind.Class =>
+                    (TypeDeclarationSyntax) ClassDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        introducedType.TypeParameters.Count == 0
+                            ? null
+                            : TypeParameterList( SeparatedList( introducedType.TypeParameters.SelectAsReadOnlyList( tp => TypeParameter( Identifier( tp.Name ) ) ) ) ),
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses(introducedType),
+                        List<MemberDeclarationSyntax>() ),
+                TypeKind.Struct =>
+                    StructDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        introducedType.TypeParameters.Count == 0
+                            ? null
+                            : TypeParameterList( SeparatedList( introducedType.TypeParameters.SelectAsReadOnlyList( tp => TypeParameter( Identifier( tp.Name ) ) ) ) ),
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses( introducedType ),
+                        List<MemberDeclarationSyntax>() ),
+                TypeKind.Interface =>
+                    InterfaceDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        introducedType.TypeParameters.Count == 0
+                            ? null
+                            : TypeParameterList( SeparatedList( introducedType.TypeParameters.SelectAsReadOnlyList( tp => TypeParameter( Identifier( tp.Name ) ) ) ) ),
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses( introducedType ),
+                        List<MemberDeclarationSyntax>() ),
+                _ => throw new AssertionFailedException( $"Unsupported type kind '{introducedType.TypeKind}'." )
+            }).NormalizeWhitespaceIfNecessary( context.SyntaxGenerationContext );
 
-        switch ( typeBuilder.ContainingDeclaration )
+        switch ( introducedType.ContainingDeclaration )
         {
             case INamedType:
             case INamespace { IsGlobalNamespace: true }:
@@ -62,7 +88,7 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
                 var namespaceDeclaration =
                     NamespaceDeclaration(
                         Token( TriviaList(), SyntaxKind.NamespaceKeyword, TriviaList( ElasticSpace ) ),
-                        ParseName( typeBuilder.ContainingNamespace.FullName ),
+                        ParseName( introducedType.ContainingNamespace.FullName ),
                         Token( TriviaList(), SyntaxKind.OpenBraceToken, TriviaList( context.SyntaxGenerationContext.ElasticEndOfLineTrivia ) ),
                         List<ExternAliasDirectiveSyntax>(),
                         List<UsingDirectiveSyntax>(),
@@ -82,7 +108,7 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
 
             default:
                 throw new AssertionFailedException(
-                    $"Unsupported containing declaration type '{typeBuilder.ContainingDeclaration.AssertNotNull().GetType()}'." );
+                    $"Unsupported containing declaration type '{introducedType.ContainingDeclaration.AssertNotNull().GetType()}'." );
         }
     }
 }

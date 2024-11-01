@@ -102,17 +102,40 @@ internal static class ModifierHelper
                 AddToken( SyntaxKind.NewKeyword );
             }
 
-            if ( member.IsOverride )
+            if ( member.DeclaringType is { TypeKind: Code.TypeKind.Interface } )
             {
-                AddToken( SyntaxKind.OverrideKeyword );
+                Invariant.Assert( !member.IsOverride );
+                Invariant.Implies( member.IsAbstract, member.Accessibility is not Accessibility.Private );
+                Invariant.Implies( member.IsVirtual, member.Accessibility is not Accessibility.Private );
+
+                // Interface instance methods are automatically abstract or virtual depending on presence of the body.
+                // Override keyword is not allowed in interfaces.
+                if ( member.IsStatic )
+                {
+                    if ( member.IsAbstract )
+                    {
+                        AddToken( SyntaxKind.AbstractKeyword );
+                    }
+                    else if ( member.IsVirtual )
+                    {
+                        AddToken( SyntaxKind.VirtualKeyword );
+                    }
+                }
             }
-            else if ( member.IsAbstract )
+            else
             {
-                AddToken( SyntaxKind.AbstractKeyword );
-            }
-            else if ( member.IsVirtual )
-            {
-                AddToken( SyntaxKind.VirtualKeyword );
+                if ( member.IsOverride )
+                {
+                    AddToken( SyntaxKind.OverrideKeyword );
+                }
+                else if ( member.IsAbstract )
+                {
+                    AddToken( SyntaxKind.AbstractKeyword );
+                }
+                else if ( member.IsVirtual )
+                {
+                    AddToken( SyntaxKind.VirtualKeyword );
+                }
             }
 
             if ( member.IsSealed )
@@ -255,7 +278,11 @@ internal static class ModifierHelper
                 break;
 
             case Accessibility.Public:
-                AddToken( SyntaxKind.PublicKeyword );
+                if (member.DeclaringType is not { TypeKind: Code.TypeKind.Interface })
+                {
+                    // Idiomatically, public accessor is skipped in interfaces.
+                    AddToken( SyntaxKind.PublicKeyword );
+                }
 
                 break;
         }

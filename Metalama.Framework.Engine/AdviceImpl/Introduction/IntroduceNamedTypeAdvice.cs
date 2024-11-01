@@ -4,6 +4,7 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.Advising;
+using Metalama.Framework.Engine.CodeModel.Introductions.BuilderData;
 using Metalama.Framework.Engine.CodeModel.Introductions.Builders;
 using Metalama.Framework.Engine.Diagnostics;
 using System;
@@ -14,6 +15,7 @@ namespace Metalama.Framework.Engine.AdviceImpl.Introduction;
 internal sealed class IntroduceNamedTypeAdvice : IntroduceDeclarationAdvice<INamedType, NamedTypeBuilder>
 {
     private readonly string _explicitName;
+    private readonly TypeKind _typeKind;
 
     public override AdviceKind AdviceKind => AdviceKind.IntroduceType;
 
@@ -23,16 +25,18 @@ internal sealed class IntroduceNamedTypeAdvice : IntroduceDeclarationAdvice<INam
         AdviceConstructorParameters<INamespaceOrNamedType> parameters,
         string explicitName,
         OverrideStrategy overrideStrategy,
-        Action<NamedTypeBuilder>? buildAction )
+        Action<NamedTypeBuilder>? buildAction, 
+        TypeKind typeKind )
         : base( parameters, buildAction )
     {
         this._explicitName = explicitName;
         this.OverrideStrategy = overrideStrategy;
+        this._typeKind = typeKind;
     }
 
     protected override NamedTypeBuilder CreateBuilder( in AdviceImplementationContext context )
     {
-        return new NamedTypeBuilder( this.AspectLayerInstance, (INamespaceOrNamedType) this.TargetDeclaration.AssertNotNull(), this._explicitName );
+        return new NamedTypeBuilder( this.AspectLayerInstance, (INamespaceOrNamedType) this.TargetDeclaration.AssertNotNull(), this._explicitName, this._typeKind );
     }
 
     protected override IntroductionAdviceResult<INamedType> ImplementCore( NamedTypeBuilder builder, in AdviceImplementationContext context )
@@ -58,6 +62,7 @@ internal sealed class IntroduceNamedTypeAdvice : IntroduceDeclarationAdvice<INam
             builder.Freeze();
 
             context.AddTransformation( builder.CreateTransformation() );
+            //context.AddTransformation( this.CreateDefaultConstructorTransformation( builder ) );
 
             return this.CreateSuccessResult( AdviceOutcome.Default, builder );
         }
@@ -79,6 +84,7 @@ internal sealed class IntroduceNamedTypeAdvice : IntroduceDeclarationAdvice<INam
                     builder.HasNewKeyword = builder.IsNew = true;
                     builder.Freeze();
                     context.AddTransformation( builder.CreateTransformation() );
+                    //context.AddTransformation( this.CreateDefaultConstructorTransformation( builder ) );
 
                     return this.CreateSuccessResult( AdviceOutcome.Default, builder );
 
@@ -86,5 +92,13 @@ internal sealed class IntroduceNamedTypeAdvice : IntroduceDeclarationAdvice<INam
                     throw new AssertionFailedException( $"Unexpected OverrideStrategy: {this.OverrideStrategy}." );
             }
         }
+    }
+
+    private IntroduceConstructorTransformation CreateDefaultConstructorTransformation( INamedType type )
+    {
+        var builder = new ConstructorBuilder( this.AspectLayerInstance, type, true );
+        builder.Freeze();
+
+        return new IntroduceConstructorTransformation( this.AspectLayerInstance, builder.BuilderData );
     }
 }

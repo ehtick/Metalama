@@ -21,12 +21,13 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
 
     public IntroduceMethodAdvice(
         AdviceConstructorParameters<INamedType> parameters,
+        string? explicitName,
         PartiallyBoundTemplateMethod template,
         IntroductionScope scope,
         OverrideStrategy overrideStrategy,
         Action<IMethodBuilder>? buildAction,
         INamedType? explicitlyImplementedInterfaceType )
-        : base( parameters, explicitName: null, template.TemplateMember, scope, overrideStrategy, buildAction, explicitlyImplementedInterfaceType )
+        : base( parameters, explicitName, template?.TemplateMember, scope, overrideStrategy, buildAction, explicitlyImplementedInterfaceType )
     {
         this._template = template;
     }
@@ -144,14 +145,18 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
             builder.HasNewKeyword = builder.IsNew = false;
             builder.Freeze();
 
-            // There is no existing declaration, we will introduce and override the introduced.
+            context.AddTransformation( builder.ToTransformation() );
+
+            // There is no existing declaration, we will introduce and override the introduced (if it has a body).
             var overriddenMethod = new OverrideMethodTransformation(
                 this.AspectLayerInstance,
                 builder.ToFullRef(),
                 this._template.ForIntroduction( builder ) );
 
-            context.AddTransformation( builder.ToTransformation() );
-            context.AddTransformation( overriddenMethod );
+            if ( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody )
+            {
+                context.AddTransformation( overriddenMethod );
+            }
 
             return this.CreateSuccessResult( AdviceOutcome.Default, builder );
         }
@@ -205,15 +210,21 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
                         var overriddenMethod = new OverrideMethodTransformation(
                             this.AspectLayerInstance,
                             builder.ToFullRef(),
-                            this._template.ForIntroduction( builder ) );
+                            this._template.AssertNotNull().ForIntroduction( builder ) );
 
-                        context.AddTransformation( overriddenMethod );
                         context.AddTransformation( builder.ToTransformation() );
+
+                        if ( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody )
+                        {
+                            context.AddTransformation( overriddenMethod );
+                        }
 
                         return this.CreateSuccessResult( AdviceOutcome.New, builder );
                     }
 
                 case OverrideStrategy.Override:
+                    Invariant.Assert( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody );
+
                     if ( !builder.ReturnType.IsConvertibleTo( existingMethod.ReturnType, ConversionKind.Reference ) )
                     {
                         return
@@ -229,7 +240,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
                         var overriddenMethod = new OverrideMethodTransformation(
                             this.AspectLayerInstance,
                             existingMethod.ToFullRef(),
-                            this._template.ForIntroduction( existingMethod ) );
+                            this._template.AssertNotNull().ForIntroduction( existingMethod ) );
 
                         context.AddTransformation( overriddenMethod );
 
@@ -256,7 +267,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
                         var overriddenMethod = new OverrideMethodTransformation(
                             this.AspectLayerInstance,
                             builder.ToFullRef(),
-                            this._template.ForIntroduction( builder ) );
+                            this._template.AssertNotNull().ForIntroduction( builder ) );
 
                         context.AddTransformation( builder.ToTransformation() );
                         context.AddTransformation( overriddenMethod );

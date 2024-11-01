@@ -179,7 +179,7 @@ internal sealed class IntroducedNamedType : IntroducedMemberOrNamedType, INamedT
     public bool? IsNullable { get; }
 
     [Memo]
-    public ITypeParameterList TypeParameters => new TypeParameterList( this, this.NamedTypeBuilderData.TypeParameters.SelectAsReadOnlyList( t => t.ToRef() ) );
+    public ITypeParameterList TypeParameters => new TypeParameterList( this, this.NamedTypeBuilderData.TypeParameters.Select( t => t.ToRef() ).ToReadOnlyList() );
 
     [Memo]
     public IReadOnlyList<IType> TypeArguments => this.NamedTypeBuilderData.TypeParameters.SelectAsImmutableArray( t => this.MapType( t.ToRef() ) );

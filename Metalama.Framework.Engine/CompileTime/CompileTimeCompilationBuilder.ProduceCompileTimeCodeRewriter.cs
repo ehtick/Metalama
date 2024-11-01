@@ -729,7 +729,12 @@ namespace Metalama.Framework.Engine.CompileTime
 
                     return true;
                 }
-                else
+                //else if (symbol.IsExtern)
+                //{
+                //    // Extern members indicate a template without a body, i.e. non-expandable template.
+                //    return true;
+                //}
+                else 
                 {
                     return false;
                 }
@@ -752,6 +757,11 @@ namespace Metalama.Framework.Engine.CompileTime
                 {
                     yield return (MethodDeclarationSyntax) this.VisitMethodDeclaration( node ).AssertNotNull();
 
+                    yield break;
+                }
+
+                if (templateInfo.HasNoBody)
+                {
                     yield break;
                 }
 

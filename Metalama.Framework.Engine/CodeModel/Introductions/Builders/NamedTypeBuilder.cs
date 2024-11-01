@@ -30,15 +30,19 @@ internal sealed class NamedTypeBuilder : MemberOrNamedTypeBuilder, INamedTypeBui
     private bool _isPartial;
     private INamedType? _baseType;
 
+    public TypeKind TypeKind { get; }
+
     public IntroducedRef<INamedType> Ref { get; }
 
     public TypeParameterBuilderList TypeParameters { get; } = [];
 
-    public NamedTypeBuilder( AspectLayerInstance aspectLayerInstance, INamespaceOrNamedType declaringNamespaceOrType, string name ) : base(
+    public NamedTypeBuilder( AspectLayerInstance aspectLayerInstance, INamespaceOrNamedType declaringNamespaceOrType, string name, TypeKind typeKind ) : base(
         aspectLayerInstance,
         declaringNamespaceOrType as INamedType,
         name )
     {
+        this.TypeKind = typeKind;
+
         this.ContainingNamespace = declaringNamespaceOrType switch
         {
             INamespace @namespace => @namespace,
@@ -180,8 +184,6 @@ internal sealed class NamedTypeBuilder : MemberOrNamedTypeBuilder, INamedTypeBui
     public INamedType Definition => this;
 
     public INamedType UnderlyingType => this;
-
-    public TypeKind TypeKind => TypeKind.Class;
 
     public SpecialType SpecialType => SpecialType.None;
 

@@ -20,114 +20,126 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
 {
     public IntroduceMethodTransformation( AspectLayerInstance aspectLayerInstance, MethodBuilderData introducedDeclaration ) : base(
         aspectLayerInstance,
-        introducedDeclaration ) { }
+        introducedDeclaration )
+    { }
 
     public override IEnumerable<InjectedMember> GetInjectedMembers( MemberInjectionContext context )
     {
-        var methodBuilder = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
+        var finalMethod = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
 
         var syntaxGenerator = context.SyntaxGenerationContext.SyntaxGenerator;
 
-        var explicitInterfaceSpecifier = methodBuilder.ExplicitInterfaceImplementations.Count > 0
-            ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.Type( methodBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
+        var explicitInterfaceSpecifier = finalMethod.ExplicitInterfaceImplementations.Count > 0
+            ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.Type( finalMethod.ExplicitInterfaceImplementations.Single().DeclaringType ) )
             : null;
 
-        if ( methodBuilder.DeclarationKind == DeclarationKind.Finalizer )
+        switch ( finalMethod.DeclarationKind )
         {
-            var syntax = DestructorDeclaration(
-                AdviceSyntaxGenerator.GetAttributeLists( methodBuilder, context ),
-                TokenList(),
-                ((TypeDeclarationSyntax) methodBuilder.DeclaringType.GetPrimaryDeclarationSyntax().AssertNotNull()).Identifier,
-                ParameterList(),
-                Block().WithGeneratedCodeAnnotation( this.AspectInstance.AspectClass.GeneratedCodeAnnotation ),
-                null );
+            case DeclarationKind.Finalizer:
+                {
+                    var syntax = DestructorDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( finalMethod, context ),
+                        TokenList(),
+                        ((TypeDeclarationSyntax) finalMethod.DeclaringType.GetPrimaryDeclarationSyntax().AssertNotNull()).Identifier,
+                        ParameterList(),
+                        Block().WithGeneratedCodeAnnotation( this.AspectInstance.AspectClass.GeneratedCodeAnnotation ),
+                        null );
 
-            return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
-        }
-        else if ( methodBuilder.DeclarationKind == DeclarationKind.Operator )
-        {
-            if ( methodBuilder.OperatorKind.GetCategory() == OperatorCategory.Conversion )
-            {
-                Invariant.Assert( methodBuilder.Parameters.Count == 1 );
+                    return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
+                }
 
-                var syntax = ConversionOperatorDeclaration(
-                    AdviceSyntaxGenerator.GetAttributeLists( methodBuilder, context ),
-                    methodBuilder.GetSyntaxModifierList(),
-                    SyntaxFactoryEx.TokenWithTrailingSpace( methodBuilder.OperatorKind.ToOperatorKeyword() ),
-                    explicitInterfaceSpecifier,
-                    SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
-                    context.SyntaxGenerator.Type( methodBuilder.ReturnType )
-                        .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
-                    context.SyntaxGenerator.ParameterList( methodBuilder, context.FinalCompilation ),
-                    null,
-                    ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( methodBuilder.ReturnType ) ),
-                    Token( SyntaxKind.SemicolonToken ) );
+            case DeclarationKind.Operator:
+                {
+                    if ( finalMethod.OperatorKind.GetCategory() == OperatorCategory.Conversion )
+                    {
+                        Invariant.Assert( finalMethod.Parameters.Count == 1 );
 
-                return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
-            }
-            else
-            {
-                Invariant.Assert( methodBuilder.Parameters.Count is 1 or 2 );
+                        var syntax = ConversionOperatorDeclaration(
+                            AdviceSyntaxGenerator.GetAttributeLists( finalMethod, context ),
+                            finalMethod.GetSyntaxModifierList(),
+                            SyntaxFactoryEx.TokenWithTrailingSpace( finalMethod.OperatorKind.ToOperatorKeyword() ),
+                            explicitInterfaceSpecifier,
+                            SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
+                            context.SyntaxGenerator.Type( finalMethod.ReturnType )
+                                .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
+                            context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
+                            null,
+                            ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) ),
+                            Token( SyntaxKind.SemicolonToken ) );
 
-                var syntax = OperatorDeclaration(
-                    AdviceSyntaxGenerator.GetAttributeLists( methodBuilder, context ),
-                    methodBuilder.GetSyntaxModifierList(),
-                    context.SyntaxGenerator.Type( methodBuilder.ReturnType )
-                        .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
-                    explicitInterfaceSpecifier,
-                    SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
-                    SyntaxFactoryEx.TokenWithTrailingSpace( methodBuilder.OperatorKind.ToOperatorKeyword() ),
-                    context.SyntaxGenerator.ParameterList( methodBuilder, context.FinalCompilation ),
-                    null,
-                    ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( methodBuilder.ReturnType ) ),
-                    Token( SyntaxKind.SemicolonToken ) );
+                        return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
+                    }
+                    else
+                    {
+                        Invariant.Assert( finalMethod.Parameters.Count is 1 or 2 );
 
-                return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
-            }
-        }
-        else
-        {
-            // ReSharper disable RedundantLinebreak
+                        var syntax = OperatorDeclaration(
+                            AdviceSyntaxGenerator.GetAttributeLists( finalMethod, context ),
+                            finalMethod.GetSyntaxModifierList(),
+                            context.SyntaxGenerator.Type( finalMethod.ReturnType )
+                                .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
+                            explicitInterfaceSpecifier,
+                            SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.OperatorKeyword ),
+                            SyntaxFactoryEx.TokenWithTrailingSpace( finalMethod.OperatorKind.ToOperatorKeyword() ),
+                            context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
+                            null,
+                            ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) ),
+                            Token( SyntaxKind.SemicolonToken ) );
 
-            // Async iterator can have empty body and still be in iterator, returning anything is invalid.
-            var block = syntaxGenerator.FormattedBlock(
-                !methodBuilder.ReturnParameter.Type.IsConvertibleTo( typeof(void) )
-                    ? methodBuilder.GetIteratorInfo().IsIteratorMethod == true
-                        ?
-                        [
-                            syntaxGenerator.FormattedBlock(
-                                YieldStatement(
-                                    SyntaxKind.YieldBreakStatement,
-                                    List<AttributeListSyntax>(),
-                                    SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.YieldKeyword ),
-                                    SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.BreakKeyword ),
-                                    null,
-                                    Token( TriviaList(), SyntaxKind.SemicolonToken, TriviaList() ) ) )
-                        ]
-                        :
-                        [
-                            ReturnStatement(
-                                SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.ReturnKeyword ),
-                                DefaultExpression( syntaxGenerator.Type( methodBuilder.ReturnParameter.Type ) ),
-                                Token( SyntaxKind.SemicolonToken ) )
-                        ]
-                    : [] );
+                        return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
+                    }
+                }
 
-            // ReSharper enable RedundantLinebreak
+            default:
+                {
+                    // ReSharper disable RedundantLinebreak
 
-            var method = MethodDeclaration(
-                AdviceSyntaxGenerator.GetAttributeLists( methodBuilder, context ),
-                methodBuilder.GetSyntaxModifierList(),
-                context.SyntaxGenerator.ReturnType( methodBuilder ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
-                explicitInterfaceSpecifier,
-                methodBuilder.GetCleanName(),
-                context.SyntaxGenerator.TypeParameterList( methodBuilder, context.FinalCompilation ),
-                context.SyntaxGenerator.ParameterList( methodBuilder, context.FinalCompilation ),
-                context.SyntaxGenerator.ConstraintClauses( methodBuilder ),
-                block,
-                null );
+                    // Interface method will be declared without any body.
+                    // Async iterator can have empty body and still be in iterator, returning anything is invalid.
+                    var block =
+                        finalMethod.DeclaringType.TypeKind == TypeKind.Interface
+                            ? null
+                            : syntaxGenerator.FormattedBlock(
+                                !finalMethod.ReturnParameter.Type.IsConvertibleTo( typeof( void ) )
+                                    ? finalMethod.GetIteratorInfo().IsIteratorMethod == true
+                                        ?
+                                        [
+                                            syntaxGenerator.FormattedBlock(
+                                        YieldStatement(
+                                            SyntaxKind.YieldBreakStatement,
+                                            List<AttributeListSyntax>(),
+                                            SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.YieldKeyword ),
+                                            SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.BreakKeyword ),
+                                            null,
+                                            Token( TriviaList(), SyntaxKind.SemicolonToken, TriviaList() ) ) )
+                                        ]
+                                        :
+                                        [
+                                            ReturnStatement(
+                                        SyntaxFactoryEx.TokenWithTrailingSpace( SyntaxKind.ReturnKeyword ),
+                                        DefaultExpression( syntaxGenerator.Type( finalMethod.ReturnParameter.Type ) ),
+                                        Token( SyntaxKind.SemicolonToken ) )
+                                        ]
+                                    : [] );
 
-            return [new InjectedMember( this, method, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
+                    // ReSharper enable RedundantLinebreak
+
+                    var method =
+                        MethodDeclaration(
+                            AdviceSyntaxGenerator.GetAttributeLists( finalMethod, context ),
+                            finalMethod.GetSyntaxModifierList(),
+                            context.SyntaxGenerator.ReturnType( finalMethod ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
+                            explicitInterfaceSpecifier,
+                            finalMethod.GetCleanName(),
+                            context.SyntaxGenerator.TypeParameterList( finalMethod, context.FinalCompilation ),
+                            context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
+                            context.SyntaxGenerator.ConstraintClauses( finalMethod ),
+                            block,
+                            null,
+                            block == null ? Token( SyntaxKind.SemicolonToken ) : default );
+
+                    return [new InjectedMember( this, method, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
+                }
         }
     }
 }

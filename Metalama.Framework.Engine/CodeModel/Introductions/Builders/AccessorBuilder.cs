@@ -129,7 +129,7 @@ internal sealed partial class AccessorBuilder : DeclarationBuilder, IMethodBuild
 
     public bool HasImplementation => true;
 
-    bool IMethod.IsExtern => false;
+    bool IMember.IsExtern => false;
 
     public IMethodInvoker With( InvokerOptions options ) => new MethodInvoker( this, options );
 

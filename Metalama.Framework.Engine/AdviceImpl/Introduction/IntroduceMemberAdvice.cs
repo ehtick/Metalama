@@ -83,12 +83,29 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         var templateAttributeProperties = templateAttribute?.Properties;
         var templateDeclaration = this.Template?.GetDeclaration( this.SourceCompilation );
 
-        builder.Accessibility = this.Template?.Accessibility ?? Accessibility.Private;
-        builder.IsSealed = templateAttributeProperties?.IsSealed ?? templateDeclaration?.IsSealed ?? false;
-        builder.IsVirtual = templateAttributeProperties?.IsVirtual ?? templateDeclaration?.IsVirtual ?? false;
+        var isInterfaceMember = this.TargetDeclaration.TypeKind is TypeKind.Interface;
+
+        // Without a template, interface members start as public, other type members as private.
+        builder.Accessibility =
+            this.Template?.Accessibility
+            ?? Accessibility.Private;
+
+        builder.IsSealed = 
+            templateAttributeProperties?.IsSealed 
+            ?? templateDeclaration?.IsSealed 
+            ?? false;
+
+        // Interface members that do not have templates are by default virtual.
+        builder.IsVirtual = 
+            templateAttributeProperties?.IsVirtual 
+            ?? templateDeclaration?.IsVirtual 
+            ?? isInterfaceMember;
+
+        // Extern template denotes an abstract member of an interface.
+        builder.IsAbstract = isInterfaceMember && templateDeclaration?.IsExtern == true;
 
         // Handle the introduction scope.
-
+        // By default, interface members are static because the scope is default and there is no template.
         builder.IsStatic = this._scope switch
         {
             IntroductionScope.Default => templateDeclaration is { IsStatic: true },
@@ -119,7 +136,7 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         var targetDeclaration = this.TargetDeclaration;
 
         // Check that static member is not virtual.
-        if ( builder is { IsStatic: true, IsVirtual: true } )
+        if ( builder is { IsStatic: true, IsVirtual: true, DeclaringType.TypeKind: not TypeKind.Interface } )
         {
             diagnosticAdder.Report(
                 AdviceDiagnosticDescriptors.CannotIntroduceStaticVirtualMember.CreateRoslynDiagnostic(

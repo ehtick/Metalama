@@ -54,6 +54,8 @@ internal abstract class MemberBuilder : MemberOrNamedTypeBuilder, IMemberBuilder
         }
     }
 
+    bool IMember.IsExtern => false;
+
     IMember IMember.Definition => this;
 
     IRef<IMember> IMember.ToRef() => this.ToMemberFullRef();
