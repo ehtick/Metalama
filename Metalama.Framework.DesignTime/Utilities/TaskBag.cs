@@ -71,24 +71,26 @@ public sealed class TaskBag
     {
 #pragma warning disable VSTHRD003
 
-        var shortDelay = Task.Delay( 5_000 );
+        var shortDelay = TimeSpan.FromSeconds( 5 );
+        var shortDelayTask = Task.Delay( 5_000 );
 
-        if ( await Task.WhenAny( shortDelay, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == shortDelay )
+        if ( await Task.WhenAny( shortDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == shortDelayTask )
         {
             this._logger.Warning?.Log(
-                "The following tasks take a long time to complete: " + string.Join(
+                $"The following tasks take more than {shortDelay} to complete: " + string.Join(
                     ", ",
                     this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.ToString() ) ) );
         }
 
         // Avoid blocking forever in case of bug.
 
-        var longDelay = Task.Delay( 180_000 );
+        var longDelay = TimeSpan.FromSeconds( 180 );
+        var longDelayTask = Task.Delay( 180_000 );
 
-        if ( await Task.WhenAny( longDelay, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == longDelay )
+        if ( await Task.WhenAny( longDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == longDelayTask )
         {
             throw new TimeoutException(
-                "The following tasks did not complete complete in time: " + string.Join(
+                $"The following tasks did not complete complete in {longDelay}: " + string.Join(
                     ", ",
                     this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.Method.ToString() ) ) );
         }

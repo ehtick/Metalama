@@ -60,6 +60,8 @@ namespace Metalama.Testing.UnitTesting
         {
             this.AddSyntaxGenerationOptions( services );
             this.AddXunitLogging( services );
+            
+            services.AddGlobalService( _ => TestingServices.ReferenceAssemblyLocatorProvider );
         }
 
         protected virtual void AddSyntaxGenerationOptions( IAdditionalServiceCollection services )
