@@ -508,7 +508,7 @@ namespace Metalama.Framework.Engine.Templating
             = new(
                 "LAMA0271",
                 "Extension method templates are not supported.",
-                "The template '{0}' is an extension method, which is not supported.",
+                "The template '{0}' is an extension method, which is not supported. To introduce an extension method, mark the first parameter of the introduced method with the [This] attribute or programmatically set its IParameterBuilder.IsThis property.",
                 _category,
                 Error );
 
@@ -532,7 +532,7 @@ namespace Metalama.Framework.Engine.Templating
             = new(
                 "LAMA0274",
                 "Templates have to be contained in an aspect, fabric, or a type implementing ITemplateProvider.",
-                "The template '{0}' is contained in '{1}', which is not an aspect, a fabric, or a type marked implementing ITemplateProvider.",
+                "The template '{0}' is contained in '{1}', which is not an aspect, a fabric, or a type implementing ITemplateProvider.",
                 _category,
                 Error );
 
