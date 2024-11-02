@@ -9,9 +9,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Metalama.Extensions.DependencyInjection.ServiceLocator;
 
-#pragma warning disable IDE0079
-#pragma warning disable CS8604 // Warnings that appear only on the build server.
-
 internal class LazyServiceLocatorDependencyInjectionStrategy : DefaultDependencyInjectionStrategy, ITemplateProvider
 {
     public LazyServiceLocatorDependencyInjectionStrategy( DependencyProperties properties ) : base( properties ) { }

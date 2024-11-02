@@ -4,7 +4,6 @@ using Metalama.Backstage.Diagnostics;
 
 namespace Metalama.Extensions.DependencyInjection.DotNet.Tests.Aspect.EarlyOptional.Lazy_PrimaryConstructor;
 
-#pragma warning disable IDE0044 // Add readonly modifier
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable CS9113  // Parameter is unread.
 
