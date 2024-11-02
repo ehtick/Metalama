@@ -592,8 +592,7 @@ namespace Metalama.Framework.Engine.Templating
 
                 this._reportDiagnostic( diagnostic );
             }
-            
-            
+
             private Context WithDeclaration( SyntaxNode node, ISymbol? declaredSymbol = null )
             {
                 // Reset deduplication.
@@ -800,12 +799,13 @@ namespace Metalama.Framework.Engine.Templating
                     // Somehow we can get here even if we are already in a template, so skip this.
                     return;
                 }
-                    
+
                 // Suppress well-known warnings.
                 foreach ( var suppression in WellKnownTemplateWarningSuppressions.SuppressionDescriptors.Values )
                 {
                     // Verify the symbol kind.
-                    if ( Array.IndexOf( suppression.EligibleSymbolKinds, declaredSymbol.Kind ) < 0 && !(suppression.AppliesToConstructor && node is ConstructorDeclarationSyntax ) )
+                    if ( Array.IndexOf( suppression.EligibleSymbolKinds, declaredSymbol.Kind ) < 0
+                         && !(suppression.AppliesToConstructor && node is ConstructorDeclarationSyntax) )
                     {
                         continue;
                     }
@@ -836,7 +836,7 @@ namespace Metalama.Framework.Engine.Templating
                             continue;
                         }
                     }
-                            
+
                     this._reportSuppression( new ScopedSuppression( suppression.Definition, declaredSymbol ) );
                 }
             }

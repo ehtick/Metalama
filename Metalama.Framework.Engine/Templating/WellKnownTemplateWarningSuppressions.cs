@@ -1,20 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Framework.Diagnostics;
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Metalama.Framework.Engine.Templating;
-
-public record WellKnownTemplateWarningSuppression( string DiagnosticId, string? Justification, SymbolKind[] EligibleSymbolKinds )
-{
-    public SuppressionDefinition Definition { get; } = new( DiagnosticId, Justification );
-
-    public bool RequiresBody { get; init; }
-    
-    public bool AppliesToConstructor { get; init; }
-}
 
 public static class WellKnownTemplateWarningSuppressions
 {
