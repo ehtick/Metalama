@@ -1,6 +1,3 @@
-// Warning CS0414 on `f`: `The field 'TargetCode.f' is assigned but its value is never used`
-// Warning CS0414 on `f1`: `The field 'TargetCode.f1' is assigned but its value is never used`
-// Warning CS0414 on `f2`: `The field 'TargetCode.f2' is assigned but its value is never used`
 [Aspect]
 internal class TargetCode
 {

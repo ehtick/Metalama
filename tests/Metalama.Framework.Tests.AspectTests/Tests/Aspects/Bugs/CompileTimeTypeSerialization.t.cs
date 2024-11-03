@@ -1,5 +1,3 @@
-// Warning CS0414 on `types`: `The field 'BaseClass.types' is assigned but its value is never used`
-// Warning CS0414 on `types`: `The field 'TestClass.types' is assigned but its value is never used`
 [ListImplementedTypes(typeof(ICloneable))]
 [ListImplementedTypes(typeof(ISomeInterface))]
 [ListImplementedTypes(typeof(ISomeInterface.INested))]

@@ -9,7 +9,7 @@ namespace Metalama.Framework.Engine.Templating;
 public static class WellKnownTemplateWarningSuppressions
 {
     private static readonly SymbolKind[] _anyTemplate = [SymbolKind.Method, SymbolKind.Property, SymbolKind.Event, SymbolKind.Field];
-
+    
     public static readonly IReadOnlyDictionary<string, WellKnownTemplateWarningSuppression> SuppressionDescriptors =
         new[]
         {
@@ -67,4 +67,6 @@ public static class WellKnownTemplateWarningSuppressions
             // CS9113: Parameter is unread.
             new WellKnownTemplateWarningSuppression( "CS9113", "A template parameter may be read by target code.", [SymbolKind.Method] )
         }.ToDictionary( d => d.DiagnosticId, d => d );
+    
+    // NOTE: Also add suppressions to Metalama.Testing.AspectTesting.props when updating this file.
 }

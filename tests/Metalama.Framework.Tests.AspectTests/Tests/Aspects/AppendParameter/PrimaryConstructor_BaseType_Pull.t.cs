@@ -1,4 +1,3 @@
-// Warning CS9113 on `p`: `Parameter 'p' is unread.`
 [MyAspect]
 public class A(int x, global::System.Int32 p = 15)
 {

@@ -1,4 +1,3 @@
-// Warning CS0414 on `EventField`: `The field 'TargetStruct.EventField' is assigned but its value is never used`
 [IntroduceAspect]
 public struct TargetStruct : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TargetType_StructWithInitializers_CSharp10.IInterface
 {

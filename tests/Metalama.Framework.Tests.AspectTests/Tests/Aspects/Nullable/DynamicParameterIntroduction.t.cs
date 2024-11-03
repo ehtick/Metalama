@@ -1,4 +1,3 @@
-// Warning CS8602 on `arg`: `Dereference of a possibly null reference.`
 [Aspect]
 internal class TargetCode
 {
