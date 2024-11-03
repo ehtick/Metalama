@@ -196,6 +196,10 @@ internal sealed partial class CompileTimeProjectRepository
                         this._logger.Trace?.Log( $"Adding a compile-time reference: '{reference.Display}'." );
                         referencedProjects.Add( referencedProject );
                     }
+                    else
+                    {
+                        this._logger.Trace?.Log( $"Not a compile-time reference: '{reference.Display}'." );
+                    }
                 }
                 else
                 {
@@ -308,7 +312,7 @@ internal sealed partial class CompileTimeProjectRepository
             // LoadFromAssemblyPath throws for mscorlib
             if ( Path.GetFileNameWithoutExtension( assemblyPath ) == typeof(object).Assembly.GetName().Name )
             {
-                this._logger.Trace?.Log( $"'{assemblyPath}' is the system assembly." );
+                this._logger.Trace?.Log( $"'{assemblyPath}' is a system assembly." );
 
                 goto finish;
             }
@@ -372,6 +376,10 @@ internal sealed partial class CompileTimeProjectRepository
                         +
                         "because it has no compile-time embedded resource and it is not loaded as an analyzer." );
                 }
+            }
+            else
+            {
+                this._logger.Trace?.Log( $"'{assemblyPath}' does not contain compile-time code." );
             }
 
         finish:
