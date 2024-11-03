@@ -305,7 +305,6 @@ public sealed partial class CommandAttribute : Attribute, IAspect<IMethod>
             }
         }
 
-
 // ReSharper disable ConvertToLambdaExpression
 
         var executeExpression = ExpressionFactory.Parse( executeMethod.Name );
