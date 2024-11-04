@@ -344,6 +344,10 @@ namespace Metalama.Framework.Engine.Diagnostics
             CannotInvokeStaticConstructor =
                 new( "LAMA0067", _category, "Constructor '{0}' cannot be invoked because it is static.", Error, "Static constructor cannot be invoked." );
 
+        internal static readonly DiagnosticDefinition
+            ErrorsInSourceCode =
+                new( "LAMA0068", _category, "Compile-time code contains C# errors.", Error, "Compile-time code contains C# errors." );
+
         // TODO: Use formattable string (C# does not seem to find extension methods).
         internal static readonly DiagnosticDefinition<string>
             UnsupportedFeature = new(

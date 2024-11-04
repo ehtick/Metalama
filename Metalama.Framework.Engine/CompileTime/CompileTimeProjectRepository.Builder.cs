@@ -225,7 +225,7 @@ internal sealed partial class CompileTimeProjectRepository
                     out compileTimeProject,
                     cancellationToken ) )
             {
-                this._logger.Warning?.Log( $"TryGetCompileTimeProject failed." );
+                this._logger.Warning?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}'): failed." );
 
                 compileTimeProject = null;
 
@@ -234,7 +234,7 @@ internal sealed partial class CompileTimeProjectRepository
 
             this._projects.Add( runTimeCompilation.Assembly.Identity, compileTimeProject );
 
-            this._logger.Trace?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}'): successful" );
+            this._logger.Trace?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}'): successful." );
 
             return true;
         }
