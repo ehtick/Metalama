@@ -32,8 +32,6 @@ object DebugBuild : BuildType({
             +:artifacts/publish/private/**/*=>artifacts/publish/private
             +:artifacts/testResults/**/*=>artifacts/testResults
             +:artifacts/logs/**/*=>logs
-            +:%system.teamcity.build.tempDir%/Metalama/CompileTimeTroubleshooting/**/*=>logs/CompileTimeTroubleshooting
-            +:**/*.dll=>dll
         """
 
     params {
