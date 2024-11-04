@@ -116,44 +116,40 @@ internal abstract partial class BaseTestRunner
 
     private async Task RunAndAssertCoreAsync( TestInput testInput, TestContextOptions testContextOptions )
     {
-        // Avoid run too many tests in parallel regardless of the way the runners are scheduled.
-        using ( await TestThrottlingHelper.StartTestAsync() )
+        var originalCulture = CultureInfo.CurrentCulture;
+
+        try
         {
-            var originalCulture = CultureInfo.CurrentCulture;
+            // Change the culture to invariant to get invariant diagnostic messages.
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-            try
-            {
-                // Change the culture to invariant to get invariant diagnostic messages.
-                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            testInput.ProjectProperties.License?.ThrowIfNotLicensed();
 
-                testInput.ProjectProperties.License?.ThrowIfNotLicensed();
+            var transformedOptions = this.GetContextOptions( testContextOptions )
+                with
+                {
+                    ProjectName = testInput.Options.ProjectName ?? testInput.TestName, RunnerServiceProvider = this._serviceProvider
+                };
 
-                var transformedOptions = this.GetContextOptions( testContextOptions )
-                    with
-                    {
-                        ProjectName = testInput.Options.ProjectName ?? testInput.TestName, RunnerServiceProvider = this._serviceProvider
-                    };
+            using var testContext = new TestContext( transformedOptions );
+            testContext.TestName = testInput.FullPath;
+            testContext.TestOutputWriter = this.Logger;
 
-                using var testContext = new TestContext( transformedOptions );
-                testContext.TestName = testInput.FullPath;
-                testContext.TestOutputWriter = this.Logger;
-
-                using var testResult = this.CreateTestResult();
-                await this.RunAsync( testInput, testResult, testContext );
-                this.SaveResults( testInput, testResult );
-                this.ExecuteAssertions( testInput, testResult );
-            }
-            catch ( Exception e ) when ( e.GetType().FullName == testInput.Options.ExpectedException
-                                         || (e.InnerException?.GetType().FullName is { } innerException
-                                             && innerException == testInput.Options.ExpectedException) )
-            {
-                return;
-            }
-            finally
-            {
-                // Restore the culture.
-                CultureInfo.CurrentCulture = originalCulture;
-            }
+            using var testResult = this.CreateTestResult();
+            await this.RunAsync( testInput, testResult, testContext );
+            this.SaveResults( testInput, testResult );
+            this.ExecuteAssertions( testInput, testResult );
+        }
+        catch ( Exception e ) when ( e.GetType().FullName == testInput.Options.ExpectedException
+                                     || (e.InnerException?.GetType().FullName is { } innerException
+                                         && innerException == testInput.Options.ExpectedException) )
+        {
+            return;
+        }
+        finally
+        {
+            // Restore the culture.
+            CultureInfo.CurrentCulture = originalCulture;
         }
 
         if ( testInput.Options.ExpectedException != null )
@@ -333,10 +329,10 @@ internal abstract partial class BaseTestRunner
             if ( testInput.Options.SkipAddingSystemFiles != true )
             {
                 // Add system files.
-                mainProject = await AddPlatformDocuments( mainProject, mainParseOptions );
+                mainProject = await AddPlatformDocumentsAsync( mainProject, mainParseOptions );
             }
 
-            mainProject = await AddAdditionalDocuments( mainProject, mainParseOptions );
+            mainProject = await AddAdditionalDocumentsAsync( mainProject, mainParseOptions );
 
             // We are done creating the project.
 
@@ -384,7 +380,7 @@ internal abstract partial class BaseTestRunner
                 }
             }
 
-            async Task<Project> AddAdditionalDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddAdditionalDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 if ( this._references.GlobalUsingsFile != null )
                 {
@@ -404,7 +400,7 @@ internal abstract partial class BaseTestRunner
 
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once LocalFunctionCanBeMadeStatic
-            async Task<Project> AddPlatformDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddPlatformDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 // ReSharper enable UnusedParameter.Local
                 // Add system documents.
@@ -447,10 +443,10 @@ internal abstract partial class BaseTestRunner
 
                 if ( testInput.Options.SkipAddingSystemFiles != true )
                 {
-                    dependencyProject = await AddPlatformDocuments( dependencyProject, dependencyParseOptions );
+                    dependencyProject = await AddPlatformDocumentsAsync( dependencyProject, dependencyParseOptions );
                 }
 
-                dependencyProject = await AddAdditionalDocuments( dependencyProject, dependencyParseOptions );
+                dependencyProject = await AddAdditionalDocumentsAsync( dependencyProject, dependencyParseOptions );
 
                 // Add dependencies recursively.
                 (dependencyProject, var recursiveReferences) = await AddDependencyProjectAsync( dependencyProject, dependencyName );

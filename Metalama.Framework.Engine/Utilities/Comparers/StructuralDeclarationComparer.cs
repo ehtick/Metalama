@@ -276,6 +276,11 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
 
     private int CompareNamespaces( INamespace nsX, INamespace nsY )
     {
+        if ( ReferenceEquals( nsX, nsY ) )
+        {
+            return 0;
+        }
+
         int result;
 
         if ( this._options.HasFlagFast( StructuralComparerOptions.ContainingAssembly ) )
@@ -319,6 +324,11 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
 
     private int CompareNamedTypes( INamedType namedTypeX, INamedType namedTypeY, StructuralComparerOptions options )
     {
+        if ( ReferenceEquals( namedTypeX, namedTypeY) )
+        {
+            return 0;
+        }
+
         int result;
 
         if ( options.HasFlagFast( StructuralComparerOptions.Name ) )
