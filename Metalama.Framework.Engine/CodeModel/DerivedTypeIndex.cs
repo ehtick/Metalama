@@ -161,7 +161,7 @@ public sealed partial class DerivedTypeIndex
 
             var introducedInterface = transformation.InterfaceType;
 
-            if ( !this._compilationContext.Compilation.Assembly.Equals( introducedInterface.Definition.DeclaringAssembly?.GetSymbol() ) )
+            if ( !this._compilationContext.Compilation.Assembly.Equals( introducedInterface.Definition.DeclaringAssembly.GetSymbol() ) )
             {
                 // The type may not have been analyzed yet.
                 builder.AnalyzeType( introducedInterface );

@@ -541,7 +541,7 @@ namespace Metalama.Framework.Engine.CodeModel
 
         internal int GetDepth( INamedType namedType )
         {
-            if ( namedType.DeclaringAssembly.IsExternalOrNull() )
+            if ( namedType.DeclaringAssembly.IsExternal )
             {
                 return 0;
             }
@@ -562,7 +562,7 @@ namespace Metalama.Framework.Engine.CodeModel
 
             foreach ( var interfaceImplementation in namedType.ImplementedInterfaces )
             {
-                if ( !interfaceImplementation.DeclaringAssembly.IsExternalOrNull() )
+                if ( !interfaceImplementation.DeclaringAssembly.IsExternal )
                 {
                     depth = Math.Max( depth, this.GetDepth( interfaceImplementation ) );
                 }

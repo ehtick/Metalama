@@ -996,7 +996,7 @@ namespace Metalama.Framework.Engine.Fabrics
                 if ( !(targetDeclaration.IsContainedIn( containingDeclaration )
                        || (containingDeclaration is IParameter p && p.DeclaringMember.Equals( targetDeclaration ))
                        || (containingDeclaration is IMember m && m.DeclaringType.Equals( targetDeclaration )))
-                     || targetDeclaration.DeclaringAssembly.IsExternalOrNull() )
+                     || targetDeclaration.DeclaringAssembly.IsExternal )
                 {
                     context.Collector.Report(
                         GeneralDiagnosticDescriptors.CanAddChildAspectOnlyUnderParent.CreateRoslynDiagnostic(
@@ -1065,7 +1065,7 @@ namespace Metalama.Framework.Engine.Fabrics
                 var containingTypeOrCompilation = (IDeclaration?) this.OriginatingDeclaration.GetTarget( compilation ).AssertNotNull().GetTopmostNamedType()
                                                   ?? compilation;
 
-                if ( (!targetDeclaration.IsContainedIn( containingTypeOrCompilation ) || targetDeclaration.DeclaringAssembly.IsExternalOrNull())
+                if ( (!targetDeclaration.IsContainedIn( containingTypeOrCompilation ) || targetDeclaration.DeclaringAssembly.IsExternal)
                      && containingTypeOrCompilation.DeclarationKind != DeclarationKind.Compilation )
                 {
                     context.Collector.Report(

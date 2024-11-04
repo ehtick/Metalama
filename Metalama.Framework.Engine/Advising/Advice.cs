@@ -33,7 +33,7 @@ internal abstract class Advice : IDiagnosticSource
     protected Advice( AdviceConstructorParameters parameters )
     {
 #if DEBUG
-        if ( parameters.TargetDeclaration.DeclaringAssembly.IsExternalOrNull() )
+        if ( parameters.TargetDeclaration.DeclaringAssembly.IsExternal )
         {
             throw new AssertionFailedException( $"Cannot override '{parameters.TargetDeclaration}' because it is external." );
         }
