@@ -3,8 +3,6 @@
 using Metalama.Extensions.Architecture.Predicates;
 using Metalama.Framework.Fabrics;
 
-#pragma warning disable CS0649
-
 namespace Metalama.Extensions.Architecture.AspectTests.Predicates.And
 {
     public class Fabric : NamespaceFabric

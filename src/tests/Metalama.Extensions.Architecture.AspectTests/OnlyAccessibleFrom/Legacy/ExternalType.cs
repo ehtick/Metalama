@@ -6,17 +6,15 @@ using Metalama.Extensions.Architecture.Predicates;
 using Metalama.Framework.Fabrics;
 using System.Text.RegularExpressions;
 
-#pragma warning disable CS0169, CS0618
-
 namespace Metalama.Extensions.Architecture.AspectTests.OnlyAccessibleFrom.Legacy.ExternalType
 {
     internal class Fabric : ProjectFabric
     {
         public override void AmendProject( IProjectAmender amender )
         {
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             amender.Verify().SelectTypes( typeof(Regex) ).CannotBeUsedFrom( r => r.NamespaceOf( typeof(ForbiddenClass) ) );
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 

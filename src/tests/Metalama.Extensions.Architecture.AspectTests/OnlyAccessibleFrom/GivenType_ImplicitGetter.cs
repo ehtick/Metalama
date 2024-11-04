@@ -2,8 +2,6 @@
 
 using Metalama.Extensions.Architecture.Aspects;
 
-#pragma warning disable IDE0059
-
 namespace Metalama.Extensions.Architecture.AspectTests.OnlyAccessibleFrom.GivenType_ImplicitGetter
 {
     internal class ConstrainedClass
