@@ -32,6 +32,7 @@ public sealed class TestDesignTimeAspectPipeline : BaseDesignTimeAspectPipeline
                 this.ServiceProvider,
                 semanticModel,
                 diagnosticList.Report,
+                null,
                 false,
                 true,
                 CancellationToken.None );

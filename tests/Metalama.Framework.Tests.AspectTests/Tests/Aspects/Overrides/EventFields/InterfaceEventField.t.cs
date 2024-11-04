@@ -1,4 +1,3 @@
-// Warning CS0414 on `_eventField_Default`: `The field 'TargetClass._eventField_Default' is assigned but its value is never used`
 [Introduction]
 [Override]
 internal partial class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Overrides.EventFields.InterfaceEventField.Interface

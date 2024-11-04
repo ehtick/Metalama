@@ -1,4 +1,3 @@
-// Warning CS0472 on `value == null`: `The result of the expression is always 'false' since a value of type 'int' is never equal to 'null' of type 'int?'`
 internal class TargetClass
 {
   private int _p;

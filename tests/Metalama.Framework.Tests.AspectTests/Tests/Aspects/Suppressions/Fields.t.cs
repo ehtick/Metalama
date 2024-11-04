@@ -1,4 +1,3 @@
-// Warning CS0169 on `x`: `The field 'TargetClass.x' is never used`
 internal class TargetClass
 {
   // CS0169 expected here.

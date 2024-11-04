@@ -13,7 +13,7 @@
         <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 
         <MetalamaTestProjectDirectory Condition="'$(MetalamaTestProjectDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaTestProjectDirectory>
-
+        
     </PropertyGroup>
 
     <!-- Enable dynamic file nesting in Visual Studio -->

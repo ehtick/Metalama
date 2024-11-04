@@ -1,5 +1,3 @@
-// Warning CS0414 on `Field`: `The field 'TestClass.Field' is assigned but its value is never used`
-// Warning CS0414 on `IntroducedField`: `The field 'TestClass.IntroducedField' is assigned but its value is never used`
 [IntroduceField]
 public class TestClass
 {

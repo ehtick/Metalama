@@ -3,6 +3,7 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.CodeFixes;
 using Metalama.Framework.Diagnostics;
+using Metalama.Framework.Engine.CodeModel;
 using Metalama.Framework.Engine.Collections;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.CompileTime.Manifest;
@@ -254,7 +255,16 @@ namespace Metalama.Framework.Engine.Diagnostics
         void IDiagnosticSink.Suppress( ISuppression suppression, IDeclaration scope, IDiagnosticSource source )
         {
             this.ValidateSuppressionDefinition( suppression.Definition );
-            this.Suppress( new ScopedSuppression( suppression, scope ) );
+
+            var symbol = scope.GetSymbol();
+
+            if ( symbol == null )
+            {
+                // Ignoring any suppression in generated code.
+                return;
+            }
+
+            this.Suppress( new ScopedSuppression( suppression, symbol ) );
         }
 
         void IDiagnosticSink.Suggest( CodeFix codeFix, IDiagnosticLocation location, IDiagnosticSource source )

@@ -1,4 +1,3 @@
-// Warning CS0414 on `Zoo`: `The field 'TargetClass.Zoo' is assigned but its value is never used`
 [Override]
 public class TargetClass
 {

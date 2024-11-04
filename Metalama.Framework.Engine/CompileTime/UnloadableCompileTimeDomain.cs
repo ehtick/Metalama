@@ -28,9 +28,11 @@ namespace Metalama.Framework.Engine.CompileTime
         private readonly List<WeakReference> _loadedAssemblies = new();
         private readonly TaskCompletionSource<bool> _unloadedTask = new();
         private readonly ITaskRunner _taskRunner;
-        private volatile int _disposeStatus;
+        private readonly object _disposeLock = new();
+
         private AssemblyLoadContext? _assemblyLoadContext;
         private int _isWaitingForDisposal;
+        private volatile bool _disposed;
 
         public UnloadableCompileTimeDomain( GlobalServiceProvider serviceProvider ) : base( serviceProvider )
         {
@@ -42,20 +44,20 @@ namespace Metalama.Framework.Engine.CompileTime
 
         public event Action? Unloaded;
 
-        public event Action? UnloadTimeout;
+        public event Action<string>? UnloadError;
 
         public override Assembly LoadAssembly( string path )
         {
-            if ( this._disposeStatus != 0 )
+            if ( this._disposed )
             {
                 throw new ObjectDisposedException( nameof(UnloadableCompileTimeDomain) );
             }
-            
+
             // When using LoadFromAssemblyPath, the file is locked and the lock is not disposed when the AssemblyLoadContext is unloaded.
             // Therefore, we're loading from bytes.
 
             Assembly assembly;
-            
+
             try
             {
                 using var peStream = RetryHelper.Retry( () => File.OpenRead( path ) );
@@ -94,7 +96,7 @@ namespace Metalama.Framework.Engine.CompileTime
         [ExcludeFromCodeCoverage]
         private Task WaitForDisposalAsync()
         {
-            if ( this._disposeStatus == 0 )
+            if ( !this._disposed )
             {
                 throw new InvalidOperationException( "The Dispose method has not been called." );
             }
@@ -155,22 +157,32 @@ namespace Metalama.Framework.Engine.CompileTime
 
                         /* IF YOU ARE HERE BECAUSE YOU ARE DEBUGGING A MEMORY LEAK
                          *
-                         * Here are a few pointers:
+                         *  1. Reproduce the issue by running a single test, to make sure the memory dump does not capture running tests.
+                         *
+                         *  Using dotMemory:
+                         *    - Go to Dominators
+                         *    - Filter for `LoaderAllocator`
+                         *    - In the left pane, right-click on `LoaderAllocator`, then do "Open objected retained by this domination path"
+                         *    -
+                         *
+                         *  Using WinDbg:
                          *  - You need to use WinDbg and sos.dll.
                          *  - To install sos.dll, do `dotnet tool install --global dotnet-sos`.
                          *  - To know where sos.dll is and how to load it in WinDbg, type `dotnet sos install`.
                          *  - Follow instructions in https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability:
                          *      - !dumpheap -type LoaderAllocator
                          *      - !gcroot -all xxxxx
+                         *
                          */
 
                         // ReSharper restore CommentTypo
 
-                        this.UnloadTimeout?.Invoke();
+                        var reason = "The domain could not be unloaded. There are probably dangling references. " +
+                                     "The following assemblies are still loaded: " + assemblies + ".";
 
-                        throw new InvalidOperationException(
-                            "The domain could not be unloaded. There are probably dangling references. " +
-                            "The following assemblies are still loaded: " + assemblies + "." );
+                        this.UnloadError?.Invoke( reason );
+
+                        throw new InvalidOperationException( reason );
                     }
                 }
             }
@@ -184,17 +196,29 @@ namespace Metalama.Framework.Engine.CompileTime
 
         protected override void Dispose( bool disposing )
         {
-            base.Dispose( disposing );
-
-            if ( Interlocked.CompareExchange( ref this._disposeStatus, 1, 0 ) == 0 )
+            if ( this._disposed )
             {
-                this._assemblyLoadContext?.Unload();
-                this._assemblyLoadContext = null;
+                return;
             }
 
-            // We cannot wait for complete disposal synchronously because the TestResult object, lower in the stack, typically contains
-            // a reference to a build-time assembly. So, we need to put the test out of the stack before the domain
-            // can be completely disposed.
+            lock ( this._disposeLock )
+            {
+                if ( this._disposed )
+                {
+                    return;
+                }
+
+                base.Dispose( disposing );
+
+                this._assemblyLoadContext?.Unload();
+                this._assemblyLoadContext = null;
+
+                this._disposed = true;
+
+                // We cannot wait for complete disposal synchronously because the TestResult object, lower in the stack, typically contains
+                // a reference to a build-time assembly. So, we need to put the test out of the stack before the domain
+                // can be completely disposed.
+            }
         }
     }
 }

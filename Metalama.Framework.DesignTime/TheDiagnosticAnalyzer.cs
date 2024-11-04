@@ -36,7 +36,7 @@ namespace Metalama.Framework.DesignTime
     {
         private readonly DesignTimeAspectPipelineFactory _pipelineFactory;
         private readonly IProjectOptionsFactory _projectOptionsFactory;
-        private readonly ILogger _logger; 
+        private readonly ILogger _logger;
         private readonly DesignTimeExceptionHandler _exceptionHandler;
 
 #if DEBUG
@@ -165,12 +165,13 @@ namespace Metalama.Framework.DesignTime
                     suppressions = pipelineResult.Value.GetSuppressionsOnSyntaxTree( syntaxTreeFilePath );
                 }
 
-                // Execute the analyses that are not performed in the pipeline.
+                // Execute the analyses that are not performed in the design-time pipeline.
                 // We execute this after the pipeline so we allow it to get to paused state in case of compile-time change.
                 TemplatingCodeValidator.Validate(
                     pipeline.ServiceProvider,
                     context.SemanticModel,
                     ReportDiagnostic,
+                    null,
                     pipeline.MustReportPausedPipelineAsErrors && pipeline.IsCompileTimeSyntaxTreeOutdated( context.SemanticModel.SyntaxTree.FilePath ),
                     true,
                     cancellationToken );

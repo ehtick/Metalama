@@ -1,5 +1,3 @@
-// Warning CS0162 on `return`: `Unreachable code detected`
-// Warning CS0162 on `return`: `Unreachable code detected`
 internal class TargetCode
 {
   [Aspect]

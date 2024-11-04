@@ -1,4 +1,3 @@
-// Warning CS0414 on `field`: `The field 'SomeClassForTargetType.field' is assigned but its value is never used`
 namespace A.B.C.D.E.F
 {
   class SomeClassForTargetType

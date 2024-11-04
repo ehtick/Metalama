@@ -1,4 +1,3 @@
-// Warning CS0162 on `return`: `Unreachable code detected`
 public class TestClass
 {
   [IgnoreException]

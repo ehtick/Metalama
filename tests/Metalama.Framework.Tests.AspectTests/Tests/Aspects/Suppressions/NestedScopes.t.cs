@@ -1,5 +1,4 @@
-// Warning CS0219 on `a`: `The variable 'a' is assigned but its value is never used`
-// Warning CS0219 on `e`: `The variable 'e' is assigned but its value is never used`
+// Warning CS0219  on `a`: `The variable 'a' is assigned but its value is never used`
 internal class TargetClass
 {
   [SuppressWarning]
