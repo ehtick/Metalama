@@ -1,1 +1,35 @@
-// TODO: Replace this file with the correct transformed code. See the test output for the actual transformed code.
+// Warning CS0626 on `TestEvent`: `Method, operator, or accessor 'IntroductionAttribute.TestEvent.remove' is marked external and has no attributes on it. Consider adding a DllImport attribute to specify the external implementation.`
+// Warning CS0626 on `TestEvent`: `Method, operator, or accessor 'IntroductionAttribute.TestEvent.remove' is marked external and has no attributes on it. Consider adding a DllImport attribute to specify the external implementation.`
+[IntroductionAttribute]
+public class TargetType
+{
+  interface ITest
+  {
+    event global::System.EventHandler TestEvent;
+  }
+  class TestImplementation : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceEventAbstract.TargetType.ITest
+  {
+    public TestImplementation()
+    {
+    }
+    public event global::System.EventHandler TestEvent
+    {
+      add
+      {
+        global::System.Console.WriteLine("Implementation");
+      }
+      remove
+      {
+        global::System.Console.WriteLine("Implementation");
+      }
+    }
+  }
+  class TestUsage
+  {
+    public global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceEventAbstract.TargetType.ITest TestUsageMethod(global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceEventAbstract.TargetType.ITest instance)
+    {
+      instance.TestEvent += (global::System.EventHandler)((s, ea) => global::System.Console.WriteLine("Handler"));
+      return (global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceEventAbstract.TargetType.ITest)new global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceEventAbstract.TargetType.TestImplementation();
+    }
+  }
+}

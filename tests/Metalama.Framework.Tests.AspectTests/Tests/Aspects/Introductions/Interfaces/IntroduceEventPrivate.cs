@@ -9,31 +9,30 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        var interfacePrivateProperty = builder.Advice.IntroduceProperty(@interface.Declaration, nameof(TestProperty));
-        builder.Advice.IntroduceMethod(@interface.Declaration, nameof(TestUsageMethod), args: new { privateProperty = interfacePrivateProperty.Declaration } );
+        var @interface = builder.IntroduceInterface( "ITest");
+        var interfacePrivateEvent = @interface.IntroduceEvent( nameof(TestEvent));
+        @interface.IntroduceMethod( nameof(TestUsageMethod), args: new { privateEvent = interfacePrivateEvent.Declaration } );
 
     }
 
     [Template]
-    private int TestProperty
+    private event EventHandler TestEvent
     {
-        get
+        add
         {
             Console.WriteLine("Default");
-            return 0;
         }
 
-        set
+        remove
         {
             Console.WriteLine("Default");
         }
     }
 
     [Template]
-    public virtual void TestUsageMethod( [CompileTime] IProperty privateProperty)
+    public virtual void TestUsageMethod( [CompileTime] IEvent privateEvent)
     {
-        privateProperty.Value = privateProperty.Value + 1;
+        privateEvent.Add((EventHandler)((s, ea) => { Console.WriteLine("Handler"); }));
     }
 }
 

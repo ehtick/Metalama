@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.InterfaceConflict_BaseAfterDerived_Ignore.IDerivedInterface, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.InterfaceConflict_BaseAfterDerived_Ignore.IBaseInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.InterfaceConflict_BaseAfterDerived_Ignore.IDerivedInterface, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.InterfaceConflict_BaseAfterDerived_Ignore.IBaseInterface
 {
   public global::System.Int32 Bar()
   {

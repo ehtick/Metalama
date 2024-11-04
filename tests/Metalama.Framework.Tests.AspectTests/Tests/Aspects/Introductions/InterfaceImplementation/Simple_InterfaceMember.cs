@@ -5,7 +5,7 @@ using System;
 
 #pragma warning disable CS0618
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Simple_InterfaceMember
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Simple_InterfaceMember
 {
     /*
      * Tests a simple case with implicit interface member.

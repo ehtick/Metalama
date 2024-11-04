@@ -9,7 +9,7 @@ using System;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TargetType_StructWithInitializers_CSharp10;
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.TargetType_StructWithInitializers_CSharp10;
 
 /*
  * Tests that target being a struct does not interfere with interface introduction.

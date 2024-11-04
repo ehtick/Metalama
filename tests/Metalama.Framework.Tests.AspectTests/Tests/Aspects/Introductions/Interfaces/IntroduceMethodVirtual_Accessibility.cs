@@ -9,12 +9,12 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var iface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestPublic));
-        builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestInternal));
-        builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestProtected));
-        builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestProtectedInternal));
-        builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestPrivateProtected));
+        var @interface = builder.IntroduceInterface( "ITest");
+        @interface.IntroduceMethod( nameof(TestPublic));
+        @interface.IntroduceMethod( nameof(TestInternal));
+        @interface.IntroduceMethod( nameof(TestProtected));
+        @interface.IntroduceMethod( nameof(TestProtectedInternal));
+        @interface.IntroduceMethod( nameof(TestPrivateProtected));
     }
 
     [Template]

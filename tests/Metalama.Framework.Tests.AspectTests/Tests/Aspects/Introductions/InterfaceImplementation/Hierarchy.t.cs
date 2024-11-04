@@ -1,6 +1,6 @@
 [Introduction]
 [Test]
-public class TargetClass : IBase0Interface, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy.IInterface, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy.IBase2Interface, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy.IBase1Interface, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy.IBase3Interface<global::System.Int32>
+public class TargetClass : IBase0Interface, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy.IInterface, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy.IBase2Interface, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy.IBase1Interface, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy.IBase3Interface<global::System.Int32>
 {
   public void Foo()
   {

@@ -11,13 +11,13 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        builder.Advice.IntroduceMethod(@interface.Declaration, nameof(TestMethod), buildMethod: b => { b.IsVirtual = true; });
+        var @interface = builder.IntroduceInterface( "ITest");
+        @interface.IntroduceMethod( nameof(TestMethod), buildMethod: b => { b.IsVirtual = true; });
 
         // Implementation type
-        var implementation = builder.Advice.IntroduceClass(builder.Target, "TestImplementation");
-        builder.Advice.ImplementInterface(implementation.Declaration, @interface.Declaration);
-        var implementationMethod = builder.Advice.IntroduceMethod(implementation.Declaration, nameof(TestMethodImpl), buildMethod: b => { b.Name = nameof(TestMethod); });
+        var implementation = builder.IntroduceClass("TestImplementation");
+        implementation.ImplementInterface( @interface.Declaration);
+        var implementationMethod = implementation.IntroduceMethod( nameof(TestMethodImplementation), buildMethod: b => { b.Name = nameof(TestMethod); });
 
         // Usage type
         var usage = builder.Advice.IntroduceClass(
@@ -48,7 +48,7 @@ public class IntroductionAttribute : TypeAspect
     }
 
     [Template]
-    public static void TestMethodImpl()
+    public static void TestMethodImplementation()
     {
         Console.WriteLine("Implementation");
     }

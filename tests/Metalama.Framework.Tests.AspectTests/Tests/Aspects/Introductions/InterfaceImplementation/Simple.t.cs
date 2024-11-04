@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Simple.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Simple.IInterface
 {
   public void Foo()
   {

@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.AsyncAndIterators.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.AsyncAndIterators.IInterface
 {
   public async global::System.Collections.Generic.IAsyncEnumerable<global::System.Int32> AsyncIterator()
   {

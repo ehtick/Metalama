@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.ImplicitMembers.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.ImplicitMembers.IInterface
 {
   public global::System.Int32 AutoProperty { get; set; }
   public global::System.Int32 AutoProperty_PrivateSet { get; private set; }

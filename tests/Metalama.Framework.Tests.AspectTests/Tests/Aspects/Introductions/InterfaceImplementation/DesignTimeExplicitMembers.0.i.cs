@@ -1,13 +1,13 @@
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers
 {
-  partial class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface
+  partial class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface
   {
-    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface.InterfaceMethod()
+    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface.InterfaceMethod()
     {
       return default(global::System.Int32);
     }
-    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface.AutoProperty { get; set; }
-    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface.Property
+    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface.AutoProperty { get; set; }
+    global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface.Property
     {
       get
       {
@@ -17,7 +17,7 @@ namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.
       {
       }
     }
-    event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface.EventField
+    event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface.EventField
     {
       add
       {
@@ -26,7 +26,7 @@ namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.
       {
       }
     }
-    event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeExplicitMembers.IInterface.Event
+    event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeExplicitMembers.IInterface.Event
     {
       add
       {

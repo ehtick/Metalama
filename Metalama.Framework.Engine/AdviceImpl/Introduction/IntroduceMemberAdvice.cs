@@ -96,10 +96,10 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
             ?? false;
 
         // Interface members that do not have templates are by default virtual.
-        builder.IsVirtual = 
-            templateAttributeProperties?.IsVirtual 
-            ?? templateDeclaration?.IsVirtual 
-            ?? isInterfaceMember;
+        builder.IsVirtual =
+            templateAttributeProperties?.IsVirtual
+            ?? templateDeclaration?.IsVirtual
+            ?? (isInterfaceMember && builder.Accessibility != Accessibility.Private);
 
         // Extern template denotes an abstract member of an interface.
         builder.IsAbstract = isInterfaceMember && templateDeclaration?.IsExtern == true;

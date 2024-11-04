@@ -1,5 +1,5 @@
 [IntroduceAspect]
-public struct TargetStruct : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TargetType_Struct.IInterface
+public struct TargetStruct : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.TargetType_Struct.IInterface
 {
   public int ExistingField;
   public int ExistingProperty { get; set; }

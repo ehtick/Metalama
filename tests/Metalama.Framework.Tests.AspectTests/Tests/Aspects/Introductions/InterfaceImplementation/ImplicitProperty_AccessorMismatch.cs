@@ -4,7 +4,7 @@ using Metalama.Framework.Code;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.ImplicitProperty_AccessorMismatch
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.ImplicitProperty_AccessorMismatch
 {
     /*
      * Error when accessors of implicit property interface member don't match the interface.

@@ -1,8 +1,8 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface
 {
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.AutoProperty { get; set; }
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.Property
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.AutoProperty { get; set; }
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.Property
   {
     get
     {
@@ -12,25 +12,25 @@ public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInpu
     {
     }
   }
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.Property_ExpressionBody
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.Property_ExpressionBody
   {
     get
     {
       return (global::System.Int32)42;
     }
   }
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.Property_GetOnly
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.Property_GetOnly
   {
     get
     {
       return (global::System.Int32)42;
     }
   }
-  void global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.Method()
+  void global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.Method()
   {
     global::System.Console.WriteLine("Introduced interface member");
   }
-  event global::System.EventHandler? global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.Event
+  event global::System.EventHandler? global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.Event
   {
     add
     {
@@ -40,7 +40,7 @@ public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInpu
     }
   }
   private event global::System.EventHandler? _eventField;
-  event global::System.EventHandler? global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Accessibility_Explicit.IInterface.EventField
+  event global::System.EventHandler? global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Accessibility_Explicit.IInterface.EventField
   {
     add
     {

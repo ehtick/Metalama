@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_Explicit.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_Explicit.IInterface
 {
   public string Method()
   {
@@ -29,7 +29,7 @@ public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInpu
       Console.WriteLine("This is original event.");
     }
   }
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_Explicit.IInterface.Property
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_Explicit.IInterface.Property
   {
     get
     {
@@ -41,12 +41,12 @@ public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInpu
       global::System.Console.WriteLine("This is introduced interface property.");
     }
   }
-  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_Explicit.IInterface.Method()
+  global::System.Int32 global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_Explicit.IInterface.Method()
   {
     global::System.Console.WriteLine("This is introduced interface method.");
     return (global::System.Int32)42;
   }
-  event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_Explicit.IInterface.Event
+  event global::System.EventHandler global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_Explicit.IInterface.Event
   {
     add
     {

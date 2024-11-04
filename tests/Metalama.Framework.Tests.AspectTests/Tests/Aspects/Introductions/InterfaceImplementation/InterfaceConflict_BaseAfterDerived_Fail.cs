@@ -4,7 +4,7 @@ using Metalama.Framework.Code;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.InterfaceConflict_BaseAfterDerived_Fail
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.InterfaceConflict_BaseAfterDerived_Fail
 {
     /*
      * Tests that when a single aspect introduces a base interface after the derived interface and whenExists is Fail, an error is emitted.

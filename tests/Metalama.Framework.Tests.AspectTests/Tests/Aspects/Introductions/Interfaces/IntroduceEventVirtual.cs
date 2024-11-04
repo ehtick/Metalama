@@ -9,17 +9,17 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        var interfaceProperty = builder.Advice.IntroduceProperty(@interface.Declaration, nameof(TestProperty));
+        var @interface = builder.IntroduceInterface( "ITest");
+        var interfaceEvent = @interface.IntroduceEvent( nameof(TestEvent));
 
         // Implementation type
-        var implementation = builder.Advice.IntroduceClass(builder.Target, "TestImplementation");
-        builder.Advice.ImplementInterface(implementation.Declaration, @interface.Declaration);
-        var constructor = builder.Advice.IntroduceConstructor(implementation.Declaration, nameof(Constructor));
-        builder.Advice.IntroduceProperty(implementation.Declaration, nameof(TestPropertyImplementation), buildProperty: b => { b.Name = "TestProperty"; });
+        var implementation = builder.IntroduceClass("TestImplementation");
+        implementation.ImplementInterface( @interface.Declaration);
+        var constructor = implementation.IntroduceConstructor( nameof(Constructor));
+        implementation.IntroduceEvent( nameof(TestEventImplementation), buildEvent: b => { b.Name = "TestEvent"; });
 
-        var usage = builder.Advice.IntroduceClass(builder.Target, "TestUsage");
-        builder.Advice.IntroduceMethod(usage.Declaration, nameof(TestUsageMethod), args: new { T = @interface.Declaration, property = interfaceProperty.Declaration, implConstructor = constructor.Declaration });
+        var usage = builder.IntroduceClass("TestUsage");
+        usage.IntroduceMethod( nameof(TestUsageMethod), args: new { T = @interface.Declaration, @event = interfaceEvent.Declaration, implementationConstructor = constructor.Declaration });
     }
 
     [Template]
@@ -28,40 +28,38 @@ public class IntroductionAttribute : TypeAspect
     }
 
     [Template]
-    public int TestProperty
+    public event EventHandler TestEvent
     {
-        get
+        add
         {
             Console.WriteLine("Default");
-            return 0;
         }
 
-        set
+        remove
         {
             Console.WriteLine("Default");
         }
     }
 
     [Template]
-    public int TestPropertyImplementation
+    public event EventHandler TestEventImplementation
     {
-        get
+        add
         {
             Console.WriteLine("Implementation");
-            return 0;
         }
 
-        set
+        remove
         {
             Console.WriteLine("Implementation");
         }
     }
 
     [Template]
-    public T TestUsageMethod<[CompileTime] T>(T instance, [CompileTime] IProperty property, [CompileTime] IConstructor implConstructor)
+    public T TestUsageMethod<[CompileTime] T>(T instance, [CompileTime] IEvent @event, [CompileTime] IConstructor implementationConstructor )
     {
-        property.With(instance).Value = property.With(instance).Value + 1;
-        return implConstructor.Invoke();
+        @event.With(instance).Add((EventHandler)((s, ea) => { Console.WriteLine("Handler"); }));
+        return implementationConstructor.Invoke();
     }
 }
 

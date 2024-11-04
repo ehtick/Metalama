@@ -103,6 +103,11 @@ internal sealed class NamedTypeBuilder : MemberOrNamedTypeBuilder, INamedTypeBui
         {
             this.CheckNotFrozen();
 
+            if (this.TypeKind == TypeKind.Interface && value?.SpecialType != SpecialType.Object )
+            {
+                throw new InvalidOperationException( "Interfaces cannot have a base type." );
+            }
+
             this._baseType = value;
         }
     }

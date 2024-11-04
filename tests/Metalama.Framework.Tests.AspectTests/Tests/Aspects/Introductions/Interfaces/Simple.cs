@@ -8,7 +8,7 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        builder.Advice.IntroduceInterface(builder.Target, "ITest");
+        builder.IntroduceInterface( "ITest");
         builder.Advice.IntroduceInterface(builder.Target.ContainingNamespace, "ITest2");
     }
 }

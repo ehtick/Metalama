@@ -3,7 +3,7 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_MakeExplicit
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_MakeExplicit
 {
     /*
      * Tests that when an incompatible member of the same signature already exist and whenExists is set to MakeExplicit, the interface is introduced and

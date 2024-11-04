@@ -3,11 +3,11 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using System;
 using System.Linq;
-using Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TryFindImplementationForInterfaceMember_FromBase;
+using Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.TryFindImplementationForInterfaceMember_FromBase;
 
 [assembly: AspectOrder( AspectOrderDirection.CompileTime, typeof(IntroduceInterfaceAttribute), typeof(CheckInterfaceAttribute) )]
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TryFindImplementationForInterfaceMember_FromBase;
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.TryFindImplementationForInterfaceMember_FromBase;
 
 public class IntroduceInterfaceAttribute : TypeAspect
 {

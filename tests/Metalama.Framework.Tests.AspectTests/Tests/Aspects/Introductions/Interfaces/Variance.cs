@@ -1,6 +1,7 @@
 ﻿using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
+using Metalama.Framework.Code.SyntaxBuilders;
 
 namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.Variance;
 
@@ -24,7 +25,7 @@ public class IntroductionAttribute : TypeAspect
                 t.Variance = VarianceKind.In;
             });
 
-        var testUsage = builder.Advice.IntroduceClass(builder.Target, "TestUsage");
+        var testUsage = builder.IntroduceClass("TestUsage");
 
         testUsage.IntroduceMethod(
             nameof(TestVariance),
@@ -39,17 +40,23 @@ public class IntroductionAttribute : TypeAspect
             nameof(TestVariance),
             args: new
             {
-                T = contravariantInterface.Declaration.MakeGenericInstance(typeof(object)),
-                U = contravariantInterface.Declaration.MakeGenericInstance(typeof(string)),
+                T = contravariantInterface.Declaration.MakeGenericInstance(typeof(string)),
+                U = contravariantInterface.Declaration.MakeGenericInstance(typeof(object)),
             },
             buildMethod: b => { b.Name = "TestContravariance"; });
     }
 
     [Template]
-    public T TestVariance<[CompileTime] T, [CompileTime] U>( U p )
+    public void TestVariance<[CompileTime] T, [CompileTime] U>( U p )
         where U : T
     {
-        return p;
+        T t;
+
+        ExpressionBuilder e = new ExpressionBuilder();
+
+        e.AppendVerbatim("t = p");
+
+        meta.InsertStatement(e.ToExpression());
     }
 }
 

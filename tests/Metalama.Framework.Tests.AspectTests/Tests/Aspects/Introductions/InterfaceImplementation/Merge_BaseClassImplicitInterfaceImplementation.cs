@@ -7,7 +7,7 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.BaseClassImplicitInterfaceImplementation
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.BaseClassImplicitInterfaceImplementation
 {
     /*
      * When the base class of the target type implements the introduced interface implicitly, the transformed code should call the base class.

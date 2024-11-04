@@ -5,7 +5,7 @@ using Metalama.Framework.Code;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.MemberConflict_Incompatible_Fail
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.MemberConflict_Incompatible_Fail
 {
     /*
      * Tests that when a incompatible member of the same signature already exists and whenExists is set to Fail, errors are produced.

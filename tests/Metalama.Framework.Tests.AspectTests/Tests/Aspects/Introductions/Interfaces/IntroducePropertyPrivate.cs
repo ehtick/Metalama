@@ -9,9 +9,9 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        var interfacePrivateProperty = builder.Advice.IntroduceProperty(@interface.Declaration, nameof(TestProperty));
-        builder.Advice.IntroduceMethod(@interface.Declaration, nameof(TestUsageMethod), args: new { privateProperty = interfacePrivateProperty.Declaration } );
+        var @interface = builder.IntroduceInterface( "ITest");
+        var interfacePrivateProperty = @interface.IntroduceProperty( nameof(TestProperty));
+        @interface.IntroduceMethod( nameof(TestUsageMethod), args: new { privateProperty = interfacePrivateProperty.Declaration } );
 
     }
 

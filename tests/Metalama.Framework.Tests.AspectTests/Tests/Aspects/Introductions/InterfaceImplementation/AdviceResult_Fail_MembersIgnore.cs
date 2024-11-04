@@ -11,7 +11,7 @@ using Metalama.Framework.Engine.Advising;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.AdviceResult_Fail_MembersIgnore
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.AdviceResult_Fail_MembersIgnore
 {
     /*
      * Tests case of type WhenExists is Fail and member WhenExists is Ignore.

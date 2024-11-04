@@ -1,14 +1,14 @@
 ﻿using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
-using Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy;
+using Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy;
 using System;
 
 #pragma warning disable CS0067
 
 [assembly: AspectOrder( AspectOrderDirection.CompileTime, typeof(IntroductionAttribute), typeof(TestAttribute) )]
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Hierarchy
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Hierarchy
 {
     /*
      * Tests a that hierarchical interfaces are implemented and the implementation is visible in code model.

@@ -11,13 +11,13 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        builder.Advice.IntroduceProperty(@interface.Declaration, nameof(TestProperty), buildProperty: b => { b.IsVirtual = true; });
+        var @interface = builder.IntroduceInterface( "ITest");
+        @interface.IntroduceProperty( nameof(TestProperty), buildProperty: b => { b.IsVirtual = true; });
 
         // Implementation type.
-        var implementation = builder.Advice.IntroduceClass(builder.Target, "TestImplementation");
-        builder.Advice.ImplementInterface(implementation.Declaration, @interface.Declaration);
-        var implementationProperty = builder.Advice.IntroduceProperty(implementation.Declaration, nameof(TestPropertyImplementation), buildProperty: b => { b.Name = nameof(TestProperty); });
+        var implementation = builder.IntroduceClass("TestImplementation");
+        implementation.ImplementInterface( @interface.Declaration);
+        var implementationProperty = implementation.IntroduceProperty( nameof(TestPropertyImplementation), buildProperty: b => { b.Name = nameof(TestProperty); });
 
         // Usage type.
         var usage = builder.Advice.IntroduceClass(

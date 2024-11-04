@@ -7,7 +7,7 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.ExistingImplicitInterfaceImplementation
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.ExistingImplicitInterfaceImplementation
 {
     /*
      * When the target class already explicitly implements the introduced interface (or it's subinterface), the implicit implementation should be overridden.

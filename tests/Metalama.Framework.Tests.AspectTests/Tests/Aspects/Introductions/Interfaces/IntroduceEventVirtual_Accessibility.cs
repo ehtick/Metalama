@@ -9,79 +9,74 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var iface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        builder.Advice.IntroduceProperty(iface.Declaration, nameof(TestPublic));
-        builder.Advice.IntroduceProperty(iface.Declaration, nameof(TestInternal));
-        builder.Advice.IntroduceProperty(iface.Declaration, nameof(TestProtected));
-        builder.Advice.IntroduceProperty(iface.Declaration, nameof(TestProtectedInternal));
-        builder.Advice.IntroduceProperty(iface.Declaration, nameof(TestPrivateProtected));
+        var @interface = builder.IntroduceInterface( "ITest");
+        @interface.IntroduceEvent( nameof(TestPublic));
+        @interface.IntroduceEvent( nameof(TestInternal));
+        @interface.IntroduceEvent( nameof(TestProtected));
+        @interface.IntroduceEvent( nameof(TestProtectedInternal));
+        @interface.IntroduceEvent( nameof(TestPrivateProtected));
     }
 
     [Template]
-    public int TestPublic
+    public event EventHandler TestPublic
     {
-        get
-        {
-            Console.WriteLine("Default");
-            return 0;
-        }
-        set
+        add
         {
             Console.WriteLine("Default");
         }
-    }
-
-    [Template]
-    internal int TestInternal
-    {
-        get
-        {
-            Console.WriteLine("Default");
-            return 0;
-        }
-        set
+        remove
         {
             Console.WriteLine("Default");
         }
     }
 
     [Template]
-    protected int TestProtected
+    internal event EventHandler TestInternal
     {
-        get
+        add
         {
             Console.WriteLine("Default");
-            return 0;
         }
-        set
+        remove
         {
             Console.WriteLine("Default");
         }
     }
 
     [Template]
-    protected internal int TestProtectedInternal
+    protected event EventHandler TestProtected
     {
-        get
+        add
         {
             Console.WriteLine("Default");
-            return 0;
         }
-        set
+        remove
         {
             Console.WriteLine("Default");
         }
     }
 
     [Template]
-    private protected int TestPrivateProtected
+    protected internal event EventHandler TestProtectedInternal
     {
-        get
+        add
         {
             Console.WriteLine("Default");
-            return 0;
         }
-        set
+        remove
+        {
+            Console.WriteLine("Default");
+        }
+    }
+
+    [Template]
+    private protected event EventHandler TestPrivateProtected
+    {
+        add
+        {
+            Console.WriteLine("Default");
+        }
+        remove
         {
             Console.WriteLine("Default");
         }

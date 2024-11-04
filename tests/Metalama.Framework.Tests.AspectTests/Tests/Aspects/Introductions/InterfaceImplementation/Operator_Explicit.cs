@@ -10,7 +10,7 @@ using Metalama.Framework.Code;
 using System;
 using System.Linq;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Operator_Explicit;
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Operator_Explicit;
 
 public interface I<T> where T : I<T>
 {

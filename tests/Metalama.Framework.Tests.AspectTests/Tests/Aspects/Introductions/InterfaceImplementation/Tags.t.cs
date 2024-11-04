@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Tags.IInterface1, global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Tags.IInterface2
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Tags.IInterface1, global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Tags.IInterface2
 {
   public global::System.Int32 Property1
   {

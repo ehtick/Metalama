@@ -5,7 +5,7 @@ using System;
 
 #pragma warning disable CS0067, CS0414
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.Initializers
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Initializers
 {
     /*
      * Tests that initializers are copied from interface member templates.

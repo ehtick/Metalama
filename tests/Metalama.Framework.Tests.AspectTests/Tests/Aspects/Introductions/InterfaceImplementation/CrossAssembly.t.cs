@@ -1,5 +1,5 @@
 [Introduction]
-public class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.CrossAssembly.IInterface
+public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.CrossAssembly.IInterface
 {
   public global::System.Int32 AutoProperty { get; set; }
   public global::System.Int32 Property

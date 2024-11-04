@@ -4,6 +4,7 @@ using Metalama.Framework.Code;
 using Metalama.Framework.Engine.Aspects;
 using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.CodeModel.Introductions.BuilderData;
+using Metalama.Framework.Engine.CodeModel.Introductions.Builders;
 using Metalama.Framework.Engine.CodeModel.Introductions.Helpers;
 using Metalama.Framework.Engine.Transformations;
 using Metalama.Framework.Engine.Utilities.Roslyn;
@@ -81,19 +82,23 @@ internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransforma
                 indexer.GetMethod.Accessibility.AddTokens( tokens );
             }
 
+            var hasNoBody = indexer.IsAbstract;
+
             return
                 AccessorDeclaration(
                     SyntaxKind.GetAccessorDeclaration,
                     AdviceSyntaxGenerator.GetAttributeLists( indexer.GetMethod, context ),
                     TokenList( tokens ),
                     Token( SyntaxKind.GetKeyword ),
-                    syntaxGenerator.FormattedBlock(
-                        ReturnStatement(
-                            Token( TriviaList(), SyntaxKind.ReturnKeyword, TriviaList( ElasticSpace ) ),
-                            DefaultExpression( syntaxGenerator.TypeSyntax( indexer.Type ) ),
-                            Token( TriviaList(), SyntaxKind.SemicolonToken, context.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) ) ),
+                    hasNoBody
+                        ? null
+                        : syntaxGenerator.FormattedBlock(
+                            ReturnStatement(
+                                Token( TriviaList(), SyntaxKind.ReturnKeyword, TriviaList( ElasticSpace ) ),
+                                DefaultExpression( syntaxGenerator.TypeSyntax( indexer.Type ) ),
+                                Token( TriviaList(), SyntaxKind.SemicolonToken, context.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) ) ),
                     null,
-                    default );
+                    hasNoBody ? Token( SyntaxKind.SemicolonToken ) : default );
         }
 
         AccessorDeclarationSyntax GenerateSetAccessor()
@@ -105,6 +110,8 @@ internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransforma
                 indexer.SetMethod.Accessibility.AddTokens( tokens );
             }
 
+            var hasNoBody = indexer.IsAbstract;
+
             return
                 AccessorDeclaration(
                     this.BuilderData.HasInitOnlySetter ? SyntaxKind.InitAccessorDeclaration : SyntaxKind.SetAccessorDeclaration,
@@ -113,9 +120,11 @@ internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransforma
                     this.BuilderData.HasInitOnlySetter
                         ? Token( TriviaList(), SyntaxKind.InitKeyword, TriviaList( ElasticSpace ) )
                         : Token( TriviaList(), SyntaxKind.SetKeyword, TriviaList( ElasticSpace ) ),
-                    context.SyntaxGenerator.FormattedBlock(),
+                    hasNoBody
+                        ? null
+                        : context.SyntaxGenerator.FormattedBlock(),
                     null,
-                    default );
+                    hasNoBody ? Token( SyntaxKind.SemicolonToken ) : default );
         }
     }
 }

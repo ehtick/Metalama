@@ -1,7 +1,7 @@
 // Warning CS8618 on `EventField`: `Non-nullable event 'EventField' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the event as nullable.`
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeImplicitMembers
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeImplicitMembers
 {
-  partial class TargetClass : global::Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.DesignTimeImplicitMembers.IInterface
+  partial class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.DesignTimeImplicitMembers.IInterface
   {
     public global::System.Int32 InterfaceMethod()
     {

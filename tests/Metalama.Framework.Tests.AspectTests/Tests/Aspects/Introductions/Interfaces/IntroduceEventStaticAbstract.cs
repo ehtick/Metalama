@@ -11,13 +11,13 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect( IAspectBuilder<INamedType> builder )
     {
-        var @interface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        builder.Advice.IntroduceProperty(@interface.Declaration, nameof(TestProperty) );
+        var @interface = builder.IntroduceInterface( "ITest");
+        @interface.IntroduceEvent( nameof(TestEvent) );
 
         // Implementation type.
-        var implementation = builder.Advice.IntroduceClass(builder.Target, "TestImplementation");
-        builder.Advice.ImplementInterface(implementation.Declaration, @interface.Declaration);
-        var implementationProperty = builder.Advice.IntroduceProperty(implementation.Declaration, nameof(TestPropertyImplementation), buildProperty: b => { b.Name = nameof(TestProperty); });
+        var implementation = builder.IntroduceClass("TestImplementation");
+        implementation.ImplementInterface( @interface.Declaration);
+        var implementationEvent = implementation.IntroduceEvent( nameof(TestEventImplementation), buildEvent: b => { b.Name = nameof(TestEvent); });
 
         // Usage type.
         var usage = builder.Advice.IntroduceClass(
@@ -36,43 +36,40 @@ public class IntroductionAttribute : TypeAspect
             args: new 
             { 
                 genericParameter = usage.Declaration.TypeParameters.Single(),
-                interfaceProperty = @interface.Declaration.Properties.Single(),
-                implementationProperty = implementationProperty.Declaration,
+                interfaceEvent = @interface.Declaration.Events.Single(),
+                implementationEvent = implementationEvent.Declaration,
             });
     }
 
     [Template]
-    public static extern int TestProperty { get; set; }
+    public static extern event EventHandler TestEvent;
 
     [Template]
-    public static int TestPropertyImplementation
+    public static event EventHandler TestEventImplementation
     {
-        get
+        add
         {
             Console.WriteLine("Implementation");
-            return 0;
         }
 
-        set
+        remove
         {
             Console.WriteLine("Implementation");
         }
     }
 
     [Template]
-    public static void TestUsageMethod([CompileTime] ITypeParameter genericParameter, [CompileTime] IProperty interfaceProperty, [CompileTime] IProperty implementationProperty)
+    public static void TestUsageMethod([CompileTime] ITypeParameter genericParameter, [CompileTime] IEvent interfaceEvent, [CompileTime] IEvent implementationEvent)
     {
         // Calling static members of type parameters is not currently supported (generic parameter does not "gain" members from constraints).
         ExpressionBuilder builder = new ExpressionBuilder();
         builder.AppendTypeName(genericParameter);
-        builder.AppendVerbatim($".{interfaceProperty.Name}");
-        builder.AppendVerbatim($" = ");
-        builder.AppendTypeName(genericParameter);
-        builder.AppendVerbatim($".{interfaceProperty.Name}");
-        builder.AppendVerbatim($" + 1");
+        builder.AppendVerbatim($".{interfaceEvent.Name}");
+        builder.AppendVerbatim($" += ");
+        builder.AppendExpression((EventHandler)((s, ea) => { Console.WriteLine("Handler"); }));
         meta.InsertStatement(builder.ToExpression());
 
-        implementationProperty.Value = implementationProperty.Value + 1;
+        implementationEvent.Add((EventHandler)((s, ea) => { Console.WriteLine("Handler"); }));
     }
 }
 

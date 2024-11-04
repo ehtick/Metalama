@@ -10,17 +10,17 @@ public class IntroductionAttribute : TypeAspect
 {
     public override void BuildAspect(IAspectBuilder<INamedType> builder)
     {
-        var iface = builder.Advice.IntroduceInterface(builder.Target, "ITest");
-        var ifaceMethod = builder.Advice.IntroduceMethod(iface.Declaration, nameof(TestMethod) );
+        var @interface = builder.IntroduceInterface( "ITest");
+        var interfaceMethod = @interface.IntroduceMethod( nameof(TestMethod) );
 
         // Implementation type
-        var impl = builder.Advice.IntroduceClass(builder.Target, "TestImpl");
-        builder.Advice.ImplementInterface(impl.Declaration, iface.Declaration);
-        var constructor = builder.Advice.IntroduceConstructor(impl.Declaration, nameof(Constructor));
-        builder.Advice.IntroduceMethod(impl.Declaration, nameof(TestMethodImpl), buildMethod: b => { b.Name = "TestMethod"; });
+        var implementation = builder.IntroduceClass("TestImplementation");
+        implementation.ImplementInterface( @interface.Declaration);
+        var constructor = implementation.IntroduceConstructor( nameof(Constructor));
+        implementation.IntroduceMethod( nameof(TestMethodImplementation), buildMethod: b => { b.Name = "TestMethod"; });
 
-        var usage = builder.Advice.IntroduceClass(builder.Target, "TestUsage");
-        builder.Advice.IntroduceMethod(usage.Declaration, nameof(TestUsageMethod), args: new { T = iface.Declaration, method = ifaceMethod.Declaration, implConstructor = constructor.Declaration });
+        var usage = builder.IntroduceClass("TestUsage");
+        usage.IntroduceMethod( nameof(TestUsageMethod), args: new { T = @interface.Declaration, method = interfaceMethod.Declaration, implementationConstructor = constructor.Declaration });
     }
 
     [Template]
@@ -32,16 +32,16 @@ public class IntroductionAttribute : TypeAspect
     public extern void TestMethod();
 
     [Template]
-    public void TestMethodImpl() 
+    public void TestMethodImplementation() 
     { 
         Console.WriteLine("Implementation");
     }
 
     [Template]
-    public T TestUsageMethod<[CompileTime] T>(T instance, [CompileTime] IMethod method, [CompileTime] IConstructor implConstructor)
+    public T TestUsageMethod<[CompileTime] T>(T instance, [CompileTime] IMethod method, [CompileTime] IConstructor implementationConstructor)
     {
         method.With(instance).Invoke();
-        return implConstructor.Invoke();
+        return implementationConstructor.Invoke();
     }
 }
 

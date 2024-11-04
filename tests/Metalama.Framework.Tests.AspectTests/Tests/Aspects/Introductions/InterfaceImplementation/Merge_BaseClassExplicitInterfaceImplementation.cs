@@ -7,7 +7,7 @@ using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.BaseClassExplicitInterfaceImplementation
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.BaseClassExplicitInterfaceImplementation
 {
     /*
      * When the base class of the target type implements the introduced interface explicitly, an error should be produced, because C# does not allow calling

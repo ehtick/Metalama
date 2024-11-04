@@ -5,7 +5,7 @@ using System;
 
 #pragma warning disable CS0067
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces.TemplateProvider
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.TemplateProvider
 {
     /*
      * Tests a simple case with implicit interface member defined in a template provider.

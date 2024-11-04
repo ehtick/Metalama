@@ -3,7 +3,7 @@ using Metalama.Framework.Aspects;
 using System;
 using System.Collections.Generic;
 
-namespace Metalama.Framework.Tests.AspectTests.TestInputs.Aspects.Introductions.Interfaces
+namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation
 {
     public interface IBaseInterface
     {
