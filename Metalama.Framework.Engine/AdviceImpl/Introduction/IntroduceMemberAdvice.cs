@@ -84,25 +84,52 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         var templateDeclaration = this.Template?.GetDeclaration( this.SourceCompilation );
 
         var isInterfaceMember = this.TargetDeclaration.TypeKind is TypeKind.Interface;
+        var isAbstractTypeMember = this.TargetDeclaration.IsAbstract;
+
+        // Extern templates have to be used with members without bodies (abstract, partial, extern).
+        var isExternTemplate = templateDeclaration?.IsExtern == true;
+        var isExplicitlyAbstractOrPartialOrExtern = 
+            templateAttributeProperties?.IsAbstract == true
+            || templateAttributeProperties?.IsPartial == true
+            || templateAttributeProperties?.IsExtern == true;
 
         // Without a template, interface members start as public, other type members as private.
         builder.Accessibility =
             this.Template?.Accessibility
             ?? Accessibility.Private;
 
+        // In abstract context, extern members are implicitly abstract for convenience, otherwise one of the other
+        // values has to be specified.
+        var isImplicitlyAbstract =
+            isExternTemplate
+            && !isExplicitlyAbstractOrPartialOrExtern
+            && builder.Accessibility != Accessibility.Private
+            && (isInterfaceMember || isAbstractTypeMember);
+
         builder.IsSealed = 
             templateAttributeProperties?.IsSealed 
             ?? templateDeclaration?.IsSealed 
             ?? false;
 
+        // Extern template denotes an abstract member of an interface.
+        builder.IsAbstract =
+            isAbstractTypeMember && (templateAttributeProperties?.IsAbstract == true || isImplicitlyAbstract);
+
+        builder.IsPartial = 
+            isExternTemplate 
+            && templateAttributeProperties?.IsPartial == true;
+
+        builder.IsExtern =
+            isExternTemplate
+            && templateAttributeProperties?.IsExtern == true;
+
+        // All abstract members are automatically virtual.
         // Interface members that do not have templates are by default virtual.
         builder.IsVirtual =
-            templateAttributeProperties?.IsVirtual
-            ?? templateDeclaration?.IsVirtual
-            ?? (isInterfaceMember && builder.Accessibility != Accessibility.Private);
-
-        // Extern template denotes an abstract member of an interface.
-        builder.IsAbstract = isInterfaceMember && templateDeclaration?.IsExtern == true;
+            builder.IsAbstract
+            || (templateAttributeProperties?.IsVirtual
+                ?? templateDeclaration?.IsVirtual
+                ?? (isInterfaceMember && builder.Accessibility != Accessibility.Private));
 
         // Handle the introduction scope.
         // By default, interface members are static because the scope is default and there is no template.

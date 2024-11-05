@@ -275,5 +275,13 @@ namespace Metalama.Framework.Engine.Advising
                 "The aspect '{0}' cannot introduce abstract member '{1}' with override strategy '{2}'.",
                 _category,
                 Error );
+
+        internal static readonly DiagnosticDefinition<(string AspectType, IDeclaration Member, IDeclaration TargetType)>
+            CannotIntroduceFieldIntoInterface = new(
+                "LAMA0534",
+                "Cannot introduce field into an interface.",
+                "The aspect '{0}' cannot introduce field '{1}' into interface type '{2}'.",
+                _category,
+                Error );
     }
 }

@@ -13,6 +13,7 @@ internal abstract class MemberBuilder : MemberOrNamedTypeBuilder, IMemberBuilder
     private bool _isVirtual;
     private bool _isAsync;
     private bool _isOverride;
+    private bool _isExtern;
 
     protected MemberBuilder( INamedType declaringType, string name, AspectLayerInstance aspectLayerInstance ) :
         base( aspectLayerInstance, declaringType, name ) { }
@@ -54,7 +55,16 @@ internal abstract class MemberBuilder : MemberOrNamedTypeBuilder, IMemberBuilder
         }
     }
 
-    bool IMember.IsExtern => false;
+    public bool IsExtern
+    {
+        get => this._isExtern;
+        set
+        {
+            this.CheckNotFrozen();
+
+            this._isExtern = value;
+        }
+    }
 
     IMember IMember.Definition => this;
 

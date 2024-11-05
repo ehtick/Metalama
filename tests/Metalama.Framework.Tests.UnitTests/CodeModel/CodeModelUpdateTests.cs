@@ -472,7 +472,7 @@ class C
         Assert.Empty( type.Types );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 
@@ -504,7 +504,7 @@ class C
         Assert.Empty( type.Types.OfName( "T" ) );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 
@@ -533,7 +533,7 @@ class C
         var type = Assert.Single( compilation.Types );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 
@@ -562,7 +562,7 @@ class C
         var type = Assert.Single( compilation.Types );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 
@@ -590,7 +590,7 @@ class C
         var type = Assert.Single( compilation.Types );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 
@@ -618,7 +618,7 @@ class C
         Assert.Single( type.Types.OfName( "T" ) );
 
         // Add a nested type.
-        var typeBuilder = new NamedTypeBuilder( null!, type, "T" );
+        var typeBuilder = new NamedTypeBuilder( null!, type, "T", TypeKind.Class );
         typeBuilder.Freeze();
         compilation.AddTransformation( typeBuilder.CreateTransformation() );
 

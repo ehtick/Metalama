@@ -33,6 +33,8 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
             ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.TypeSyntax( finalMethod.ExplicitInterfaceImplementations.Single().DeclaringType ) )
             : null;
 
+        var hasNoBody = finalMethod.IsAbstract || finalMethod.IsPartial;
+
         switch ( finalMethod.DeclarationKind )
         {
             case DeclarationKind.Finalizer:
@@ -96,8 +98,8 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
 
                     // Interface method will be declared without any body.
                     // Async iterator can have empty body and still be in iterator, returning anything is invalid.
-                    var block =
-                        finalMethod.DeclaringType.TypeKind == TypeKind.Interface
+                    var blockBody =
+                        hasNoBody
                             ? null
                             : syntaxGenerator.FormattedBlock(
                                 !finalMethod.ReturnParameter.Type.IsConvertibleTo( typeof( void ) )
@@ -134,9 +136,9 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                             context.SyntaxGenerator.TypeParameterList( finalMethod, context.FinalCompilation ),
                             context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
                             context.SyntaxGenerator.ConstraintClauses( finalMethod ),
-                            block,
+                            blockBody,
                             null,
-                            block == null ? Token( SyntaxKind.SemicolonToken ) : default );
+                            hasNoBody ? Token( SyntaxKind.SemicolonToken ) : default );
 
                     return [new InjectedMember( this, method, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
                 }
