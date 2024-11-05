@@ -37,6 +37,7 @@ namespace Metalama.Framework.Engine.Templating
             private readonly SemanticModel _semanticModel;
             private readonly ClassifyingCompilationContext _compilationContext;
             private readonly Action<Diagnostic> _reportDiagnostic;
+            private readonly Action<ScopedSuppression>? _reportSuppression;
             private readonly CancellationToken _cancellationToken;
             private readonly bool _hasCompileTimeCodeFast;
             private readonly ITypeSymbol _typeFabricType;
@@ -56,6 +57,7 @@ namespace Metalama.Framework.Engine.Templating
                 SemanticModel semanticModel,
                 ClassifyingCompilationContext compilationContext,
                 Action<Diagnostic> reportDiagnostic,
+                Action<ScopedSuppression>? reportSuppression,
                 bool reportCompileTimeTreeOutdatedError,
                 bool isDesignTime,
                 CancellationToken cancellationToken )
@@ -64,6 +66,7 @@ namespace Metalama.Framework.Engine.Templating
                 this._semanticModel = semanticModel;
                 this._compilationContext = compilationContext;
                 this._reportDiagnostic = reportDiagnostic;
+                this._reportSuppression = reportSuppression;
                 this._classifier = compilationContext.SymbolClassifier;
                 this._reportCompileTimeTreeOutdatedError = reportCompileTimeTreeOutdatedError;
                 this._isDesignTime = isDesignTime;
@@ -665,21 +668,6 @@ namespace Metalama.Framework.Engine.Templating
                 var compilation = this._compilationContext.SourceCompilation;
                 var reflectionMapper = this._compilationContext.ReflectionMapper;
 
-                bool IsAspect( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(IAspect) ) );
-                }
-
-                bool IsFabric( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(Fabric) ) );
-                }
-
-                bool IsTemplateProvider( INamedTypeSymbol symbol )
-                {
-                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(ITemplateProvider) ) );
-                }
-
                 // Report an error for struct aspect.
                 if ( declaredSymbol is INamedTypeSymbol { IsValueType: true } typeSymbol && IsAspect( typeSymbol ) )
                 {
@@ -698,6 +686,11 @@ namespace Metalama.Framework.Engine.Templating
                 if ( templateInfo == null || templateInfo.IsNone )
                 {
                     templateInfo = this._classifier.GetTemplateInfo( declaredSymbol );
+
+                    if ( !templateInfo.IsNone )
+                    {
+                        this.ReportSuppressions( node, declaredSymbol );
+                    }
                 }
 
                 if ( !templateInfo.IsNone )
@@ -726,6 +719,11 @@ namespace Metalama.Framework.Engine.Templating
                                 declaredSymbol.GetDiagnosticLocation(),
                                 (declaredSymbol, containingType) ) );
                     }
+                }
+                else if ( node.IsKind( SyntaxKind.ConstructorDeclaration ) && IsTemplateProvider( declaredSymbol.ContainingType ) )
+                {
+                    // Some suppression must be reported on constructors of template providers even if they are not themselves templates.
+                    this.ReportSuppressions( node, declaredSymbol );
                 }
 
                 // Report error on conflict scope.
@@ -772,6 +770,75 @@ namespace Metalama.Framework.Engine.Templating
                 this._currentTemplateInfo = templateInfo;
 
                 return context;
+
+                bool IsTemplateProvider( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(ITemplateProvider) ) );
+                }
+
+                bool IsFabric( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(Fabric) ) );
+                }
+
+                bool IsAspect( INamedTypeSymbol symbol )
+                {
+                    return compilation.HasImplicitConversion( symbol, reflectionMapper.GetTypeSymbol( typeof(IAspect) ) );
+                }
+            }
+
+            private void ReportSuppressions( SyntaxNode node, ISymbol declaredSymbol )
+            {
+                if ( this._reportSuppression == null )
+                {
+                    return;
+                }
+
+                if ( node.Kind() is SyntaxKind.LocalDeclarationStatement or SyntaxKind.LocalFunctionStatement )
+                {
+                    // Somehow we can get here even if we are already in a template, so skip this.
+                    return;
+                }
+
+                // Suppress well-known warnings.
+                foreach ( var suppression in WellKnownTemplateWarningSuppressions.SuppressionDescriptors.Values )
+                {
+                    // Verify the symbol kind.
+                    if ( Array.IndexOf( suppression.EligibleSymbolKinds, declaredSymbol.Kind ) < 0
+                         && !(suppression.AppliesToConstructor && node is ConstructorDeclarationSyntax) )
+                    {
+                        continue;
+                    }
+
+                    // Verify that the template has a body, if required.
+                    if ( suppression.RequiresBody )
+                    {
+                        var hasBody = node switch
+                        {
+                            ConstructorDeclarationSyntax => true,
+                            MethodDeclarationSyntax method => method.Body != null || method.ExpressionBody != null,
+                            VariableDeclaratorSyntax variable => variable.Initializer != null,
+                            EventDeclarationSyntax => true,
+                            OperatorDeclarationSyntax => true,
+                            DestructorDeclarationSyntax => true,
+                            ConversionOperatorDeclarationSyntax => true,
+                            IndexerDeclarationSyntax => true,
+                            AccessorDeclarationSyntax accessor => accessor.Body != null || accessor.ExpressionBody != null,
+                            PropertyDeclarationSyntax property => property.Initializer != null ||
+                                                                  (property.AccessorList != null && property.AccessorList.Accessors.Any(
+                                                                      a => a.Body != null || a.ExpressionBody != null )),
+                            ArrowExpressionClauseSyntax => true,
+                            _ => throw new AssertionFailedException()
+                        };
+
+                        if ( !hasBody )
+                        {
+                            continue;
+                        }
+                    }
+
+                    this._reportSuppression( new ScopedSuppression( suppression.Definition, declaredSymbol ) );
+                }
             }
 
             private static bool IsSupportedTemplateDeclaration( ISymbol declaredSymbol )

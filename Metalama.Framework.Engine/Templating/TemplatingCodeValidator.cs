@@ -17,7 +17,8 @@ namespace Metalama.Framework.Engine.Templating
         internal static async Task<bool> ValidateAsync(
             ProjectServiceProvider serviceProvider,
             ClassifyingCompilationContext compilationContext,
-            IDiagnosticAdder diagnosticAdder,
+            Action<Diagnostic> reportDiagnostic,
+            Action<ScopedSuppression>? reportSuppression,
             CancellationToken cancellationToken )
         {
             var taskScheduler = serviceProvider.GetRequiredService<IConcurrentTaskRunner>();
@@ -30,7 +31,15 @@ namespace Metalama.Framework.Engine.Templating
             {
                 var semanticModel = semanticModelProvider.GetSemanticModel( syntaxTree );
 
-                if ( !ValidateCore( serviceProvider, semanticModel, compilationContext, diagnosticAdder.Report, false, false, cancellationToken ) )
+                if ( !ValidateCore(
+                        serviceProvider,
+                        semanticModel,
+                        compilationContext,
+                        reportDiagnostic,
+                        reportSuppression,
+                        false,
+                        false,
+                        cancellationToken ) )
                 {
                     hasError = true;
                 }
@@ -45,6 +54,7 @@ namespace Metalama.Framework.Engine.Templating
             ProjectServiceProvider serviceProvider,
             SemanticModel semanticModel,
             Action<Diagnostic> reportDiagnostic,
+            Action<ScopedSuppression>? reportSuppression,
             bool reportCompileTimeTreeOutdatedError,
             bool isDesignTime,
             CancellationToken cancellationToken )
@@ -55,6 +65,7 @@ namespace Metalama.Framework.Engine.Templating
                 serviceProvider,
                 semanticModel,
                 reportDiagnostic,
+                reportSuppression,
                 reportCompileTimeTreeOutdatedError,
                 isDesignTime,
                 compilationContext,
@@ -65,6 +76,7 @@ namespace Metalama.Framework.Engine.Templating
             ProjectServiceProvider serviceProvider,
             SemanticModel semanticModel,
             Action<Diagnostic> reportDiagnostic,
+            Action<ScopedSuppression>? reportSuppression,
             bool reportCompileTimeTreeOutdatedError,
             bool isDesignTime,
             ClassifyingCompilationContext compilationContext,
@@ -77,6 +89,7 @@ namespace Metalama.Framework.Engine.Templating
                     semanticModel,
                     compilationContext,
                     reportDiagnostic,
+                    reportSuppression,
                     reportCompileTimeTreeOutdatedError,
                     isDesignTime,
                     cancellationToken );
@@ -104,6 +117,7 @@ namespace Metalama.Framework.Engine.Templating
             SemanticModel semanticModel,
             ClassifyingCompilationContext compilationContext,
             Action<Diagnostic> reportDiagnostic,
+            Action<ScopedSuppression>? reportSuppression,
             bool reportCompileTimeTreeOutdatedError,
             bool isDesignTime,
             CancellationToken cancellationToken )
@@ -113,6 +127,7 @@ namespace Metalama.Framework.Engine.Templating
                 semanticModel,
                 compilationContext,
                 reportDiagnostic,
+                reportSuppression,
                 reportCompileTimeTreeOutdatedError,
                 isDesignTime,
                 cancellationToken );

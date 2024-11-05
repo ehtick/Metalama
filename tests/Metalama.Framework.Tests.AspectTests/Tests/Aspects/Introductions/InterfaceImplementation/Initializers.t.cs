@@ -1,4 +1,3 @@
-// Warning CS0414 on `EventField`: `The field 'TargetClass.EventField' is assigned but its value is never used`
 [IntroduceAspect]
 public class TargetClass : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Initializers.IInterface
 {

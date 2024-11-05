@@ -1226,7 +1226,8 @@ Intentional syntax error.
             var pipeline1 = new CompileTimeAspectPipeline( testContext1.ServiceProvider, domain1 );
 
             var pipelineResult1 = await pipeline1.ExecuteAsync(
-                NullDiagnosticAdder.Instance,
+                NullDiagnosticAdder.Instance.Report,
+                null,
                 compilation1,
                 ImmutableArray<ManagedResource>.Empty );
 
@@ -1255,7 +1256,7 @@ Intentional syntax error.
 
             var pipeline2 = new CompileTimeAspectPipeline( testContext2.ServiceProvider, domain1 );
             DiagnosticBag diagnosticBag = new();
-            var pipelineResult2 = await pipeline2.ExecuteAsync( diagnosticBag, compilation2, ImmutableArray<ManagedResource>.Empty );
+            var pipelineResult2 = await pipeline2.ExecuteAsync( diagnosticBag.Report, null, compilation2, ImmutableArray<ManagedResource>.Empty );
 
             Assert.True( pipelineResult2.IsSuccessful );
         }
@@ -1547,7 +1548,7 @@ namespace RemainingNamespace
                 additionalReferences: [dependencyCompilation.ToMetadataReference()] );
 
             var pipeline = new CompileTimeAspectPipeline( testContext.ServiceProvider, testContext.Domain );
-            var result = await pipeline.ExecuteAsync( ThrowingDiagnosticAdder.Instance, mainCompilation, ImmutableArray<ManagedResource>.Empty );
+            var result = await pipeline.ExecuteAsync( ThrowingDiagnosticAdder.Instance.Report, null, mainCompilation, ImmutableArray<ManagedResource>.Empty );
             Assert.True( result.IsSuccessful );
 
             var dependencyProject =

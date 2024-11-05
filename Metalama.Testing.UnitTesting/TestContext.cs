@@ -260,7 +260,7 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 #if NET5_0_OR_GREATER
     {
         var domain = new UnloadableCompileTimeDomain( this.ServiceProvider.Global );
-        domain.UnloadTimeout += DiagnosticsHelper.CaptureDotMemoryDumpAndThrow;
+        domain.UnloadError += DiagnosticsHelper.CaptureDotMemoryDumpAndThrow;
 
         return domain;
     }
@@ -306,12 +306,12 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     }
 
     DateTime IDateTimeProvider.UtcNow => DateTime.UtcNow;
-    
+
     /// <summary>
     /// Gets the test name, for diagnostics.
     /// </summary>
     public string? TestName { get; internal set; }
-    
+
     internal ITestOutputHelper? TestOutputWriter { get; set; }
 
     protected virtual void Dispose( bool disposing )

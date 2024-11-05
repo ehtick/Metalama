@@ -17,6 +17,7 @@ using Metalama.Framework.Engine.Utilities.Threading;
 using Metalama.Framework.Engine.Validation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -78,11 +79,14 @@ public sealed class CompileTimeAspectPipeline : AspectPipeline
     }
 
     public async Task<FallibleResult<CompileTimeAspectPipelineResult>> ExecuteAsync(
-        IDiagnosticAdder diagnosticAdder,
+        Action<Diagnostic>? reportDiagnostic,
+        Action<ScopedSuppression>? reportSuppression,
         Compilation compilation,
         ImmutableArray<ManagedResource> resources,
         TestableCancellationToken cancellationToken = default )
     {
+        reportDiagnostic ??= _ => { };
+
         var compilationContext = this.ServiceProvider.GetRequiredService<ClassifyingCompilationContextFactory>().GetInstance( compilation );
         var partialCompilation = PartialCompilation.CreateComplete( compilation );
 
@@ -101,7 +105,7 @@ public sealed class CompileTimeAspectPipeline : AspectPipeline
         // Report error if the compilation does not have the METALAMA preprocessor symbol.
         if ( !(compilation.SyntaxTrees.FirstOrDefault()?.Options.PreprocessorSymbolNames.Contains( "METALAMA" ) ?? false) )
         {
-            diagnosticAdder.Report( GeneralDiagnosticDescriptors.MissingMetalamaPreprocessorSymbol.CreateRoslynDiagnostic( null, default ) );
+            reportDiagnostic( GeneralDiagnosticDescriptors.MissingMetalamaPreprocessorSymbol.CreateRoslynDiagnostic( null, default ) );
 
             return default;
         }
@@ -110,13 +114,16 @@ public sealed class CompileTimeAspectPipeline : AspectPipeline
         var isTemplatingCodeValidatorSuccessful = await TemplatingCodeValidator.ValidateAsync(
             this.ServiceProvider,
             compilationContext,
-            diagnosticAdder,
+            reportDiagnostic,
+            reportSuppression,
             cancellationToken );
 
         if ( !isTemplatingCodeValidatorSuccessful )
         {
             return default;
         }
+
+        var diagnosticAdder = new DiagnosticAdderAdapter( reportDiagnostic );
 
         var licenseConsumptionService = this.ServiceProvider.GetService<IProjectLicenseConsumer>();
 

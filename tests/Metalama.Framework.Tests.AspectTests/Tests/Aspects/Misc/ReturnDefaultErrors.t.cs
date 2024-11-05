@@ -1,16 +1,14 @@
 // Final Compilation.Emit failed.
-// Error CS0126 on `return`: `An object of a type convertible to 'Task' is required`
-// Error CS0030 on `(global::System.Threading.Tasks.Task<global::System.Int32>)default(global::System.Int32)`: `Cannot convert type 'int' to 'System.Threading.Tasks.Task<int>'`
-// Error CS0126 on `return`: `An object of a type convertible to 'ValueTask' is required`
-// Error CS0030 on `(global::System.Threading.Tasks.ValueTask<global::System.Int32>)default(global::System.Int32)`: `Cannot convert type 'int' to 'System.Threading.Tasks.ValueTask<int>'`
-// Error CS1626 on `yield`: `Cannot yield a value in the body of a try block with a catch clause`
-// Error CS0186 on `default(global::System.Collections.Generic.IAsyncEnumerable<global::System.Int32>)`: `Use of null is not valid in this context`
-// Error CS1631 on `yield`: `Cannot yield a value in the body of a catch clause`
-// Warning CS8619 on `r_1`: `Nullability of reference types in value of type 'var' doesn't match target type 'int'.`
-// Error CS1626 on `yield`: `Cannot yield a value in the body of a try block with a catch clause`
-// Error CS0186 on `default(global::System.Collections.Generic.IAsyncEnumerable<global::System.Int32>)`: `Use of null is not valid in this context`
-// Error CS1631 on `yield`: `Cannot yield a value in the body of a catch clause`
-// Warning CS8619 on `r_1`: `Nullability of reference types in value of type 'var' doesn't match target type 'int'.`
+// Error CS0126  on `return`: `An object of a type convertible to 'Task' is required`
+// Error CS0030  on `(global::System.Threading.Tasks.Task<global::System.Int32>)default(global::System.Int32)`: `Cannot convert type 'int' to 'System.Threading.Tasks.Task<int>'`
+// Error CS0126  on `return`: `An object of a type convertible to 'ValueTask' is required`
+// Error CS0030  on `(global::System.Threading.Tasks.ValueTask<global::System.Int32>)default(global::System.Int32)`: `Cannot convert type 'int' to 'System.Threading.Tasks.ValueTask<int>'`
+// Error CS1626  on `yield`: `Cannot yield a value in the body of a try block with a catch clause`
+// Error CS0186  on `default(global::System.Collections.Generic.IAsyncEnumerable<global::System.Int32>)`: `Use of null is not valid in this context`
+// Error CS1631  on `yield`: `Cannot yield a value in the body of a catch clause`
+// Error CS1626  on `yield`: `Cannot yield a value in the body of a try block with a catch clause`
+// Error CS0186  on `default(global::System.Collections.Generic.IAsyncEnumerable<global::System.Int32>)`: `Use of null is not valid in this context`
+// Error CS1631  on `yield`: `Cannot yield a value in the body of a catch clause`
 public class TestClass
 {
   [IgnoreException]

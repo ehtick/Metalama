@@ -15,11 +15,11 @@ namespace Metalama.Testing.UnitTesting;
 
 internal static class DiagnosticsHelper
 {
-    private static int _miniDumps;
-
+    private static int _counter;
+    
     public static string? CaptureMiniDumpOnce()
     {
-        if ( Interlocked.Increment( ref _miniDumps ) == 1 )
+        if ( Interlocked.Increment( ref _counter ) == 1 )
         {
             var dumper = BackstageServiceFactory.ServiceProvider.GetBackstageService<IMiniDumper>();
 
@@ -34,16 +34,23 @@ internal static class DiagnosticsHelper
     }
 
 #if NET6_0_OR_GREATER || NETFRAMEWORK
-    public static void CaptureDotMemoryDumpAndThrow()
+    public static void CaptureDotMemoryDumpAndThrow( string reason )
     {
-        DotMemory.Init();
-        var dotMemoryConfig = new DotMemory.Config();
-        var path = Path.Combine( MetalamaPathUtilities.GetTempPath(), "Metalama", "MemoryDumps" );
-        dotMemoryConfig.SaveToDir( path );
+        if ( Interlocked.Increment( ref _counter ) == 1 )
+        {
+            DotMemory.Init();
+            var dotMemoryConfig = new DotMemory.Config();
+            var path = Path.Combine( MetalamaPathUtilities.GetTempPath(), "Metalama", "MemoryDumps" );
+            dotMemoryConfig.SaveToDir( path );
 
-        DotMemory.GetSnapshotOnce( dotMemoryConfig );
+            DotMemory.GetSnapshotOnce( dotMemoryConfig );
 
-        throw new AssertionFailedException( $"A memory leak was detected. Inspect the dump file in '{path}'." );
+            throw new AssertionFailedException( $"A memory leak was detected. Inspect the dump file in '{path}'. {reason}" );
+        }
+        else
+        {
+            throw new AssertionFailedException( $"A memory leak was detected. A dump file was already created in this process'. {reason}" );
+        }
     }
 #endif
 }

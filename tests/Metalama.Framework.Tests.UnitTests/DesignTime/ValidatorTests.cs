@@ -195,9 +195,9 @@ public interface I {}
 
             GC.Collect();
 
-            if ( output.Compilation.TryGetTarget( out _ ) )
+            if ( output.Compilation.TryGetTarget( out var compilation ) )
             {
-                DiagnosticsHelper.CaptureDotMemoryDumpAndThrow();
+                DiagnosticsHelper.CaptureDotMemoryDumpAndThrow( $"There is still a dangling reference to '{compilation}'." );
             }
 
             GC.KeepAlive( output.Pipeline );

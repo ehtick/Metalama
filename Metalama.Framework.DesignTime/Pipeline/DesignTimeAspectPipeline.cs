@@ -1134,11 +1134,12 @@ internal sealed partial class DesignTimeAspectPipeline : BaseDesignTimeAspectPip
         }
     }
 
-    public void ValidateTemplatingCode( SemanticModel semanticModel, Action<Diagnostic> addDiagnostic )
+    public void ValidateTemplatingCode( SemanticModel semanticModel, Action<Diagnostic> reportDiagnostic, Action<ScopedSuppression>? reportSuppression )
         => TemplatingCodeValidator.Validate(
             this.ServiceProvider,
             semanticModel,
-            addDiagnostic,
+            reportDiagnostic,
+            reportSuppression,
             this.IsCompileTimeSyntaxTreeOutdated( semanticModel.SyntaxTree.FilePath ),
             true,
             CancellationToken.None );

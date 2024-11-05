@@ -1,5 +1,3 @@
-// Warning CS0162 on `yield`: `Unreachable code detected`
-// Warning CS0162 on `yield`: `Unreachable code detected`
 class TargetCode
 {
   [Aspect]

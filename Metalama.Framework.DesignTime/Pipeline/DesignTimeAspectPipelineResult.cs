@@ -388,7 +388,7 @@ internal sealed partial class DesignTimeAspectPipelineResult : ITransitiveAspect
                 }
             }
 
-            var declaringSyntaxes = suppression.Declaration.GetDeclaringSyntaxReferences();
+            var declaringSyntaxes = suppression.ScopeSymbol.DeclaringSyntaxReferences;
 
             switch ( declaringSyntaxes.Length )
             {

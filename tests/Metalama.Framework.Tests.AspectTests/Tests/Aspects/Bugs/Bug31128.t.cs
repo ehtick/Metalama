@@ -1,4 +1,3 @@
-// Warning CS0628 on `CreateColumns`: `'UsersLoginInfoModel.CreateColumns()': new protected member declared in sealed type`
 public sealed partial class UsersLoginInfoModel : BusinessObjectModel<UsersLoginInfo>
 {
   public UsersLoginInfoModel()

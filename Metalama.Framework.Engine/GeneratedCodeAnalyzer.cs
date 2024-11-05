@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Compiler;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Diagnostics;
@@ -16,6 +17,7 @@ namespace Metalama.Framework.Engine;
 #pragma warning disable RS1001 // Missing diagnostic analyzer attribute
 #pragma warning disable RS1022 // Do not use types from Workspaces assembly in an analyzer
 
+[UsedImplicitly]
 internal class GeneratedCodeAnalyzer : DiagnosticAnalyzer
 {
     private const string _diagnosticCategory = "Metalama.GeneratedCodeAnalyzer";

@@ -1,4 +1,3 @@
-// Warning CS0414 on `types`: `The field 'TestClass.types' is assigned but its value is never used`
 public sealed class TestClass : BaseClass, ICloneable
 {
   public object Clone() => throw new NotImplementedException();

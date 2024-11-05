@@ -29,14 +29,15 @@ public sealed partial class SourceTransformer
             this._serviceProvider = serviceProvider;
 
             var options = new MSBuildProjectOptions( contextAnalyzerConfigOptionsProvider.GlobalOptions );
+            var assemblyName = options.AssemblyName ?? "Unnamed";
 
             var loggerFactory = serviceProvider.GetLoggerFactory();
-            this._scope = loggerFactory.EnterScope( options.AssemblyName ?? "Unnamed" );
+            this._scope = loggerFactory.EnterScope( $"{assemblyName}({options.TargetFramework})" );
 
             this._services.Add( typeof(ILoggerFactory), loggerFactory );
             this._services.Add( typeof(ILogger), new LoggerAdapter( loggerFactory.GetLogger( "Compiler" ) ) );
             this._services.Add( typeof(IExceptionReporter), new ExceptionReporterAdapter( serviceProvider.GetBackstageService<IExceptionReporter>() ) );
-            
+
             // Initialize usage reporting.
             try
             {
