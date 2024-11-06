@@ -91,9 +91,9 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             Assert.True( license is License );
 
 #if NETFRAMEWORK
-            Assert.Throws<CryptographicException>( () => license!.TryGetLicenseConsumptionData( out _, out _ ) );
+            Assert.Throws<CryptographicException>( () => license.TryGetLicenseConsumptionData( out _, out _ ) );
 #else
-            Assert.False( license!.TryGetLicenseConsumptionData( out var data, out errorMessage ) );
+            Assert.False( license.TryGetLicenseConsumptionData( out var data, out errorMessage ) );
             Assert.Null( data );
             Assert.NotEmpty( errorMessage );
 #endif
