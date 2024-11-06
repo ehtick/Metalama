@@ -3,16 +3,7 @@ public class TargetType
 {
   interface ITest
   {
-    global::System.Int32 TestProperty
-    {
-      get
-      {
-        return default(global::System.Int32);
-      }
-      set
-      {
-      }
-    }
+    global::System.Int32 TestProperty { get; set; }
   }
   class TestImplementation : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroducePropertyAbstract_CrossAssembly.TargetType.ITest
   {

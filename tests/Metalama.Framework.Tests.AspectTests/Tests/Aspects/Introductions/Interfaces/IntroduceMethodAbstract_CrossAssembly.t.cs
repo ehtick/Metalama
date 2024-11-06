@@ -3,9 +3,7 @@ public class TargetType
 {
   interface ITest
   {
-    void TestMethod()
-    {
-    }
+    void TestMethod();
   }
   class TestImplementation : global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.Interfaces.IntroduceMethodAbstract_CrossAssembly.TargetType.ITest
   {

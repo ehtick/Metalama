@@ -87,7 +87,7 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         var isAbstractTypeMember = this.TargetDeclaration.IsAbstract;
 
         // Extern templates have to be used with members without bodies (abstract, partial, extern).
-        var isExternTemplate = templateDeclaration?.IsExtern == true;
+        var isTemplateWithoutBody = this.Template?.TemplateClassMember.TemplateInfo.HasNoBody == true;
         var isExplicitlyAbstractOrPartialOrExtern = 
             templateAttributeProperties?.IsAbstract == true
             || templateAttributeProperties?.IsPartial == true
@@ -101,7 +101,7 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         // In abstract context, extern members are implicitly abstract for convenience, otherwise one of the other
         // values has to be specified.
         var isImplicitlyAbstract =
-            isExternTemplate
+            isTemplateWithoutBody
             && !isExplicitlyAbstractOrPartialOrExtern
             && builder.Accessibility != Accessibility.Private
             && (isInterfaceMember || isAbstractTypeMember);
@@ -116,11 +116,11 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
             isAbstractTypeMember && (templateAttributeProperties?.IsAbstract == true || isImplicitlyAbstract);
 
         builder.IsPartial = 
-            isExternTemplate 
+            isTemplateWithoutBody 
             && templateAttributeProperties?.IsPartial == true;
 
         builder.IsExtern =
-            isExternTemplate
+            isTemplateWithoutBody
             && templateAttributeProperties?.IsExtern == true;
 
         // All abstract members are automatically virtual.

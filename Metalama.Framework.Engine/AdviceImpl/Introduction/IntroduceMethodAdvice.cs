@@ -124,6 +124,8 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
         var targetDeclaration = this.TargetDeclaration.ForCompilation( context.MutableCompilation );
         var existingMethod = targetDeclaration.FindClosestVisibleMethod( builder );
 
+        var hasNoBody = this.Template?.TemplateClassMember.TemplateInfo.HasNoBody == true;
+
         // TODO: Introduce attributes that are added not present on the existing member?
         if ( existingMethod == null )
         {
@@ -155,7 +157,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
                 builder.ToFullRef(),
                 this._template.ForIntroduction( builder ) );
 
-            if ( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody )
+            if ( !hasNoBody )
             {
                 context.AddTransformation( overriddenMethod );
             }
@@ -216,7 +218,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
 
                         context.AddTransformation( builder.ToTransformation() );
 
-                        if ( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody )
+                        if ( !hasNoBody )
                         {
                             context.AddTransformation( overriddenMethod );
                         }
@@ -225,7 +227,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
                     }
 
                 case OverrideStrategy.Override:
-                    Invariant.Assert( !this._template.TemplateMember.TemplateClassMember.TemplateInfo.HasNoBody );
+                    Invariant.Assert( !hasNoBody );
 
                     if ( !builder.ReturnType.IsConvertibleTo( existingMethod.ReturnType, ConversionKind.Reference ) )
                     {
