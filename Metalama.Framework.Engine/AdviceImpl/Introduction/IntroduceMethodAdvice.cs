@@ -27,7 +27,7 @@ internal sealed class IntroduceMethodAdvice : IntroduceMemberAdvice<IMethod, IMe
         OverrideStrategy overrideStrategy,
         Action<IMethodBuilder>? buildAction,
         INamedType? explicitlyImplementedInterfaceType )
-        : base( parameters, explicitName, template?.TemplateMember, scope, overrideStrategy, buildAction, explicitlyImplementedInterfaceType )
+        : base( parameters, explicitName, template.TemplateMember, scope, overrideStrategy, buildAction, explicitlyImplementedInterfaceType )
     {
         this._template = template;
     }
