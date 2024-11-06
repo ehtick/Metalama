@@ -99,9 +99,9 @@ internal sealed class IntroduceIndexerAdvice : IntroduceMemberAdvice<IIndexer, I
         // Extern template denotes an abstract member of an interface.
         builder.IsAbstract = 
             this.TargetDeclaration.TypeKind is TypeKind.Interface 
-            && this._getTemplate != null
+            && (this._getTemplate != null
                 ? getTemplateDeclaration.AssertNotNull().IsExtern
-                : setTemplateDeclaration.AssertNotNull().IsExtern;
+                : setTemplateDeclaration.AssertNotNull().IsExtern);
 
         if ( this._getTemplate != null )
         {

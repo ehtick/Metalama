@@ -283,5 +283,13 @@ namespace Metalama.Framework.Engine.Advising
                 "The aspect '{0}' cannot introduce field '{1}' into interface type '{2}'.",
                 _category,
                 Error );
+
+        internal static readonly DiagnosticDefinition<(string AspectType, IDeclaration Member, IDeclaration TargetType)>
+            CannotIntroducePartialMemberToNonPartialType = new(
+                "LAMA0535",
+                "Cannot introduce partial member into a non-partial type.",
+                "The aspect '{0}' cannot introduce partial member '{1}' into type '{2}' because it is not partial.",
+                _category,
+                Error );
     }
 }

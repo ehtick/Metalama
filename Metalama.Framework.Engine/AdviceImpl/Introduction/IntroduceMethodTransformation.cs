@@ -33,12 +33,14 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
             ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.TypeSyntax( finalMethod.ExplicitInterfaceImplementations.Single().DeclaringType ) )
             : null;
 
-        var hasNoBody = finalMethod.IsAbstract || finalMethod.IsPartial;
+        var hasNoBody = finalMethod.IsAbstract || finalMethod.IsPartial || finalMethod.IsExtern;
 
         switch ( finalMethod.DeclarationKind )
         {
             case DeclarationKind.Finalizer:
                 {
+                    Invariant.Assert( !hasNoBody );
+
                     var syntax = DestructorDeclaration(
                         AdviceSyntaxGenerator.GetAttributeLists( finalMethod, context ),
                         TokenList(),
@@ -66,7 +68,9 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                                 .WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
                             context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
                             null,
-                            ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) ),
+                            !hasNoBody
+                            ? ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) )
+                            : default,
                             Token( SyntaxKind.SemicolonToken ) );
 
                         return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
@@ -85,7 +89,9 @@ internal sealed class IntroduceMethodTransformation : IntroduceMemberTransformat
                             SyntaxFactoryEx.TokenWithTrailingSpace( finalMethod.OperatorKind.ToOperatorKeyword() ),
                             context.SyntaxGenerator.ParameterList( finalMethod, context.FinalCompilation ),
                             null,
-                            ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) ),
+                            !hasNoBody
+                            ? ArrowExpressionClause( context.SyntaxGenerator.DefaultExpression( finalMethod.ReturnType ) )
+                            : default,
                             Token( SyntaxKind.SemicolonToken ) );
 
                         return [new InjectedMember( this, syntax, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];

@@ -1,4 +1,9 @@
-﻿using Metalama.Framework.Advising;
+﻿#if TEST_OPTIONS
+// @RequiredConstant(NET6_0_OR_GREATER)
+#endif
+
+#if NET6_0_OR_GREATER
+using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using System;
@@ -66,3 +71,4 @@ public class IntroductionAttribute : TypeAspect
 // <target>
 [IntroductionAttribute]
 public class TargetType { }
+#endif

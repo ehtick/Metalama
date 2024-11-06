@@ -111,7 +111,7 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
             ?? templateDeclaration?.IsSealed 
             ?? false;
 
-        // Extern template denotes an abstract member of an interface.
+        // Non-private extern template implicitly denotes an abstract member of an interface or abstract class.
         builder.IsAbstract =
             isAbstractTypeMember && (templateAttributeProperties?.IsAbstract == true || isImplicitlyAbstract);
 
@@ -192,8 +192,18 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
                     this ) );
         }
 
-        // Check that template without a body (i.e. abstract method) is not introduced to a non-abstract type.
-        if ( this.Template?.TemplateClassMember.TemplateInfo.HasNoBody == true && !targetDeclaration.IsAbstract )
+        // Check that abstract member is not introduced to a non-abstract type.
+        if ( builder.IsAbstract && !targetDeclaration.IsAbstract )
+        {
+            diagnosticAdder.Report(
+                AdviceDiagnosticDescriptors.CannotIntroduceAbstractMemberToNonAbstractType.CreateRoslynDiagnostic(
+                    targetDeclaration.GetDiagnosticLocation(),
+                    (this.AspectInstance.AspectClass.ShortName, builder, targetDeclaration),
+                    this ) );
+        }
+
+        // Check that partial member is not introduced to a non-partial type.
+        if ( builder.IsAbstract && !targetDeclaration.IsAbstract )
         {
             diagnosticAdder.Report(
                 AdviceDiagnosticDescriptors.CannotIntroduceAbstractMemberToNonAbstractType.CreateRoslynDiagnostic(
@@ -203,7 +213,7 @@ internal abstract class IntroduceMemberAdvice<TTemplate, TIntroduced, TBuilder> 
         }
 
         // Check that template without body is not used OverrideStrategy.Override.
-        if ( this.Template?.TemplateClassMember.TemplateInfo.HasNoBody == true
+        if ( builder.IsAbstract
              && this.OverrideStrategy is OverrideStrategy.Override or OverrideStrategy.New)
         {
             diagnosticAdder.Report(

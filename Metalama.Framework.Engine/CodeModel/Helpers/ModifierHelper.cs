@@ -80,7 +80,9 @@ internal static class ModifierHelper
             tokens.Add( SyntaxFactoryEx.TokenWithTrailingSpace( syntaxKind ) );
         }
 
-        if ( (categories & ModifierCategories.Accessibility) != 0 )
+        // Private void partial methods skip accessibility to make implementation non-mandatory.
+        if ( member is not IMethod { IsPartial: true, Accessibility: Accessibility.Private, ReturnType: { SpecialType: Code.SpecialType.Void } }
+             && (categories & ModifierCategories.Accessibility) != 0 )
         {
             AddAccessibilityTokens( member, tokens );
         }
@@ -93,6 +95,16 @@ internal static class ModifierHelper
         if ( member.IsStatic && (categories & ModifierCategories.Static) != 0 )
         {
             AddToken( SyntaxKind.StaticKeyword );
+        }
+
+        if ( member.IsPartial && (categories & ModifierCategories.Partial) != 0 )
+        {
+            AddToken( SyntaxKind.PartialKeyword );
+        }
+
+        if ( member.IsExtern && (categories & ModifierCategories.Extern) != 0 )
+        {
+            AddToken( SyntaxKind.ExternKeyword );
         }
 
         if ( (categories & ModifierCategories.Inheritance) != 0 )
