@@ -247,7 +247,7 @@ namespace Metalama.Framework.Engine.Advising
         internal static readonly DiagnosticDefinition<(string AspectType, string Parameter, IDeclaration TargetDeclaration, string ExistingParameterName)>
             CannotIntroduceParameterAlreadyExists = new(
                 "LAMA0530",
-                "Cannot parameter when a parameter with the same name already exists.",
+                "Cannot introduce a parameter when a parameter with the same name already exists.",
                 "The aspect '{0}' cannot introduce parameter '{1}' to '{2}' because the target declaration already has a parameter '{3}'.",
                 _category,
                 Error );
@@ -264,7 +264,7 @@ namespace Metalama.Framework.Engine.Advising
             CannotIntroduceAbstractMemberToNonAbstractType = new(
                 "LAMA0532",
                 "Cannot introduce an abstract member into a non-abstract type.",
-                "The aspect '{0}' cannot introduce abstract member '{1}' into type '{2}' because it is not abstract.",
+                "The aspect '{0}' cannot introduce the abstract member '{1}' into type '{2}' because it is not abstract.",
                 _category,
                 Error );
 
@@ -272,7 +272,7 @@ namespace Metalama.Framework.Engine.Advising
             CannotIntroduceAbstractMemberWithOverrideStrategy = new(
                 "LAMA0533",
                 "Cannot introduce an abstract member with override strategy Override.",
-                "The aspect '{0}' cannot introduce abstract member '{1}' with override strategy '{2}'.",
+                "The aspect '{0}' cannot introduce the abstract member '{1}' with override strategy '{2}'.",
                 _category,
                 Error );
 
@@ -280,7 +280,7 @@ namespace Metalama.Framework.Engine.Advising
             CannotIntroduceFieldIntoInterface = new(
                 "LAMA0534",
                 "Cannot introduce a field into an interface.",
-                "The aspect '{0}' cannot introduce field '{1}' into interface type '{2}'.",
+                "The aspect '{0}' cannot introduce the field '{1}' into interface type '{2}'.",
                 _category,
                 Error );
 
@@ -288,7 +288,7 @@ namespace Metalama.Framework.Engine.Advising
             CannotIntroducePartialMemberToNonPartialType = new(
                 "LAMA0535",
                 "Cannot introduce a partial member into a non-partial type.",
-                "The aspect '{0}' cannot introduce partial member '{1}' into type '{2}' because it is not partial.",
+                "The aspect '{0}' cannot introduce the partial member '{1}' into type '{2}' because it is not partial.",
                 _category,
                 Error );
     }
