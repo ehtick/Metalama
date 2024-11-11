@@ -1,5 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+// Don't run this test on .Net Framework, to prevent concurrent execution of the .Net Framework and .Net tests.
+
+#if NETCOREAPP
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Infrastructure;
@@ -12,10 +15,8 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Tests.ConfigurationManager;
 
-public class ConfigurationManagerLoadTests : TestsBase
+public class ConfigurationManagerLoadTests( ITestOutputHelper logger ) : TestsBase( logger )
 {
-    public ConfigurationManagerLoadTests( ITestOutputHelper logger ) : base( logger ) { }
-
     [Fact]
     public async Task ConcurrentConditionalUpdateSucceedsOnlyOnce()
     {
@@ -50,3 +51,4 @@ public class ConfigurationManagerLoadTests : TestsBase
         }
     }
 }
+#endif
