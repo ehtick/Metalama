@@ -14,7 +14,7 @@
         <EnforceExtendedAnalyzerRules>True</EnforceExtendedAnalyzerRules>
 
         <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
-        <LangMaxVersion>12</LangMaxVersion>
+        <LangMaxVersion>latest</LangMaxVersion>
     </PropertyGroup>
 
     <Import Project="eng/Versions.props"/>
