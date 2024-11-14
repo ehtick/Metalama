@@ -12,6 +12,9 @@
         <WarningsAsErrors>$(WarningsAsErrors);NU1604</WarningsAsErrors>
 
         <EnforceExtendedAnalyzerRules>True</EnforceExtendedAnalyzerRules>
+
+        <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
+        <LangMaxVersion>12</LangMaxVersion>
     </PropertyGroup>
 
     <Import Project="eng/Versions.props"/>
@@ -29,8 +32,8 @@
     <Import Sdk="PostSharp.Engineering.Sdk" Project="BuildOptions.props"/>
 
     <PropertyGroup>
-        <!-- Metalama 2024.2 doesn't support C# 13, and PostSharp.Engineering defaults to latest, so we have to explicitly specify C# 12 here, now that Roslyn 4.12 is merged into Metalama.Compiler. -->
-        <LangVersion>12</LangVersion>
+        <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
+        <LangVersion>$(LangMaxVersion)</LangVersion>
     </PropertyGroup>
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
