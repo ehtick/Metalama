@@ -3,6 +3,7 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Invokers;
 using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.SyntaxSerialization;
 using Metalama.Framework.Engine.Templating.Expressions;
@@ -30,7 +31,7 @@ internal sealed class MethodInvoker : Invoker<IMethod>, IMethodInvoker
             return this.Invoke( expressionArgs );
         }
 
-        args ??= Array.Empty<object>();
+        args ??= [];
 
         var parametersCount = this.Member.Parameters.Count;
 
@@ -149,7 +150,7 @@ internal sealed class MethodInvoker : Invoker<IMethod>, IMethodInvoker
                     return this.CreateInvocationExpression( receiver, name, arguments, AspectReferenceTargetKind.Self, context );
                 }
             },
-            (this.Options & InvokerOptions.NullConditional) != 0 ? this.Member.ReturnType.ToNullableType() : this.Member.ReturnType );
+            (this.Options & InvokerOptions.NullConditional) != 0 ? this.Member.ReturnType.ToNullable() : this.Member.ReturnType );
     }
 
     private ExpressionSyntax CreateInvocationExpression(
@@ -166,7 +167,7 @@ internal sealed class MethodInvoker : Invoker<IMethod>, IMethodInvoker
                     .WithSimplifierAnnotationIfNecessary( context.SyntaxGenerationContext );
 
             // Only create an aspect reference when the declaring type of the invoked declaration is ancestor of the target of the template (or its declaring type).
-            if ( GetTargetType()?.Is( this.Member.DeclaringType ) ?? false )
+            if ( GetTargetType()?.IsConvertibleTo( this.Member.DeclaringType ) ?? false )
             {
                 memberAccessExpression =
                     memberAccessExpression.WithAspectReferenceAnnotation(
@@ -194,7 +195,7 @@ internal sealed class MethodInvoker : Invoker<IMethod>, IMethodInvoker
                         InvocationExpression( MemberBindingExpression( name ) ) );
 
             // Only create an aspect reference when the declaring type of the invoked declaration is ancestor of the target of the template (or its declaring type).
-            if ( GetTargetType()?.Is( this.Member.DeclaringType ) ?? false )
+            if ( GetTargetType()?.IsConvertibleTo( this.Member.DeclaringType ) ?? false )
             {
                 expression = expression.WithAspectReferenceAnnotation(
                     receiverTypedExpressionSyntax.AspectReferenceSpecification.WithTargetKind( targetKind ) );

@@ -4,6 +4,10 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>Metalama.Framework.CompilerExtensions</RootNamespace>
         <IsPackable>False</IsPackable>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+
     </PropertyGroup>
 
     <ItemGroup>

@@ -10,20 +10,31 @@ using System.Linq;
 
 namespace Metalama.Framework.Engine.CodeModel.Collections
 {
-    internal sealed class NamespaceCollection : DeclarationCollection<INamespace, Ref<INamespace>>, INamespaceCollection
+    internal sealed class NamespaceCollection : DeclarationCollection<INamespace>, INamespaceCollection
     {
-        public NamespaceCollection( INamespace declaringType, IReadOnlyList<Ref<INamespace>> sourceItems ) : base(
+        public NamespaceCollection( INamespace declaringType, IReadOnlyList<IFullRef<INamespace>> sourceItems ) : base(
             declaringType,
             sourceItems ) { }
 
-        public INamespace? OfName( string name )
+        public INamespace? OfName( string name ) => this.SingleOrDefault( ns => ns.Name == name );
+
+        IEnumerable<INamespace> INamedDeclarationCollection<INamespace>.OfName( string name )
         {
             if ( name.ContainsOrdinal( '.' ) )
             {
                 throw new ArgumentOutOfRangeException( nameof(name), "The name cannot contain a period." );
             }
+            
+            var ns = this.OfName( name );
 
-            return this.SingleOrDefault( ns => ns.Name == name );
+            if ( ns == null )
+            {
+                return [];
+            }
+            else
+            {
+                return [ns];
+            }
         }
     }
 }

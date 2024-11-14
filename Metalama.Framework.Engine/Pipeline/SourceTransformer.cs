@@ -11,16 +11,16 @@ using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Licensing;
 using Metalama.Framework.Engine.Options;
 using Metalama.Framework.Engine.Pipeline.CompileTime;
+using Metalama.Framework.Engine.SerializableIds;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.Utilities.Diagnostics;
-using Metalama.Framework.Engine.Utilities.Roslyn;
 using Metalama.Framework.Engine.Utilities.Threading;
 using Metalama.Framework.Engine.Utilities.UserCode;
 using Metalama.Framework.Project;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -83,23 +83,16 @@ public sealed partial class SourceTransformer : ISourceTransformerWithServices
         }
     }
 
-    public void Execute( TransformerContext context )
+    public void Execute( TransformerContext context ) => Execute( new TransformerContextAdapter( context ) );
+
+    internal static void Execute( ITransformerContext context )
     {
-        var globalServices = ServiceProviderFactory.GetServiceProvider();
+        var globalServices = context.ServiceProvider.Underlying;
 
         try
         {
-            // Try.Metalama ships its own handler. Having the default ICompileTimeExceptionHandler added earlier
-            // is not possible, because it needs access to IExceptionReporter service, which comes from the TransformerContext.
-            if ( globalServices.GetService<ICompileTimeExceptionHandler>() == null )
-            {
-                globalServices = globalServices.WithService( new CompileTimeExceptionHandler( globalServices ) );
-            }
+            var projectOptions = context.ProjectOptions;
 
-            // Try.Metalama ships its own project options factory using the async-local service provider.
-            var projectOptionsFactory = globalServices.GetRequiredService<IProjectOptionsFactory>();
-            var projectOptions = projectOptionsFactory.GetProjectOptions( context.AnalyzerConfigOptionsProvider, context.Options );
-            
             var projectServiceProvider = globalServices
                 .WithProjectScopedServices( projectOptions, context.Compilation )
                 .WithService<IProjectLicenseConsumer>(
@@ -113,14 +106,20 @@ public sealed partial class SourceTransformer : ISourceTransformerWithServices
 
             var taskRunner = globalServices.GetRequiredService<ITaskRunner>();
 
+            var suppressions = new ConcurrentQueue<ScopedSuppression>();
+
             // ReSharper disable once AccessToDisposedClosure
+
             var pipelineResult =
                 taskRunner.RunSynchronously(
                     () => pipeline.ExecuteAsync(
-                        new DiagnosticAdderAdapter( context.ReportDiagnostic ),
+                        context.ReportDiagnostic,
+                        suppressions.Enqueue,
                         context.Compilation,
                         context.Resources,
                         TestableCancellationToken.None ) );
+
+            HandleSuppressions( context, projectServiceProvider, suppressions );
 
             if ( pipelineResult.IsSuccessful )
             {
@@ -204,15 +203,17 @@ public sealed partial class SourceTransformer : ISourceTransformerWithServices
     }
 
     private static void HandleSuppressions(
-        TransformerContext context,
+        ITransformerContext context,
         ProjectServiceProvider projectServiceProvider,
-        ImmutableArray<ScopedSuppression> diagnosticSuppressions )
+        IEnumerable<ScopedSuppression> diagnosticSuppressions )
     {
         var userCodeInvoker = projectServiceProvider.GetRequiredService<UserCodeInvoker>();
 
+        var compilationContext = context.Compilation.GetCompilationContext();
+
         foreach ( var suppression in diagnosticSuppressions )
         {
-            var declarationId = suppression.Declaration.GetSerializableId();
+            var declarationId = suppression.ScopeSymbol.GetSerializableId();
 
             UserCodeExecutionContext? executionContext = null;
 
@@ -220,22 +221,25 @@ public sealed partial class SourceTransformer : ISourceTransformerWithServices
             {
                 executionContext = new UserCodeExecutionContext(
                     projectServiceProvider,
-                    UserCodeDescription.Create( "evaluating suppression filter for {0} on {1}", suppression.Suppression.Definition, suppression.Declaration ) );
+                    UserCodeDescription.Create( "evaluating suppression filter for {0} on {1}", suppression.Suppression.Definition, suppression.ScopeSymbol ),
+                    compilationContext );
             }
 
-            context.RegisterDiagnosticFilter(
-                SuppressionFactories.CreateDescriptor( suppression.Suppression.Definition.SuppressedDiagnosticId ),
-                request =>
-                {
-                    if ( suppression.Matches(
-                            request.Diagnostic,
-                            request.Compilation,
-                            filter => userCodeInvoker.Invoke( filter, executionContext! ),
-                            declarationId ) )
-                    {
-                        request.Suppress();
-                    }
-                } );
+            var suppressionDescriptor = SuppressionFactories.CreateDescriptor( suppression.Suppression.Definition.SuppressedDiagnosticId );
+
+            foreach ( var syntaxReference in suppression.ScopeSymbol.DeclaringSyntaxReferences )
+            {
+                context.RegisterDiagnosticFilter(
+                    new DiagnosticFilter(
+                        suppressionDescriptor,
+                        syntaxReference.SyntaxTree.FilePath,
+                        ( in DiagnosticFilteringRequest request ) =>
+                            suppression.Matches(
+                                request.Diagnostic,
+                                request.Compilation,
+                                filter => userCodeInvoker.Invoke( filter, executionContext! ),
+                                declarationId ) ) );
+            }
         }
     }
 }

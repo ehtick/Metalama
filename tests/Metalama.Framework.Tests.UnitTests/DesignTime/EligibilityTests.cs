@@ -6,8 +6,8 @@ using Metalama.Framework.Code.Types;
 using Metalama.Framework.Eligibility;
 using Metalama.Framework.Engine;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Tests.UnitTests.DesignTime.Mocks;
-using Metalama.Testing.UnitTesting;
 using System;
 using System.Linq;
 using Xunit;
@@ -15,7 +15,7 @@ using Xunit;
 namespace Metalama.Framework.Tests.UnitTests.DesignTime
 {
     // We skip this test in .NET Framework because we would need to implement all implicit interface methods, and it would have low value anyway.
-    public sealed class EligibilityTests : UnitTestClass
+    public sealed class EligibilityTests : FrameworkBaseTestClass
     {
         private void IsEligible( string code, string target, string aspects )
         {
@@ -186,13 +186,13 @@ class ClassWithoutAspect {}
         [Fact]
         public void MustBeOfType_ThrowsWhenImpossible()
         {
-            Assert.Throws<ArgumentOutOfRangeException>( () => EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeOfType( typeof(int) ) ) );
+            Assert.Throws<ArgumentOutOfRangeException>( () => EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeInstanceOfType( typeof(int) ) ) );
         }
 
         [Fact]
         public void MustBeOfAnyType_ThrowsWhenImpossible()
         {
-            Assert.Throws<ArgumentOutOfRangeException>( () => EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeOfAnyType( typeof(int) ) ) );
+            Assert.Throws<ArgumentOutOfRangeException>( () => EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeInstanceOfAnyType( typeof(int) ) ) );
         }
 
         [Fact]
@@ -210,7 +210,7 @@ class C
             var compilation = testContext.CreateCompilation( code );
             var intParameter = compilation.Types.Single().Methods.Single().Parameters[0];
 
-            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeOfType( typeof(INamedType) ) );
+            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeInstanceOfType( typeof(INamedType) ) );
 
             Assert.Equal( EligibleScenarios.All, eligibility.GetEligibility( intParameter.Type ) );
         }
@@ -230,7 +230,7 @@ class C
             var compilation = testContext.CreateCompilation( code );
             var intParameter = compilation.Types.Single().Methods.Single().Parameters[0];
 
-            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeOfAnyType( typeof(INamedType), typeof(IArrayType) ) );
+            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustBeInstanceOfAnyType( typeof(INamedType), typeof(IArrayType) ) );
             Assert.Equal( EligibleScenarios.All, eligibility.GetEligibility( intParameter.Type ) );
         }
 
@@ -251,7 +251,7 @@ class C
             var intParameter = method.Parameters[0];
             var stringParameter = method.Parameters[1];
 
-            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustBe( typeof(int) ) );
+            var eligibility = EligibilityRuleFactory.CreateRule<IType>( d => d.MustEqual( typeof(int) ) );
 
             Assert.Equal( EligibleScenarios.All, eligibility.GetEligibility( intParameter.Type ) );
             Assert.Equal( EligibleScenarios.None, eligibility.GetEligibility( stringParameter.Type ) );

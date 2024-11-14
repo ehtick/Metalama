@@ -4,6 +4,7 @@ using Metalama.Compiler;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Engine.AspectWeavers;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Formatting;
 using Metalama.Framework.Engine.Options;
 using Metalama.Framework.Engine.Services;
@@ -128,7 +129,7 @@ namespace Metalama.Compiler
             }
 
             transformedCompilation =
-                transformedCompilation.WithSyntaxTreeTransformations( new[] { SyntaxTreeTransformation.AddTree( instrinsicsSyntaxTree ) } );
+                transformedCompilation.WithSyntaxTreeTransformations( [SyntaxTreeTransformation.AddTree( instrinsicsSyntaxTree )] );
         }
 
         return transformedCompilation;
@@ -179,7 +180,23 @@ namespace Metalama.Compiler
                     .WithGeneratedCodeAnnotation( FormattingAnnotations.SystemGeneratedCodeAnnotation ) );
         }
 
-        return base.VisitClassDeclaration( node )!
+        var newMembers = new List<MemberDeclarationSyntax>();
+
+        foreach (var member in node.Members)
+        {
+            switch ( member )
+            {
+                case EventFieldDeclarationSyntax eventFieldDeclaration:
+                    newMembers.AddRange(this.TransformEventFieldDeclaration(eventFieldDeclaration ) );
+                    break;
+                default:
+                    newMembers.Add( (MemberDeclarationSyntax) this.Visit( member )! );
+                    break;
+            }
+        }
+
+        return
+            node.WithMembers( List( newMembers ) )
             .WithLeadingTrivia( leadingTrivia )
             .WithTrailingTrivia( trailingTrivia );
     }
@@ -227,6 +244,89 @@ namespace Metalama.Compiler
         }
 
         return transformedNode;
+    }
+
+    private List<MemberDeclarationSyntax> TransformEventFieldDeclaration( EventFieldDeclarationSyntax node )
+    {
+        if ( node.Modifiers.Any( m => m.IsKind( SyntaxKind.ExternKeyword ) ) )
+        {
+            // Extern event fields need to be rewritten to many events with throwing bodies.
+
+            var members = new List<MemberDeclarationSyntax>();
+            var variables = new List<VariableDeclaratorSyntax>();
+            var semanticModel = this.SemanticModelProvider.GetSemanticModel( node.SyntaxTree );
+
+            foreach ( var variable in node.Declaration.Variables )
+            {
+                var symbol = semanticModel.GetDeclaredSymbol( variable )!;
+
+                if ( this.MustReplaceByThrow( symbol ) )
+                {
+                    members.Add(
+                    this._rewriterHelper.WithThrowNotSupportedExceptionBody(
+                        EventDeclaration(
+                            node.AttributeLists,
+                            TokenList( node.Modifiers.Where( m => !m.IsKind( SyntaxKind.ExternKeyword ) ) ),
+                            node.EventKeyword,
+                            node.Declaration.Type,
+                            null,
+                            variable.Identifier,
+                            AccessorList(
+                                List(
+                                    [
+                                        AccessorDeclaration( SyntaxKind.AddAccessorDeclaration )
+                                            .WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) ),
+                                        AccessorDeclaration( SyntaxKind.RemoveAccessorDeclaration )
+                                            .WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) )
+                                    ] ) ),
+                            default ),
+                        "Compile-time-only code cannot be called at run-time." ) );
+                }
+                else
+                {
+                    variables.Add( variable );
+                }
+            }
+
+            if ( variables.Count > 0 )
+            {
+                members.Add( node.WithDeclaration( node.Declaration.WithVariables( SeparatedList( variables ) ) ) );
+            }
+
+            return members;
+        }
+        else
+        {
+            var variables = new List<VariableDeclaratorSyntax>();
+            ISymbol? lastTemplateSymbol = null;
+            var transformedNode = node;
+
+            foreach ( var variable in node.Declaration.Variables )
+            {
+                var symbol = this.SemanticModelProvider.GetSemanticModel( node.SyntaxTree ).GetDeclaredSymbol( variable )!;
+
+                var transformedVariable = variable;
+
+                if ( this.IsTemplate( symbol ) )
+                {
+                    lastTemplateSymbol = symbol;
+
+                    transformedVariable = variable
+                        .WithInitializer( null )
+                        .WithIncludeInReferenceAssemblyAnnotation();
+                }
+
+                variables.Add( transformedVariable );
+            }
+
+            if ( lastTemplateSymbol != null )
+            {
+                transformedNode = node.WithDeclaration( node.Declaration.WithVariables( SeparatedList( variables ) ) );
+                transformedNode = this.PreserveAndAddAttribute( transformedNode, node, lastTemplateSymbol );
+            }
+
+            return [this.VisitFieldOrEventFieldDeclaration( node, ( n, variables ) => n.WithDeclaration( n.Declaration.WithVariables( SeparatedList( variables ) ) ) )];
+        }
     }
 
     public override SyntaxNode VisitMethodDeclaration( MethodDeclarationSyntax node )
@@ -342,7 +442,7 @@ namespace Metalama.Compiler
     private T PreserveAndAddAttribute<T>( T transformedNode, T originalNode, ISymbol symbol, bool isAsyncMethod = false, bool isIteratorMethod = false )
         where T : MemberDeclarationSyntax
     {
-        var accessibility = symbol.DeclaredAccessibility.ToOurVisibility();
+        var accessibility = symbol.DeclaredAccessibility.ToOurAccessibility();
 
         if ( accessibility is Accessibility.Public or Accessibility.Protected && !isAsyncMethod && !isIteratorMethod )
         {
@@ -363,8 +463,8 @@ namespace Metalama.Compiler
         AccessorDeclarationSyntax originalNode,
         IMethodSymbol symbol )
     {
-        var isIteratorMethod = IteratorHelper.IsIteratorMethod( symbol );
-        var accessibility = symbol.DeclaredAccessibility.ToOurVisibility();
+        var isIteratorMethod = symbol.IsIteratorMethod();
+        var accessibility = symbol.DeclaredAccessibility.ToOurAccessibility();
 
         if ( accessibility is Accessibility.Public or Accessibility.Protected
              && !isIteratorMethod )
@@ -391,15 +491,14 @@ namespace Metalama.Compiler
             .WithArgumentList(
                 AttributeArgumentList(
                     SeparatedList(
-                        new[]
-                        {
-                            AttributeArgument( syntaxFactory.SyntaxGenerator.EnumValueExpression( accessibilityType, (int) accessibility ) )
-                                .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.Accessibility) ) ),
-                            AttributeArgument( SyntaxFactoryEx.LiteralExpression( isAsyncMethod ) )
-                                .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.IsAsync) ) ),
-                            AttributeArgument( SyntaxFactoryEx.LiteralExpression( isIteratorMethod ) )
-                                .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.IsIteratorMethod) ) )
-                        } ) ) );
+                    [
+                        AttributeArgument( syntaxFactory.SyntaxGenerator.EnumValueExpression( accessibilityType, (int) accessibility ) )
+                            .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.Accessibility) ) ),
+                        AttributeArgument( SyntaxFactoryEx.LiteralExpression( isAsyncMethod ) )
+                            .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.IsAsync) ) ),
+                        AttributeArgument( SyntaxFactoryEx.LiteralExpression( isIteratorMethod ) )
+                            .WithNameEquals( NameEquals( nameof(CompiledTemplateAttribute.IsIteratorMethod) ) )
+                    ] ) ) );
 
         var attributeList = AttributeList( SingletonSeparatedList( attribute ) )
             .WithGeneratedCodeAnnotation( FormattingAnnotations.SystemGeneratedCodeAnnotation );

@@ -17,7 +17,7 @@ namespace Metalama.Framework.Engine.Diagnostics
             this._logger = Logger.LoggerFactory.GetLogger( "NullDiagnosticAdder" );
         }
 
-        void IDiagnosticAdder.Report( Diagnostic diagnostic )
+        public void Report( Diagnostic diagnostic )
         {
             switch ( diagnostic.Severity )
             {

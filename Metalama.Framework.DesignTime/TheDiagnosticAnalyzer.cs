@@ -37,6 +37,7 @@ namespace Metalama.Framework.DesignTime
         private readonly DesignTimeAspectPipelineFactory _pipelineFactory;
         private readonly IProjectOptionsFactory _projectOptionsFactory;
         private readonly ILogger _logger;
+        private readonly DesignTimeExceptionHandler _exceptionHandler;
 
 #if DEBUG
         private readonly ConcurrentDictionary<string, object> _locks = new();
@@ -51,6 +52,7 @@ namespace Metalama.Framework.DesignTime
             this._logger = serviceProvider.GetLoggerFactory().GetLogger( "DesignTime" );
             this._projectOptionsFactory = serviceProvider.GetRequiredService<IProjectOptionsFactory>();
             this._pipelineFactory = serviceProvider.GetRequiredService<DesignTimeAspectPipelineFactory>();
+            this._exceptionHandler = serviceProvider.GetRequiredService<DesignTimeExceptionHandler>();
         }
 
         public override void Initialize( AnalysisContext context )
@@ -163,12 +165,13 @@ namespace Metalama.Framework.DesignTime
                     suppressions = pipelineResult.Value.GetSuppressionsOnSyntaxTree( syntaxTreeFilePath );
                 }
 
-                // Execute the analyses that are not performed in the pipeline.
+                // Execute the analyses that are not performed in the design-time pipeline.
                 // We execute this after the pipeline so we allow it to get to paused state in case of compile-time change.
                 TemplatingCodeValidator.Validate(
                     pipeline.ServiceProvider,
                     context.SemanticModel,
                     ReportDiagnostic,
+                    null,
                     pipeline.MustReportPausedPipelineAsErrors && pipeline.IsCompileTimeSyntaxTreeOutdated( context.SemanticModel.SyntaxTree.FilePath ),
                     true,
                     cancellationToken );
@@ -220,7 +223,7 @@ namespace Metalama.Framework.DesignTime
             }
             catch ( Exception e )
             {
-                DesignTimeExceptionHandler.ReportException( e );
+                this._exceptionHandler.ReportException( e );
             }
             finally
             {

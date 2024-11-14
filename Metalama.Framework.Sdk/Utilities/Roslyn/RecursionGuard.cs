@@ -31,8 +31,8 @@ internal struct RecursionGuard
 #endif
 
     // InsufficientExecutionStackException can be observed in SafeSyntaxWalker when this is 750, so set it to a value that is smaller than that.
-    private const int _maxRecursionDepth = 700;
-    private const int _maxTasks = 4;
+    private const int _maxRecursionDepth = 500;
+    private const int _maxTasks = 6;
 
     public RecursionGuard( object owner )
     {

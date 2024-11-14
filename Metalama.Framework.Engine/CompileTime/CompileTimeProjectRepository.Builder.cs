@@ -176,10 +176,14 @@ internal sealed partial class CompileTimeProjectRepository
                 return true;
             }
 
-            List<CompileTimeProject> referencedProjects = new() { this._frameworkProject };
+            this._logger.Trace?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}')" );
+
+            List<CompileTimeProject> referencedProjects = [this._frameworkProject];
 
             foreach ( var reference in runTimeCompilation.References )
             {
+                this._logger.Trace?.Log( $"Considering reference '{reference.Display}'." );
+
                 if ( this.TryGetCompileTimeProject(
                         reference,
                         diagnosticSink,
@@ -189,7 +193,12 @@ internal sealed partial class CompileTimeProjectRepository
                 {
                     if ( referencedProject != null )
                     {
+                        this._logger.Trace?.Log( $"Adding a compile-time reference: '{reference.Display}'." );
                         referencedProjects.Add( referencedProject );
+                    }
+                    else
+                    {
+                        this._logger.Trace?.Log( $"Not a compile-time reference: '{reference.Display}'." );
                     }
                 }
                 else
@@ -216,7 +225,7 @@ internal sealed partial class CompileTimeProjectRepository
                     out compileTimeProject,
                     cancellationToken ) )
             {
-                this._logger.Warning?.Log( $"TryGetCompileTimeProject failed." );
+                this._logger.Warning?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}'): failed." );
 
                 compileTimeProject = null;
 
@@ -224,6 +233,8 @@ internal sealed partial class CompileTimeProjectRepository
             }
 
             this._projects.Add( runTimeCompilation.Assembly.Identity, compileTimeProject );
+
+            this._logger.Trace?.Log( $"TryGetCompileTimeProjectFromCompilation('{compilationContext.SourceCompilation.AssemblyName}'): successful." );
 
             return true;
         }
@@ -285,18 +296,24 @@ internal sealed partial class CompileTimeProjectRepository
             {
                 compileTimeProject = null;
 
+                this._logger.Trace?.Log( $"'{assemblyPath}' is a standard assembly." );
+
                 return true;
             }
 
             // Look in our cache.
             if ( this._projects.TryGetValue( assemblyIdentity, out compileTimeProject ) )
             {
+                this._logger.Trace?.Log( $"'{assemblyPath}' was found in cache." );
+
                 return true;
             }
 
             // LoadFromAssemblyPath throws for mscorlib
             if ( Path.GetFileNameWithoutExtension( assemblyPath ) == typeof(object).Assembly.GetName().Name )
             {
+                this._logger.Trace?.Log( $"'{assemblyPath}' is a system assembly." );
+
                 goto finish;
             }
 
@@ -307,11 +324,15 @@ internal sealed partial class CompileTimeProjectRepository
                  assemblyFileName.StartsWith( "System.", StringComparison.OrdinalIgnoreCase ) ||
                  assemblyFileName.StartsWith( "Microsoft.CodeAnalysis", StringComparison.OrdinalIgnoreCase ) )
             {
+                this._logger.Trace?.Log( $"'{assemblyPath}' is a system assembly." );
+
                 goto finish;
             }
 
             if ( !MetadataReader.TryGetMetadata( assemblyPath, out var metadataInfo ) )
             {
+                this._logger.Warning?.Log( $"Could not read metadata from '{assemblyPath}'." );
+
                 goto finish;
             }
 
@@ -330,7 +351,7 @@ internal sealed partial class CompileTimeProjectRepository
                         out compileTimeProject,
                         cancellationToken ) )
                 {
-                    this._logger.Warning?.Log( $"TryDeserializeCompileTimeProject failed." );
+                    this._logger.Warning?.Log( $"TryDeserializeCompileTimeProject('{assemblyPath}') failed." );
 
                     // Coverage: ignore
 
@@ -350,11 +371,15 @@ internal sealed partial class CompileTimeProjectRepository
                         this._cacheableTemplateDiscoveryContextProvider,
                         out compileTimeProject ) )
                 {
-                    this._logger.Trace?.Log(
-                        $"The assembly '{assemblyIdentity}' will not be included in the compile-time compilation despite having an [assembly: CompileTime] attribute "
+                    this._logger.Warning?.Log(
+                        $"The assembly '{assemblyPath}' will not be included in the compile-time compilation despite having an [assembly: CompileTime] attribute "
                         +
                         "because it has no compile-time embedded resource and it is not loaded as an analyzer." );
                 }
+            }
+            else
+            {
+                this._logger.Trace?.Log( $"'{assemblyPath}' does not contain compile-time code." );
             }
 
         finish:
@@ -395,7 +420,7 @@ internal sealed partial class CompileTimeProjectRepository
             // Read source files.
             var parseOptions = SupportedCSharpVersions.DefaultParseOptions;
 
-            List<SyntaxTree> syntaxTrees = new();
+            List<SyntaxTree> syntaxTrees = [];
 
             foreach ( var entry in archive.Entries.Where( e => string.Equals( Path.GetExtension( e.Name ), ".cs", StringComparison.OrdinalIgnoreCase ) ) )
             {
@@ -406,7 +431,7 @@ internal sealed partial class CompileTimeProjectRepository
             }
 
             // Resolve references.
-            List<CompileTimeProject> referenceProjects = new();
+            List<CompileTimeProject> referenceProjects = [];
 
             if ( manifest.References != null )
             {

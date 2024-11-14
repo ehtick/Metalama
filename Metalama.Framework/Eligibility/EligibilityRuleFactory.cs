@@ -43,6 +43,7 @@ public static partial class EligibilityRuleFactory
             builder.MustBeExplicitlyDeclared();
             builder.MustNotBeRef();
             builder.MustSatisfy( m => !m.IsExtern, m => $"'{m}' must not be extern" );
+            builder.MustNotBePartialMemberWithSourceGeneratorAttribute();
             builder.DeclaringType().AddRule( _overrideDeclaringTypeRule );
         } );
 
@@ -53,6 +54,7 @@ public static partial class EligibilityRuleFactory
             builder.MustBeExplicitlyDeclared();
             builder.MustSatisfy( d => d is not IField { Writeability: Writeability.None }, d => $"{d} must not be a constant" );
             builder.MustNotBeRef();
+            builder.MustNotBePartialMemberWithSourceGeneratorAttribute();
             builder.DeclaringType().AddRule( _overrideDeclaringTypeRule );
         } );
 
@@ -79,7 +81,7 @@ public static partial class EligibilityRuleFactory
         builder =>
         {
             builder.MustSatisfy(
-                t => t.TypeKind is TypeKind.Class or TypeKind.RecordClass or TypeKind.Struct or TypeKind.RecordStruct,
+                t => t.TypeKind is TypeKind.Class or TypeKind.RecordClass or TypeKind.Struct or TypeKind.RecordStruct or TypeKind.Interface,
                 t => $"'{t}' must be a class, record class, struct, or record struct" );
 
             builder.MustBeExplicitlyDeclared();
@@ -102,7 +104,7 @@ public static partial class EligibilityRuleFactory
     private static readonly IEligibilityRule<IDeclaration> _addInitializerRule = CreateRule<IDeclaration, IMemberOrNamedType>(
         builder =>
         {
-            builder.MustBeOfAnyType( typeof(INamedType), typeof(IConstructor) );
+            builder.MustBeInstanceOfAnyType( typeof(INamedType), typeof(IConstructor) );
 
             builder.Convert()
                 .When<INamedType>()

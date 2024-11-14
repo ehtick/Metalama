@@ -214,7 +214,8 @@ namespace Metalama.Framework.Aspects
         /// <seealso cref="ExpressionFactory.CastTo(Metalama.Framework.Code.IExpression,Metalama.Framework.Code.IType)"/>
         [TemplateKeyword]
         [return: NotNullIfNotNull( nameof(value) )]
-        public static dynamic? Cast( IType type, dynamic? value ) => ((ICompilationInternal) type.Compilation).Factory.Cast( type, (object?) value );
+        [CompileTime( isTemplateOnly: true )]
+        public static dynamic? Cast( IType type, dynamic? value ) => ExpressionFactory.Capture( (object?) value ).CastTo( type ).Value;
 
         /// <summary>
         /// Generates the <c>default(T)</c> syntax for the specified type.
@@ -316,5 +317,29 @@ namespace Metalama.Framework.Aspects
         /// <param name="value">The value to return.</param>
         [TemplateKeyword]
         public static void Return( dynamic? value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, IType type ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, IType type, IExpression? value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, IType type, dynamic value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, Type type ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, Type type, IExpression? value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, Type type, dynamic value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, IExpression value ) => throw CreateException();
+
+        [CompileTime( isTemplateOnly: true )]
+        public static IExpression DefineLocalVariable( string nameHint, dynamic value ) => throw CreateException();
     }
 }

@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>Metalama.Framework.DesignTime.Rpc</RootNamespace>
+        
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,9 +16,9 @@
     </ItemGroup>
     
     <ItemGroup>
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.0.1" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.4.0" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.8.0" />
+        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.12.0" />
     </ItemGroup>
     
 </Project>

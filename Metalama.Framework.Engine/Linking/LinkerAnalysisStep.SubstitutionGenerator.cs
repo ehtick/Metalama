@@ -1,6 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Linking.Inlining;
 using Metalama.Framework.Engine.Linking.Substitution;
 using Metalama.Framework.Engine.Services;
@@ -26,7 +26,6 @@ internal sealed partial class LinkerAnalysisStep
     {
         private readonly LinkerAnalysisStep _parent;
         private readonly CompilationContext _intermediateCompilationContext;
-        private readonly LinkerSyntaxHandler _syntaxHandler;
         private readonly LinkerInjectionRegistry _injectionRegistry;
         private readonly HashSet<IntermediateSymbolSemantic> _nonInlinedSemantics;
         private readonly IReadOnlyDictionary<IntermediateSymbolSemantic<IMethodSymbol>, IReadOnlyList<ResolvedAspectReference>> _nonInlinedReferences;
@@ -51,7 +50,6 @@ internal sealed partial class LinkerAnalysisStep
         public SubstitutionGenerator(
             LinkerAnalysisStep parent,
             CompilationContext intermediateCompilationContext,
-            LinkerSyntaxHandler syntaxHandler,
             LinkerInjectionRegistry injectionRegistry,
             HashSet<IntermediateSymbolSemantic> inlinedSemantics,
             HashSet<IntermediateSymbolSemantic> nonInlinedSemantics,
@@ -67,7 +65,6 @@ internal sealed partial class LinkerAnalysisStep
             this._concurrentTaskRunner = parent._serviceProvider.GetRequiredService<IConcurrentTaskRunner>();
             this._parent = parent;
             this._intermediateCompilationContext = intermediateCompilationContext;
-            this._syntaxHandler = syntaxHandler;
             this._injectionRegistry = injectionRegistry;
             this._nonInlinedSemantics = nonInlinedSemantics;
             this._nonInlinedReferences = nonInlinedReferences;
@@ -126,7 +123,9 @@ internal sealed partial class LinkerAnalysisStep
         public async Task<IReadOnlyDictionary<InliningContextIdentifier, IReadOnlyList<SyntaxNodeSubstitution>>> RunAsync( CancellationToken cancellationToken )
         {
             var substitutions = new ConcurrentDictionary<InliningContextIdentifier, ConcurrentDictionary<SyntaxNode, SyntaxNodeSubstitution>>();
-            var inliningTargetNodes = this._inliningSpecifications.SelectAsReadOnlyList( x => (x.ParentContextIdentifier, x.ReplacedRootNode) ).ToHashSet();
+
+            var inliningTargetNodes = this._inliningSpecifications.SelectAsReadOnlyList( x => (x.ParentContextIdentifier, ReplacedRootNode: x.ReplacedNode) )
+                .ToHashSet();
 
             // Add substitutions to non-inlined semantics (these are always roots of inlining).
             void ProcessNonInlinedSemantic( IntermediateSymbolSemantic nonInlinedSemantic )
@@ -201,6 +200,8 @@ internal sealed partial class LinkerAnalysisStep
             // Add substitutions for all inlining specifications.
             void ProcessInliningSpecification( InliningSpecification inliningSpecification )
             {
+                // TODO: It's weird because here we to substitute a property getter into a syntax block.
+
                 // Add the inlining substitution itself.
                 AddSubstitution(
                     inliningSpecification.ParentContextIdentifier,
@@ -254,7 +255,7 @@ internal sealed partial class LinkerAnalysisStep
                 if ( inliningSpecification.TargetSemantic.Kind == IntermediateSymbolSemanticKind.Default )
                 {
                     var referencedSymbol = inliningSpecification.TargetSemantic.Symbol;
-                    var root = this._syntaxHandler.GetCanonicalRootNode( referencedSymbol );
+                    var root = LinkerSyntaxHandler.GetCanonicalRootNode( referencedSymbol, this._injectionRegistry );
 
                     switch ( root )
                     {
@@ -338,7 +339,7 @@ internal sealed partial class LinkerAnalysisStep
                 {
                     var context = new InliningContextIdentifier( constructor );
 
-                    var declaration = (ConstructorDeclarationSyntax?) constructor.Symbol.GetPrimaryDeclaration();
+                    var declaration = (ConstructorDeclarationSyntax?) constructor.Symbol.GetPrimaryDeclarationSyntax();
 
                     if ( declaration == null )
                     {
@@ -405,7 +406,7 @@ internal sealed partial class LinkerAnalysisStep
                         break;
 
                     case { Kind: IntermediateSymbolSemanticKind.Base, Symbol: var symbol }
-                        when !this._intermediateCompilationContext.SymbolComparer.Is(
+                        when !this._intermediateCompilationContext.SymbolComparer.IsConvertibleTo(
                             nonInlinedReference.ContainingSemantic.Symbol.ContainingType,
                             symbol.ContainingType ):
                         // Base references to a declaration in another type mean base member call.
@@ -458,10 +459,10 @@ internal sealed partial class LinkerAnalysisStep
             {
                 var dictionary = substitutions.GetOrAddNew( inliningContextId );
 
-                if ( !dictionary.TryAdd( substitution.TargetNode, substitution ) )
+                if ( !dictionary.TryAdd( substitution.ReplacedNode, substitution ) )
                 {
                     // TODO: The item was already added, but there is no logic to cover this situation.
-                    throw new AssertionFailedException( $"The substitution was already added for node {substitution.TargetNode}." );
+                    throw new AssertionFailedException( $"The substitution was already added for node {substitution.ReplacedNode}." );
                 }
             }
         }
@@ -472,29 +473,26 @@ internal sealed partial class LinkerAnalysisStep
             IMethodSymbol targetSymbol,
             bool usingSimpleInlining,
             string? returnVariableIdentifier )
-        {
-            switch (root, targetSymbol)
+            => root switch
             {
-                case (ArrowExpressionClauseSyntax arrowExpressionClause, _):
-                    return new ExpressionBodySubstitution(
-                        this._intermediateCompilationContext,
-                        arrowExpressionClause,
-                        referencingSymbol,
-                        targetSymbol,
-                        usingSimpleInlining,
-                        returnVariableIdentifier );
+                ArrowExpressionClauseSyntax arrowExpressionClause => new ExpressionBodySubstitution(
+                    this._intermediateCompilationContext,
+                    arrowExpressionClause,
+                    referencingSymbol,
+                    targetSymbol,
+                    usingSimpleInlining,
+                    returnVariableIdentifier ),
 
-                case (MethodDeclarationSyntax { Body: null, ExpressionBody: null } emptyVoidPartialMethod, _):
-                    Invariant.Assert( returnVariableIdentifier == null );
+                MethodDeclarationSyntax { Body: null, ExpressionBody: null } emptyPartialMethod
+                    => new EmptyPartialMethodSubstitution( this._intermediateCompilationContext, emptyPartialMethod, usingSimpleInlining, returnVariableIdentifier ),
 
-                    return new EmptyVoidPartialMethodSubstitution( this._intermediateCompilationContext, emptyVoidPartialMethod );
+                AccessorDeclarationSyntax { Body: null, ExpressionBody: null } emptyPartialAccessor
+                    => new EmptyPartialAccessorSubstitution( this._intermediateCompilationContext, emptyPartialAccessor, usingSimpleInlining, returnVariableIdentifier ),
 
-                case (ParameterSyntax { Parent: ParameterListSyntax { Parent: RecordDeclarationSyntax } } recordParameter, _):
-                    return new RecordParameterSubstitution( this._intermediateCompilationContext, recordParameter, targetSymbol, returnVariableIdentifier );
+                ParameterSyntax { Parent: ParameterListSyntax { Parent: RecordDeclarationSyntax } } recordParameter
+                    => new RecordParameterSubstitution( this._intermediateCompilationContext, recordParameter, targetSymbol, returnVariableIdentifier ),
 
-                default:
-                    throw new AssertionFailedException( $"Unexpected combination: ('{root}', '{targetSymbol}')." );
-            }
-        }
+                _ => throw new AssertionFailedException( $"Unexpected syntax: '{root}'." ),
+            };
     }
 }

@@ -3,7 +3,7 @@
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Diagnostics;
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Fabrics;
@@ -19,13 +19,13 @@ namespace Metalama.Framework.Engine.HierarchicalOptions;
 internal sealed class CompilationHierarchicalOptionsSource : IHierarchicalOptionsSource
 {
     private readonly ProjectServiceProvider _serviceProvider;
-    private readonly IUserCodeAttributeDeserializer _attributeDeserializer;
+    private readonly UserCodeAttributeDeserializer.Provider _attributeDeserializerProvider;
     private readonly UserCodeInvoker _invoker;
 
     public CompilationHierarchicalOptionsSource( in ProjectServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._attributeDeserializer = serviceProvider.GetRequiredService<IUserCodeAttributeDeserializer>();
+        this._attributeDeserializerProvider = serviceProvider.GetRequiredService<UserCodeAttributeDeserializer.Provider>();
         this._invoker = serviceProvider.GetRequiredService<UserCodeInvoker>();
     }
 
@@ -35,25 +35,27 @@ internal sealed class CompilationHierarchicalOptionsSource : IHierarchicalOption
         var aspectType = compilation.Factory.GetTypeByReflectionType( typeof(IAspect) );
         var systemAttributeType = compilation.Factory.GetTypeByReflectionType( typeof(Attribute) );
 
+        var attributeDeserializer = this._attributeDeserializerProvider.Get( context.Compilation.CompilationContext );
+
         foreach ( var attributeType in compilation.GetDerivedTypes(
                      (INamedType) compilation.Factory.GetTypeByReflectionType( typeof(IHierarchicalOptionsProvider) ),
                      DerivedTypesOptions.IncludingExternalTypesDangerous ) )
         {
-            if ( attributeType.Is( aspectType ) )
+            if ( attributeType.IsConvertibleTo( aspectType ) )
             {
                 // Aspects can implement IHierarchicalOptionsProvider but their options are exposed on IAspectInstance.GetOptions
                 // or IAspectBuilder.Options and are not handled by the current facility. Because we want options defined
                 // on aspects to have absolute priority.
                 continue;
             }
-            else if ( !attributeType.Is( systemAttributeType ) )
+            else if ( !attributeType.IsConvertibleTo( systemAttributeType ) )
             {
                 continue;
             }
 
             foreach ( var attribute in compilation.GetAllAttributesOfType( attributeType ) )
             {
-                if ( !this._attributeDeserializer.TryCreateAttribute( attribute.GetAttributeData(), context.Collector, out var deserializedAttribute ) )
+                if ( !attributeDeserializer.TryCreateAttribute( attribute.GetAttributeData(), context.Collector, out var deserializedAttribute ) )
                 {
                     continue;
                 }
@@ -63,6 +65,7 @@ internal sealed class CompilationHierarchicalOptionsSource : IHierarchicalOption
                 var invokerContext = new UserCodeExecutionContext(
                     this._serviceProvider,
                     UserCodeDescription.Create( "executing GetOptions() for '{0}' applied to '{1}'", attributeType.Name, attribute.ContainingDeclaration ),
+                    context.Compilation.CompilationContext,
                     targetDeclaration: attribute.ContainingDeclaration );
 
                 var providerContext = new OptionsProviderContext(

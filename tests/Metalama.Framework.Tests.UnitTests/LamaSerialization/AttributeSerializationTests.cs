@@ -3,8 +3,6 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.CodeModel.References;
 using Metalama.Framework.Engine.CompileTime.Serialization;
-using Metalama.Framework.Engine.Services;
-using Metalama.Testing.UnitTesting;
 using System.Linq;
 using Xunit;
 
@@ -46,7 +44,7 @@ public class AttributeSerializationTests : SerializationTestsBase
 
                             """;
 
-        using var testContext = this.CreateTestContext( code );
+        using var testContext = this.CreateTestContextWithCode( code );
 
         var attribute = testContext.Compilation.Types.OfName( "C" ).Single().Attributes.Single();
 
@@ -54,7 +52,7 @@ public class AttributeSerializationTests : SerializationTestsBase
 
         Assert.Equal( attribute.Type, roundtrip.Type );
         Assert.Equal( attribute.Constructor, roundtrip.Constructor );
-        Assert.Equal( attribute.ConstructorArguments, roundtrip.ConstructorArguments );
+        Assert.Equal( attribute.ConstructorArguments, roundtrip.ConstructorArguments, ( x, y ) => x.SequenceEqual( y ) );
         Assert.Equal( attribute.NamedArguments, roundtrip.NamedArguments );
 
         // Non-ref serialization must fail.
@@ -66,25 +64,25 @@ public class AttributeSerializationTests : SerializationTestsBase
     {
         // This is to test that two models of the same compilation have identical attribute serialization keys.
 
-        var code = """
-                   public class TheAttribute : System.Attribute;
+        const string code = """
+                            public class TheAttribute : System.Attribute;
 
-                   [TheAttribute]
-                   public class C;
+                            [TheAttribute]
+                            public class C;
 
-                   """;
+                            """;
 
-        using var testContext = this.CreateTestContext( code );
+        using var testContext = this.CreateTestContextWithCode( code );
 
         var compilationModel1 = testContext.Compilation;
         var attribute1 = compilationModel1.Types.OfName( "C" ).Single().Attributes.Single();
 
-        Assert.True( ((AttributeRef) attribute1.ToRef()).TryGetAttributeSerializationDataKey( compilationModel1.CompilationContext, out var attributeKey1 ) );
+        Assert.True( ((AttributeRef) attribute1.ToRef()).TryGetAttributeSerializationDataKey( out var attributeKey1 ) );
 
         var compilationModel2 = testContext.CreateCompilationModel( testContext.Compilation.RoslynCompilation );
-        var attribute2 = compilationModel1.Types.OfName( "C" ).Single().Attributes.Single();
+        var attribute2 = compilationModel2.Types.OfName( "C" ).Single().Attributes.Single();
 
-        Assert.True( ((AttributeRef) attribute2.ToRef()).TryGetAttributeSerializationDataKey( compilationModel2.CompilationContext, out var attributeKey2 ) );
+        Assert.True( ((AttributeRef) attribute2.ToRef()).TryGetAttributeSerializationDataKey( out var attributeKey2 ) );
 
         // Test that two serialization keys of the same attribute in two models resolve are identical. 
         Assert.Same( attributeKey1, attributeKey2 );

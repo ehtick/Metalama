@@ -7,6 +7,9 @@
 
         <!-- Packaging -->
         <IsPackable>False</IsPackable>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
     </PropertyGroup>
 
     <ItemGroup>

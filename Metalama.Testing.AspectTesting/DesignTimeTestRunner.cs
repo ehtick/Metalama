@@ -41,7 +41,7 @@ namespace Metalama.Testing.AspectTesting
 
                 var introducedSyntaxTrees = pipelineResult.AdditionalSyntaxTrees;
 
-                testResult.DiagnosticSuppressions = pipelineResult.Suppressions;
+                testResult.AddDiagnosticSuppressions( pipelineResult.Suppressions );
 
                 if ( introducedSyntaxTrees.Length > 0 )
                 {
@@ -50,10 +50,11 @@ namespace Metalama.Testing.AspectTesting
                     // TODO: Underlying names may not be deterministic, which makes this non-deterministic too.
                     var outputCompilation =
                         testResult.InputCompilation!.AddSyntaxTrees(
-                            introducedSyntaxTrees.OrderBy(x => x.Name, StringComparer.Ordinal).Select( ( x, i ) => x.GeneratedSyntaxTree.WithFilePath( $"{i}.cs" ) ) );
+                            introducedSyntaxTrees.OrderBy( x => x.Name, StringComparer.Ordinal )
+                                .Select( ( x, i ) => x.GeneratedSyntaxTree.WithFilePath( $"{i}.cs" ) ) );
 
                     testResult.OutputCompilation = outputCompilation;
-                    testResult.OutputCompilationDiagnostics.Report( outputCompilation.GetDiagnostics() );
+                    testResult.OutputCompilationDiagnostics.Report( outputCompilation.GetDiagnostics().Where( d => d.Severity == DiagnosticSeverity.Error ) );
 
                     await testResult.SetOutputCompilationAsync( outputCompilation );
                 }

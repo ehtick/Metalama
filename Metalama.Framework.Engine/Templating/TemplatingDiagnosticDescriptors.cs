@@ -229,13 +229,14 @@ namespace Metalama.Framework.Engine.Templating
                 _category,
                 Error );
 
-        internal static readonly DiagnosticDefinition<(ISymbol DeclaringSymbol, ISymbol ReferencedSymbol, string? Explanation)> CannotUseTemplateOnlyOutOfTemplate
-            = new(
-                "LAMA0233",
-                "Cannot use a template-only method out of a template.",
-                "Cannot use '{1}' in '{0}' because it is only allowed inside a template.{2}",
-                _category,
-                Error );
+        internal static readonly DiagnosticDefinition<(ISymbol DeclaringSymbol, ISymbol ReferencedSymbol, string? Explanation)>
+            CannotUseTemplateOnlyOutOfTemplate
+                = new(
+                    "LAMA0233",
+                    "Cannot use a template-only method out of a template.",
+                    "Cannot use '{1}' in '{0}' because it is only allowed inside a template.{2}",
+                    _category,
+                    Error );
 
         internal static readonly DiagnosticDefinition<ISymbol> PartiallyUnresolvedSymbolInTemplate
             = new(
@@ -357,10 +358,10 @@ namespace Metalama.Framework.Engine.Templating
                 _category,
                 Error );
 
-        internal static readonly DiagnosticDefinition<ISymbol> PartialTemplateMethodsForbidden
+        internal static readonly DiagnosticDefinition<ISymbol> PartialTemplatesForbidden
             = new(
                 "LAMA0252",
-                "Template methods cannot be partial",
+                "Templates cannot be partial",
                 "'{0}' cannot be partial because it is a template.",
                 _category,
                 Error );
@@ -506,8 +507,8 @@ namespace Metalama.Framework.Engine.Templating
         internal static readonly DiagnosticDefinition<ISymbol> ExtensionMethodTemplateNotSupported
             = new(
                 "LAMA0271",
-                "Extension method templates are not supported.",
-                "The template '{0}' is an extension method, which is not supported.",
+                "Template can't be an extension method.",
+                "The template '{0}' can't be an extension method. To introduce an extension method, mark the first parameter of the method with the [This] attribute or programmatically set its IParameterBuilder.IsThis property.",
                 _category,
                 Error );
 
@@ -531,7 +532,7 @@ namespace Metalama.Framework.Engine.Templating
             = new(
                 "LAMA0274",
                 "Templates have to be contained in an aspect, fabric, or a type implementing ITemplateProvider.",
-                "The template '{0}' is contained in '{1}', which is not an aspect, a fabric, or a type marked implementing ITemplateProvider.",
+                "The template '{0}' is contained in '{1}', which is not an aspect, a fabric, or a type implementing ITemplateProvider.",
                 _category,
                 Error );
 
@@ -622,6 +623,14 @@ namespace Metalama.Framework.Engine.Templating
                 "LAMA0285",
                 "Template and scope attributes are not allowed on local functions.",
                 "The '{0}' attribute is not allowed on a local function.",
+                _category,
+                Error );
+
+        internal static readonly DiagnosticDefinition<string> CannotCastRunTimeExpressionToIExpression
+            = new(
+                "LAMA0286",
+                "Cannot cast a non-dynamic run-time expression to IExpression.",
+                "Cannot cast the non-dynamic run-time expression '{0}' to IExpression. Use ExpressionFactory.Capture.",
                 _category,
                 Error );
     }

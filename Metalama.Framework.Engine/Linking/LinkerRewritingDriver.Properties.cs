@@ -31,7 +31,25 @@ namespace Metalama.Framework.Engine.Linking
         {
             if ( this.InjectionRegistry.IsOverrideTarget( symbol ) )
             {
+#if ROSLYN_4_12_0_OR_GREATER
+                if ( symbol is { IsPartialDefinition: true, PartialImplementationPart: { } } )
+                {
+                    // This is a partial property declaration that is not to be transformed.
+                    return [propertyDeclaration];
+                }
+#endif
+
                 var members = new List<MemberDeclarationSyntax>();
+
+#if ROSLYN_4_12_0_OR_GREATER
+                if ( symbol is { IsPartialDefinition: true, PartialImplementationPart: null } )
+                {
+                    // This is a partial property declaration that did not have any body.
+                    // Keep it as is and add a new declaration that will contain the override.
+                    members.Add( propertyDeclaration );
+                }
+#endif
+
                 var lastOverride = (IPropertySymbol) this.InjectionRegistry.GetLastOverride( symbol );
 
                 if ( propertyDeclaration.IsAutoPropertyDeclaration()
@@ -95,7 +113,7 @@ namespace Metalama.Framework.Engine.Linking
                 if ( this.AnalysisRegistry.IsReachable( symbol.ToSemantic( IntermediateSymbolSemanticKind.Default ) )
                      && !this.AnalysisRegistry.IsInlined( symbol.ToSemantic( IntermediateSymbolSemanticKind.Default ) ) )
                 {
-                    return new[] { GetLinkedDeclaration( IntermediateSymbolSemanticKind.Default, true ) };
+                    return [GetLinkedDeclaration( IntermediateSymbolSemanticKind.Default, true )];
                 }
                 else
                 {
@@ -106,8 +124,8 @@ namespace Metalama.Framework.Engine.Linking
             {
                 Invariant.Assert( symbol is { IsOverride: true, IsSealed: false } or { IsVirtual: true } );
 
-                return new[]
-                {
+                return
+                [
                     this.GetTrampolineForProperty( propertyDeclaration, symbol.ToSemantic( IntermediateSymbolSemanticKind.Base ), generationContext ),
                     this.GetOriginalImplProperty(
                         symbol,
@@ -117,11 +135,11 @@ namespace Metalama.Framework.Engine.Linking
                         propertyDeclaration.AccessorList,
                         propertyDeclaration.ExpressionBody,
                         generationContext )
-                };
+                ];
             }
             else if ( this.AnalysisRegistry.HasAnySubstitutions( symbol ) )
             {
-                return new[] { GetLinkedDeclaration( IntermediateSymbolSemanticKind.Default, false ) };
+                return [GetLinkedDeclaration( IntermediateSymbolSemanticKind.Default, false )];
             }
             else
             {
@@ -132,7 +150,7 @@ namespace Metalama.Framework.Engine.Linking
                         semicolonToken: default(SyntaxToken) );
                 }
 
-                return new[] { propertyDeclaration };
+                return [propertyDeclaration];
             }
 
             MemberDeclarationSyntax GetLinkedDeclaration( IntermediateSymbolSemanticKind semanticKind, bool isOverrideOrOverrideTarget )
@@ -209,7 +227,7 @@ namespace Metalama.Framework.Engine.Linking
                         _ => generationContext.ElasticEndOfLineTriviaList.AddRange( accessorListLeadingTrivia )
                     };
 
-                return propertyDeclaration.PartialUpdate(
+                var result = propertyDeclaration.PartialUpdate(
                     attributeLists: FilterAttributeListsForTarget( propertyDeclaration.AttributeLists, SyntaxKind.PropertyKeyword, true, true ),
                     accessorList: AccessorList(
                             Token( accessorListLeadingTrivia, SyntaxKind.OpenBraceToken, accessorStartingTrivia ),
@@ -219,6 +237,15 @@ namespace Metalama.Framework.Engine.Linking
                     expressionBody: null,
                     initializer: null,
                     semicolonToken: default(SyntaxToken) );
+
+#if ROSLYN_4_12_0_OR_GREATER
+                if ( symbol is { IsPartialDefinition: true, PartialImplementationPart: null } )
+                {
+                    result = RemoveAttributesForPartialImplementation( result );
+                }
+#endif
+
+                return result;
             }
 
             AccessorDeclarationSyntax GetLinkedAccessor(
@@ -274,6 +301,18 @@ namespace Metalama.Framework.Engine.Linking
                     semicolonToken: default(SyntaxToken) );
             }
         }
+
+#if ROSLYN_4_12_0_OR_GREATER
+        private static PropertyDeclarationSyntax RemoveAttributesForPartialImplementation( PropertyDeclarationSyntax declaration )
+        {
+            return
+                declaration.PartialUpdate(
+                    attributeLists: List<AttributeListSyntax>(),
+                    accessorList: declaration.AccessorList?.PartialUpdate(
+                        accessors: List(
+                            declaration.AccessorList.Accessors.SelectAsArray( a => a.PartialUpdate( attributeLists: List<AttributeListSyntax>() ) ) ) ) );
+        }
+#endif
 
         private FieldDeclarationSyntax GetPropertyBackingField(
             TypeSyntax type,

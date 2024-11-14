@@ -23,7 +23,7 @@ internal sealed class ReturnStatementSubstitution : SyntaxNodeSubstitution
     private readonly string? _returnLabelIdentifier;
     private readonly bool _replaceByBreakIfOmitted;
 
-    public override SyntaxNode TargetNode { get; }
+    public override SyntaxNode ReplacedNode { get; }
 
     public ReturnStatementSubstitution(
         CompilationContext compilationContext,
@@ -34,7 +34,7 @@ internal sealed class ReturnStatementSubstitution : SyntaxNodeSubstitution
         string? returnLabelIdentifier,
         bool replaceByBreakIfOmitted ) : base( compilationContext )
     {
-        this.TargetNode = returnNode;
+        this.ReplacedNode = returnNode;
         this._referencingSymbol = referencingSymbol;
         this._originalContainingSymbol = containingSymbol;
         this._returnVariableIdentifier = returnVariableIdentifier;
@@ -181,15 +181,7 @@ internal sealed class ReturnStatementSubstitution : SyntaxNodeSubstitution
                     expression );
             }
 
-            return
-                ExpressionStatement(
-                        AssignmentExpression(
-                            SyntaxKind.SimpleAssignmentExpression,
-                            identifier,
-                            Token( TriviaList( ElasticSpace ), SyntaxKind.EqualsToken, TriviaList( ElasticSpace ) ),
-                            expression ),
-                        Token( default, SyntaxKind.SemicolonToken, substitutionContext.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) )
-                    .WithGeneratedCodeAnnotation( FormattingAnnotations.SystemGeneratedCodeAnnotation );
+            return SyntaxFactoryEx.AssignmentStatement( identifier, expression, substitutionContext.SyntaxGenerationContext );
         }
 
         GotoStatementSyntax CreateGotoStatement()

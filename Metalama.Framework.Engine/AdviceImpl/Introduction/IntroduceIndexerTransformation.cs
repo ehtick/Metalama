@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Framework.Engine.Advising;
-using Metalama.Framework.Engine.CodeModel;
-using Metalama.Framework.Engine.CodeModel.Builders;
+using Metalama.Framework.Code;
+using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Helpers;
+using Metalama.Framework.Engine.CodeModel.Introductions.BuilderData;
+using Metalama.Framework.Engine.CodeModel.Introductions.Helpers;
 using Metalama.Framework.Engine.Transformations;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -14,54 +16,56 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Metalama.Framework.Engine.AdviceImpl.Introduction;
 
-internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransformation<IndexerBuilder>
+internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransformation<IndexerBuilderData>
 {
-    public IntroduceIndexerTransformation( Advice advice, IndexerBuilder introducedDeclaration ) : base( advice, introducedDeclaration ) { }
+    public IntroduceIndexerTransformation( AspectLayerInstance aspectLayerInstance, IndexerBuilderData introducedDeclaration ) : base(
+        aspectLayerInstance,
+        introducedDeclaration ) { }
 
     public override IEnumerable<InjectedMember> GetInjectedMembers( MemberInjectionContext context )
     {
-        var indexerBuilder = this.IntroducedDeclaration;
+        var finalIndexer = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
+
         var syntaxGenerator = context.SyntaxGenerationContext.SyntaxGenerator;
 
-        var indexer =
+        var indexerSyntax =
             IndexerDeclaration(
-                indexerBuilder.GetAttributeLists( context ),
-                indexerBuilder.GetSyntaxModifierList(),
-                syntaxGenerator.TypeSyntax( indexerBuilder.Type ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
-                indexerBuilder.ExplicitInterfaceImplementations.Count > 0
-                    ? ExplicitInterfaceSpecifier(
-                        (NameSyntax) syntaxGenerator.TypeSyntax( indexerBuilder.ExplicitInterfaceImplementations.Single().DeclaringType ) )
+                AdviceSyntaxGenerator.GetAttributeLists( finalIndexer, context ),
+                finalIndexer.GetSyntaxModifierList(),
+                syntaxGenerator.TypeSyntax( finalIndexer.Type ).WithOptionalTrailingTrivia( ElasticSpace, context.SyntaxGenerationContext.Options ),
+                finalIndexer.ExplicitInterfaceImplementations.Count > 0
+                    ? ExplicitInterfaceSpecifier( (NameSyntax) syntaxGenerator.TypeSyntax( finalIndexer.ExplicitInterfaceImplementations.Single().DeclaringType ) )
                     : null,
                 Token( SyntaxKind.ThisKeyword ),
-                context.SyntaxGenerator.ParameterList( indexerBuilder, context.Compilation ),
+                context.SyntaxGenerator.ParameterList( finalIndexer, context.FinalCompilation ),
                 GenerateAccessorList(),
                 null,
                 default );
 
         var injectedIndexer = new InjectedMember(
             this,
-            indexer,
-            this.ParentAdvice.AspectLayerId,
+            indexerSyntax,
+            this.AspectLayerId,
             InjectedMemberSemantic.Introduction,
-            indexerBuilder );
+            this.BuilderData.ToRef() );
 
-        return new[] { injectedIndexer };
+        return [injectedIndexer];
 
         AccessorListSyntax GenerateAccessorList()
         {
-            switch (indexerBuilder.Writeability, indexerBuilder.GetMethod, indexerBuilder.SetMethod)
+            switch (finalIndexer.Writeability, finalIndexer.GetMethod, finalIndexer.SetMethod)
             {
                 // Indexers with both accessors.
                 case (_, not null, not null):
-                    return AccessorList( List( new[] { GenerateGetAccessor(), GenerateSetAccessor() } ) );
+                    return AccessorList( List( [GenerateGetAccessor(), GenerateSetAccessor()] ) );
 
                 // Indexers with only get accessor.
                 case (_, not null, null):
-                    return AccessorList( List( new[] { GenerateGetAccessor() } ) );
+                    return AccessorList( List( [GenerateGetAccessor()] ) );
 
                 // Indexers with only set accessor.
                 case (_, null, not null):
-                    return AccessorList( List( new[] { GenerateSetAccessor() } ) );
+                    return AccessorList( List( [GenerateSetAccessor()] ) );
 
                 default:
                     throw new AssertionFailedException( "Both the getter and the setter are undefined." );
@@ -72,46 +76,54 @@ internal sealed class IntroduceIndexerTransformation : IntroduceMemberTransforma
         {
             var tokens = new List<SyntaxToken>();
 
-            if ( indexerBuilder.GetMethod!.Accessibility != indexerBuilder.Accessibility )
+            if ( finalIndexer.GetMethod!.Accessibility != finalIndexer.Accessibility )
             {
-                indexerBuilder.GetMethod.Accessibility.AddTokens( tokens );
+                finalIndexer.GetMethod.Accessibility.AddTokens( tokens );
             }
+
+            var hasNoBody = finalIndexer.IsAbstract;
 
             return
                 AccessorDeclaration(
                     SyntaxKind.GetAccessorDeclaration,
-                    indexerBuilder.GetAttributeLists( context, indexerBuilder.GetMethod ),
+                    AdviceSyntaxGenerator.GetAttributeLists( finalIndexer.GetMethod, context ),
                     TokenList( tokens ),
                     Token( SyntaxKind.GetKeyword ),
-                    syntaxGenerator.FormattedBlock(
-                        ReturnStatement(
-                            Token( TriviaList(), SyntaxKind.ReturnKeyword, TriviaList( ElasticSpace ) ),
-                            DefaultExpression( syntaxGenerator.TypeSyntax( indexerBuilder.Type ) ),
-                            Token( TriviaList(), SyntaxKind.SemicolonToken, context.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) ) ),
+                    hasNoBody
+                        ? null
+                        : syntaxGenerator.FormattedBlock(
+                            ReturnStatement(
+                                Token( TriviaList(), SyntaxKind.ReturnKeyword, TriviaList( ElasticSpace ) ),
+                                DefaultExpression( syntaxGenerator.TypeSyntax( finalIndexer.Type ) ),
+                                Token( TriviaList(), SyntaxKind.SemicolonToken, context.SyntaxGenerationContext.ElasticEndOfLineTriviaList ) ) ),
                     null,
-                    default );
+                    hasNoBody ? Token( SyntaxKind.SemicolonToken ) : default );
         }
 
         AccessorDeclarationSyntax GenerateSetAccessor()
         {
             var tokens = new List<SyntaxToken>();
 
-            if ( indexerBuilder.SetMethod!.Accessibility != indexerBuilder.Accessibility )
+            if ( finalIndexer.SetMethod!.Accessibility != finalIndexer.Accessibility )
             {
-                indexerBuilder.SetMethod.Accessibility.AddTokens( tokens );
+                finalIndexer.SetMethod.Accessibility.AddTokens( tokens );
             }
+
+            var hasNoBody = finalIndexer.IsAbstract;
 
             return
                 AccessorDeclaration(
-                    indexerBuilder.HasInitOnlySetter ? SyntaxKind.InitAccessorDeclaration : SyntaxKind.SetAccessorDeclaration,
-                    indexerBuilder.GetAttributeLists( context, indexerBuilder.SetMethod ),
+                    this.BuilderData.HasInitOnlySetter ? SyntaxKind.InitAccessorDeclaration : SyntaxKind.SetAccessorDeclaration,
+                    AdviceSyntaxGenerator.GetAttributeLists( finalIndexer.SetMethod, context ),
                     TokenList( tokens ),
-                    indexerBuilder.HasInitOnlySetter
+                    this.BuilderData.HasInitOnlySetter
                         ? Token( TriviaList(), SyntaxKind.InitKeyword, TriviaList( ElasticSpace ) )
                         : Token( TriviaList(), SyntaxKind.SetKeyword, TriviaList( ElasticSpace ) ),
-                    context.SyntaxGenerator.FormattedBlock(),
+                    hasNoBody
+                        ? null
+                        : context.SyntaxGenerator.FormattedBlock(),
                     null,
-                    default );
+                    hasNoBody ? Token( SyntaxKind.SemicolonToken ) : default );
         }
     }
 }

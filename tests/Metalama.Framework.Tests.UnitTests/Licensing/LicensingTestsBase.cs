@@ -20,7 +20,7 @@ namespace Metalama.Framework.Tests.UnitTests.Licensing
 
         protected LicensingTestsBase( ITestOutputHelper logger ) : base( logger ) { }
 
-        protected static TestLicenseKeyProvider LicenseKeys { get; } = new TestLicenseKeyProvider( typeof(LicensingTestsBase).Assembly );
+        protected static TestLicenseKeyProvider LicenseKeys { get; } = new( typeof(LicensingTestsBase).Assembly );
 
         protected async Task<DiagnosticBag> GetDiagnosticsAsync(
             string code,
@@ -32,7 +32,7 @@ namespace Metalama.Framework.Tests.UnitTests.Licensing
             mocks.ProjectServices.Add( sp => sp.AddProjectLicenseConsumptionManagerForTest( licenseKey ) );
 
             mocks.BackstageServices.Add<IToastNotificationDetectionService>( _ => this.ToastNotifications );
-            
+
             var testContextOptions = this.GetDefaultTestContextOptions() with { ProjectName = projectName };
 
             using var testContext = this.CreateTestContext( testContextOptions, mocks );
@@ -46,7 +46,7 @@ namespace Metalama.Framework.Tests.UnitTests.Licensing
                 ExecutionScenario.CompileTime );
 
             var diagnostics = new DiagnosticBag();
-            _ = await compileTimePipeline.ExecuteAsync( diagnostics, inputCompilation, default );
+            _ = await compileTimePipeline.ExecuteAsync( diagnostics.Report, null, inputCompilation, default );
 
             if ( diagnostics.Count == 0 )
             {

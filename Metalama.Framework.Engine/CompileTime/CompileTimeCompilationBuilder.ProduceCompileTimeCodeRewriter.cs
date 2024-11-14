@@ -439,7 +439,7 @@ namespace Metalama.Framework.Engine.CompileTime
 
                     var transformedNode = this.TransformCompileTimeType( node, symbol, scope );
 
-                    return new[] { transformedNode };
+                    return [transformedNode];
                 }
             }
 
@@ -464,7 +464,7 @@ namespace Metalama.Framework.Engine.CompileTime
                 {
                     this._diagnosticAdder.Report( diagnostic );
 
-                    if ( diagnostic.Severity == DiagnosticSeverity.Error )
+                    if ( diagnostic.Severity == DiagnosticSeverity.Error && !diagnostic.IsWarningAsError )
                     {
                         typeHasError = true;
                     }
@@ -483,6 +483,10 @@ namespace Metalama.Framework.Engine.CompileTime
                         {
                             this._parent._logger.Warning.Log( error.ToString() );
                         }
+
+                        // We report an error because if some some reasons (because of a bug) these errors were _not_ reported to the user,
+                        // we would silently fail the compilation, and this would be very difficult to diagnose.
+                        this._diagnosticAdder.Report( GeneralDiagnosticDescriptors.ErrorsInSourceCode.CreateRoslynDiagnostic( null, default ) );
                     }
 
                     this.Success = false;
@@ -590,7 +594,7 @@ namespace Metalama.Framework.Engine.CompileTime
 
                 // Add serialization logic if the type is serializable and does not have existing serializer and this is the primary declaration.
                 if ( this._serializableTypes.TryGetValue( symbol, out var serializableType )
-                     && symbol.GetPrimaryDeclaration() == node )
+                     && symbol.GetPrimaryDeclarationSyntax() == node )
                 {
                     if ( !SerializerGeneratorHelper.TryGetSerializer(
                             this._runtimeCompilationContext,
@@ -729,7 +733,7 @@ namespace Metalama.Framework.Engine.CompileTime
 
                     return true;
                 }
-                else
+                else 
                 {
                     return false;
                 }
@@ -752,6 +756,11 @@ namespace Metalama.Framework.Engine.CompileTime
                 {
                     yield return (MethodDeclarationSyntax) this.VisitMethodDeclaration( node ).AssertNotNull();
 
+                    yield break;
+                }
+
+                if (templateInfo.HasNoBody)
+                {
                     yield break;
                 }
 
@@ -782,7 +791,7 @@ namespace Metalama.Framework.Engine.CompileTime
                     {
                         yield return node;
                     }
-                    else if ( methodSymbol.IsOverride && methodSymbol.OverriddenMethod!.IsAbstract )
+                    else if ( (methodSymbol.IsOverride && methodSymbol.OverriddenMethod!.IsAbstract) || methodSymbol.IsExtern )
                     {
                         yield return this._helper.WithThrowNotSupportedExceptionBody(
                             node,
@@ -814,6 +823,11 @@ namespace Metalama.Framework.Engine.CompileTime
                 var templateInfo = this.SymbolClassifier.GetTemplateInfo( propertySymbol );
 
                 this.AddToManifestIfNecessary( propertySymbol, templateInfo, null, propertySymbol.GetMethod, propertySymbol.SetMethod );
+
+                if ( templateInfo.HasNoBody )
+                {
+                    yield break;
+                }
 
                 var propertyIsTemplate = !templateInfo.IsNone;
                 var propertyOrAccessorsAreTemplate = propertyIsTemplate;
@@ -1172,6 +1186,11 @@ namespace Metalama.Framework.Engine.CompileTime
                 var templateInfo = this.SymbolClassifier.GetTemplateInfo( symbol );
 
                 this.AddToManifestIfNecessary( symbol, templateInfo );
+
+                if ( templateInfo.HasNoBody )
+                {
+                    yield break;
+                }
 
                 var isTemplate = !templateInfo.IsNone;
 

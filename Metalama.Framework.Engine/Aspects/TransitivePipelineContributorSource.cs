@@ -4,6 +4,8 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Abstractions;
+using Metalama.Framework.Engine.CodeModel.Source;
 using Metalama.Framework.Engine.Collections;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Fabrics;
@@ -160,7 +162,7 @@ internal sealed class TransitivePipelineContributorSource : IAspectSource, IVali
             {
                 context.CancellationToken.ThrowIfCancellationRequested();
 
-                var validationTarget = validator.ValidatedDeclaration.GetTargetOrNull( context.Compilation );
+                var validationTarget = validator.ValidatedDeclaration?.GetTargetOrNull( context.Compilation );
 
                 if ( validationTarget?.GetSymbol() == null )
                 {
@@ -189,27 +191,27 @@ internal sealed class TransitivePipelineContributorSource : IAspectSource, IVali
 
     public bool TryGetOptions( IDeclaration declaration, string optionsType, [NotNullWhen( true )] out IHierarchicalOptions? options )
     {
-        if ( !this._manifests.TryGetValue( ((AssemblyIdentityModel) declaration.DeclaringAssembly.Identity).Identity, out var manifest ) )
+        if ( this._manifests.TryGetValue( ((AssemblyIdentityModel) declaration.DeclaringAssembly.Identity).Identity, out var manifest ) )
+        {
+            return manifest.InheritableOptions.TryGetValue( new HierarchicalOptionsKey( optionsType, declaration.ToSerializableId() ), out options );
+        }
+        else
         {
             options = null;
 
             return false;
         }
-        else
-        {
-            return manifest.InheritableOptions.TryGetValue( new HierarchicalOptionsKey( optionsType, declaration.ToSerializableId() ), out options );
-        }
     }
 
     public ImmutableArray<IAnnotation> GetAnnotations( IDeclaration declaration )
     {
-        if ( !this._manifests.TryGetValue( ((AssemblyIdentityModel) declaration.DeclaringAssembly.Identity).Identity, out var manifest ) )
+        if ( this._manifests.TryGetValue( ((AssemblyIdentityModel) declaration.DeclaringAssembly.Identity).Identity, out var manifest ) )
         {
-            return ImmutableArray<IAnnotation>.Empty;
+            return manifest.Annotations[declaration.ToSerializableId()];
         }
         else
         {
-            return manifest.Annotations[declaration.ToSerializableId()];
+            return ImmutableArray<IAnnotation>.Empty;
         }
     }
 }

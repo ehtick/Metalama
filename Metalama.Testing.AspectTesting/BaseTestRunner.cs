@@ -47,6 +47,7 @@ internal abstract partial class BaseTestRunner
 {
     private static readonly AsyncLocal<bool> _isTestRunning = new();
 
+    private readonly GlobalServiceProvider _serviceProvider;
     private readonly TestProjectReferences _references;
 
     protected ILicenseKeyProvider LicenseKeyProvider { get; }
@@ -61,6 +62,7 @@ internal abstract partial class BaseTestRunner
         ITestOutputHelper? logger,
         ILicenseKeyProvider? licenseKeyProvider )
     {
+        this._serviceProvider = serviceProvider;
         this._references = references;
         this.LicenseKeyProvider = licenseKeyProvider ?? new NullLicenseKeyProvider();
         this.ProjectDirectory = projectDirectory;
@@ -114,42 +116,40 @@ internal abstract partial class BaseTestRunner
 
     private async Task RunAndAssertCoreAsync( TestInput testInput, TestContextOptions testContextOptions )
     {
-        // Avoid run too many tests in parallel regardless of the way the runners are scheduled.
-        using ( await TestThrottlingHelper.StartTestAsync() )
+        var originalCulture = CultureInfo.CurrentCulture;
+
+        try
         {
-            var originalCulture = CultureInfo.CurrentCulture;
+            // Change the culture to invariant to get invariant diagnostic messages.
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-            try
-            {
-                // Change the culture to invariant to get invariant diagnostic messages.
-                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            testInput.ProjectProperties.License?.ThrowIfNotLicensed();
 
-                testInput.ProjectProperties.License?.ThrowIfNotLicensed();
+            var transformedOptions = this.GetContextOptions( testContextOptions )
+                with
+                {
+                    ProjectName = testInput.Options.ProjectName ?? testInput.TestName, RunnerServiceProvider = this._serviceProvider
+                };
 
-                var transformedOptions = this.GetContextOptions( testContextOptions )
-                    with
-                    {
-                        ProjectName = testInput.Options.ProjectName ?? testInput.TestName
-                    };
+            using var testContext = new TestContext( transformedOptions );
+            testContext.TestName = testInput.FullPath;
+            testContext.TestOutputWriter = this.Logger;
 
-                using var testContext = new TestContext( transformedOptions );
-
-                using var testResult = this.CreateTestResult();
-                await this.RunAsync( testInput, testResult, testContext );
-                this.SaveResults( testInput, testResult );
-                this.ExecuteAssertions( testInput, testResult );
-            }
-            catch ( Exception e ) when ( e.GetType().FullName == testInput.Options.ExpectedException
-                                         || (e.InnerException?.GetType().FullName is { } innerException
-                                             && innerException == testInput.Options.ExpectedException) )
-            {
-                return;
-            }
-            finally
-            {
-                // Restore the culture.
-                CultureInfo.CurrentCulture = originalCulture;
-            }
+            using var testResult = this.CreateTestResult();
+            await this.RunAsync( testInput, testResult, testContext );
+            this.SaveResults( testInput, testResult );
+            this.ExecuteAssertions( testInput, testResult );
+        }
+        catch ( Exception e ) when ( e.GetType().FullName == testInput.Options.ExpectedException
+                                     || (e.InnerException?.GetType().FullName is { } innerException
+                                         && innerException == testInput.Options.ExpectedException) )
+        {
+            return;
+        }
+        finally
+        {
+            // Restore the culture.
+            CultureInfo.CurrentCulture = originalCulture;
         }
 
         if ( testInput.Options.ExpectedException != null )
@@ -329,20 +329,44 @@ internal abstract partial class BaseTestRunner
             if ( testInput.Options.SkipAddingSystemFiles != true )
             {
                 // Add system files.
-                mainProject = await AddPlatformDocuments( mainProject, mainParseOptions );
+                mainProject = await AddPlatformDocumentsAsync( mainProject, mainParseOptions );
             }
 
-            mainProject = await AddAdditionalDocuments( mainProject, mainParseOptions );
+            mainProject = await AddAdditionalDocumentsAsync( mainProject, mainParseOptions );
 
             // We are done creating the project.
 
             var initialCompilation = (await mainProject.GetCompilationAsync())!;
 
+            // Preprocess the entire compilation.
+
+            var preprocessedCompilation = this.PreprocessCompilation( initialCompilation, testResult );
+
+            if ( preprocessedCompilation != initialCompilation )
+            {
+                // Index documents by their paths.
+                var documentIdsByPath = mainProject.Documents.ToDictionary( d => d.FilePath.AssertNotNull(), d => d.Id );
+
+                var updatedSolution = mainProject.Solution;
+
+                foreach ( var updatedSyntaxTree in preprocessedCompilation.SyntaxTrees )
+                {
+                    var documentId = documentIdsByPath[updatedSyntaxTree.FilePath];
+
+                    updatedSolution = updatedSolution.WithDocumentSyntaxRoot( documentId, await updatedSyntaxTree.GetRootAsync() );
+                }
+
+                initialCompilation = preprocessedCompilation;
+                mainProject = updatedSolution.GetProject( mainProject.Id ).AssertNotNull();
+            }
+
             ValidateCustomAttributes( initialCompilation );
+
+            testContext.SetMetadataReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
 
             testResult.InputProject = mainProject;
             testResult.InputCompilation = initialCompilation;
-            testResult.TestContext = testContext.WithReferences( initialCompilation.References.OfType<PortableExecutableReference>() );
+            testResult.TestContext = testContext;
 
             if ( this.ShouldStopOnInvalidInput( testInput.Options ) )
             {
@@ -356,7 +380,7 @@ internal abstract partial class BaseTestRunner
                 }
             }
 
-            async Task<Project> AddAdditionalDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddAdditionalDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 if ( this._references.GlobalUsingsFile != null )
                 {
@@ -376,7 +400,7 @@ internal abstract partial class BaseTestRunner
 
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once LocalFunctionCanBeMadeStatic
-            async Task<Project> AddPlatformDocuments( Project project, CSharpParseOptions parseOptions )
+            async Task<Project> AddPlatformDocumentsAsync( Project project, CSharpParseOptions parseOptions )
             {
                 // ReSharper enable UnusedParameter.Local
                 // Add system documents.
@@ -419,10 +443,10 @@ internal abstract partial class BaseTestRunner
 
                 if ( testInput.Options.SkipAddingSystemFiles != true )
                 {
-                    dependencyProject = await AddPlatformDocuments( dependencyProject, dependencyParseOptions );
+                    dependencyProject = await AddPlatformDocumentsAsync( dependencyProject, dependencyParseOptions );
                 }
 
-                dependencyProject = await AddAdditionalDocuments( dependencyProject, dependencyParseOptions );
+                dependencyProject = await AddAdditionalDocumentsAsync( dependencyProject, dependencyParseOptions );
 
                 // Add dependencies recursively.
                 (dependencyProject, var recursiveReferences) = await AddDependencyProjectAsync( dependencyProject, dependencyName );
@@ -489,7 +513,8 @@ internal abstract partial class BaseTestRunner
         var compilation = (await project.GetCompilationAsync())!.WithAssemblyName( name );
 
         var pipelineResult = await pipeline.ExecuteAsync(
-            testResult.InputCompilationDiagnostics,
+            testResult.InputCompilationDiagnostics.Report,
+            null,
             compilation,
             default );
 
@@ -526,6 +551,11 @@ internal abstract partial class BaseTestRunner
     /// <param name="testResult"></param>
     /// <returns></returns>
     private protected virtual SyntaxNode PreprocessSyntaxRoot( SyntaxNode syntaxRoot, TestResult testResult ) => syntaxRoot;
+
+    private protected virtual Compilation PreprocessCompilation( Compilation initialCompilation, TestResult testResult )
+    {
+        return initialCompilation;
+    }
 
     private static void ValidateCustomAttributes( Compilation compilation )
     {
@@ -665,7 +695,7 @@ internal abstract partial class BaseTestRunner
 
         var actuallyWrittenFiles = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
 
-        // First run the diff tool on all files so we popupate DiffEngineTray for all files before failing.
+        // First run the diff tool on all files so we populate DiffEngineTray for all files before failing.
         var hasDifference = false;
 
         foreach ( var syntaxTree in testResult.SyntaxTrees )

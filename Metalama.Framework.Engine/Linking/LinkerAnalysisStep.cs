@@ -2,6 +2,7 @@
 
 using Metalama.Framework.Engine.Aspects;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Linking.Inlining;
 using Metalama.Framework.Engine.Services;
@@ -68,13 +69,11 @@ namespace Metalama.Framework.Engine.Linking
              */
 
             var inlinerProvider = new InlinerProvider();
-            var syntaxHandler = new LinkerSyntaxHandler( input.InjectionRegistry );
 
             var referenceResolver =
                 new AspectReferenceResolver(
                     input.InjectionRegistry,
                     input.OrderedAspectLayers,
-                    input.InputCompilationModel,
                     input.IntermediateCompilation.CompilationContext );
 
             var symbolReferenceFinder = new SymbolReferenceFinder(
@@ -187,7 +186,6 @@ namespace Metalama.Framework.Engine.Linking
             var substitutionGenerator = new SubstitutionGenerator(
                 this,
                 input.IntermediateCompilation.CompilationContext,
-                syntaxHandler,
                 input.InjectionRegistry,
                 inlinedSemantics,
                 nonInlinedSemantics,

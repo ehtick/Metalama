@@ -2,6 +2,7 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
+using Metalama.Framework.Engine.CodeModel.Comparers;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Microsoft.CodeAnalysis;
 using System.Collections;
@@ -69,7 +70,7 @@ internal sealed class ExternalAssemblyTypeCollection : INamedTypeCollection
     public IEnumerable<INamedType> OfTypeDefinition( INamedType typeDefinition )
         => this.GetContent()
             .Where(
-                t => ((DeclarationEqualityComparer) this._compilation.Comparers.Default).Is(
+                t => ((DeclarationEqualityComparer) this._compilation.Comparers.Default).IsConvertibleTo(
                     t,
                     typeDefinition.GetSymbol().AssertSymbolNotNull(),
                     ConversionKind.TypeDefinition ) )

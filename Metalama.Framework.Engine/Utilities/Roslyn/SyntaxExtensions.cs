@@ -58,7 +58,7 @@ public static class SyntaxExtensions
     internal static bool IsAutoPropertyDeclaration( this PropertyDeclarationSyntax propertyDeclaration )
         => propertyDeclaration.ExpressionBody == null
            && propertyDeclaration.AccessorList?.Accessors.All( x => x.Body == null && x.ExpressionBody == null ) == true
-           && propertyDeclaration.Modifiers.All( x => !x.IsKind( SyntaxKind.AbstractKeyword ) );
+           && propertyDeclaration.Modifiers.All( x => x.Kind() is not (SyntaxKind.AbstractKeyword or SyntaxKind.PartialKeyword) );
 
     internal static bool HasSetterAccessorDeclaration( this PropertyDeclarationSyntax propertyDeclaration )
         => propertyDeclaration.AccessorList != null
@@ -348,4 +348,11 @@ public static class SyntaxExtensions
     /// </summary>
     public static bool ContainsGlobalAttributes( this SyntaxTree tree )
         => tree.GetCompilationUnitRoot().AttributeLists.Any( list => list.Attributes.Any() );
+    
+    public static ExpressionSyntax IgnoreSuppressNullWarning( this ExpressionSyntax expression )
+        => expression switch
+        {
+            PostfixUnaryExpressionSyntax postfix when postfix.IsKind( SyntaxKind.SuppressNullableWarningExpression ) => postfix.Operand,
+            _ => expression
+        };
 }

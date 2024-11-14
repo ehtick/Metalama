@@ -36,12 +36,8 @@
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
 
     <ItemGroup>
-        <!-- Validate async code -->
-        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" />
-
         <!-- Resharper annotations -->
         <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
-     
     </ItemGroup>
 
     <!-- Include the package version in metadata. -->

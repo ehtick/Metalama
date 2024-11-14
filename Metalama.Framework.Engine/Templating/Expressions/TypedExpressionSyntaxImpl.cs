@@ -3,6 +3,7 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.CompileTimeContracts;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.SyntaxGeneration;
 using Metalama.Framework.Engine.SyntaxSerialization;
 using Metalama.Framework.Engine.Utilities.Roslyn;
@@ -36,11 +37,21 @@ namespace Metalama.Framework.Engine.Templating.Expressions
 
         public ExpressionStatementSyntax ToStatement() => SyntaxFactory.ExpressionStatement( this.Syntax.RemoveParenthesis() );
 
+        public TypedExpressionSyntaxImpl( ExpressionSyntax syntax, TypedExpressionSyntaxImpl prototype )
+        {
+            this.ExpressionType = prototype.ExpressionType;
+            this.IsReferenceable = prototype.IsReferenceable;
+            this.CanBeNull = prototype.CanBeNull;
+            this.Syntax = syntax;
+        }
+
         public IUserExpression ToUserExpression( ICompilation compilation )
         {
             var factory = compilation.GetCompilationModel().Factory;
 
-            var type = this.ExpressionType != null ? factory.GetIType( this.ExpressionType ) : factory.GetSpecialType( SpecialType.Object );
+            var type = this.ExpressionType != null
+                ? factory.Translate( this.ExpressionType ).AssertNotNull()
+                : factory.GetSpecialType( SpecialType.Object );
 
             return new SyntaxUserExpression( this.Syntax, type );
         }
@@ -56,6 +67,8 @@ namespace Metalama.Framework.Engine.Templating.Expressions
             bool? isReferenceable = null,
             bool? canBeNull = null )
         {
+            Invariant.Assert( expressionType is not { TypeKind: TypeKind.Dynamic } );
+
             if ( expressionType == null )
             {
                 TypeAnnotationMapper.TryFindExpressionTypeFromAnnotation( syntax, compilationModel, out expressionType );
@@ -101,7 +114,7 @@ namespace Metalama.Framework.Engine.Templating.Expressions
                     return runtimeExpression;
 
                 case IExpression dynamicMember:
-                    return dynamicMember.ToTypedExpressionSyntax( serializationContext );
+                    return dynamicMember.ToTypedExpressionSyntax( serializationContext, null );
 
                 case ExpressionSyntax syntax:
                     return new TypedExpressionSyntaxImpl( syntax, serializationContext.CompilationModel );
@@ -135,7 +148,7 @@ namespace Metalama.Framework.Engine.Templating.Expressions
                 default:
                     if ( array.Length == 0 )
                     {
-                        return Array.Empty<TypedExpressionSyntaxImpl>();
+                        return [];
                     }
 
                     var newArray = new TypedExpressionSyntaxImpl[array.Length];
@@ -162,7 +175,7 @@ namespace Metalama.Framework.Engine.Templating.Expressions
             {
                 // If we know the type of the current expression, check if a cast is necessary.
 
-                if ( compilationModel.Comparers.Default.Is( this.ExpressionType, targetType, ConversionKind.Implicit ) )
+                if ( compilationModel.Comparers.Default.IsConvertibleTo( this.ExpressionType, targetType, ConversionKind.Implicit ) )
                 {
                     return new TypedExpressionSyntaxImpl( this.Syntax, targetType, compilationModel, this.IsReferenceable, this.CanBeNull );
                 }

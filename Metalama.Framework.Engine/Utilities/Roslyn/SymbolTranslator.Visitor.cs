@@ -21,11 +21,17 @@ internal sealed partial class SymbolTranslator
             this._allowMultipleCandidates = allowMultipleCandidates;
         }
 
+        private T? Translate<T>( T symbol )
+            where T : ISymbol
+            => (T?) this._parent._cache.GetOrAdd( (symbol, this._allowMultipleCandidates), this.TranslateCore );
+
+        private ISymbol? TranslateCore( (ISymbol Symbol, bool AllowMultipleCandidates) value ) => this.Visit( value.Symbol );
+
         public override ISymbol DefaultVisit( ISymbol symbol ) => throw new NotSupportedException( $"Cannot map a symbol of kind '{symbol.Kind}'." );
 
         public override ISymbol? VisitArrayType( IArrayTypeSymbol symbol )
         {
-            var elementType = this._parent.Translate( symbol.ElementType );
+            var elementType = this.Translate( symbol.ElementType );
 
             if ( elementType == null )
             {
@@ -41,7 +47,7 @@ internal sealed partial class SymbolTranslator
 
         private ISymbol? TranslateUniquelyNamedTypeMember( ISymbol symbol )
         {
-            var namedType = this._parent.Translate( symbol.ContainingType );
+            var namedType = this.Translate( symbol.ContainingType );
 
             if ( namedType == null )
             {
@@ -53,11 +59,11 @@ internal sealed partial class SymbolTranslator
 
         private ISymbol? TranslateNonUniquelyNamedTypeMember( ISymbol symbol )
         {
-            var namedType = this._parent.Translate( symbol.ContainingType );
+            var namedType = this.Translate( symbol.ContainingType );
 
             if ( namedType == null )
             {
-                return namedType;
+                return null;
             }
 
             var candidates = namedType.GetMembers( symbol.Name )
@@ -98,35 +104,31 @@ internal sealed partial class SymbolTranslator
 
             if ( symbol.PartialImplementationPart != null )
             {
-                var partialImplementation = this._parent.Translate( symbol.PartialImplementationPart );
+                var partialImplementation = this.Translate( symbol.PartialImplementationPart );
 
                 return partialImplementation?.PartialDefinitionPart;
             }
-            else
+
+            var translated = this.TranslateNonUniquelyNamedTypeMember( symbol );
+
+            if ( translated == null )
             {
-                var translated = this.TranslateNonUniquelyNamedTypeMember( symbol );
-
-                if ( translated == null )
-                {
-                    return null;
-                }
-
-                if ( symbol.PartialDefinitionPart != null )
-                {
-                    return ((IMethodSymbol) translated).PartialImplementationPart;
-                }
-                else
-                {
-                    return translated;
-                }
+                return null;
             }
+
+            if ( symbol.PartialDefinitionPart != null )
+            {
+                return ((IMethodSymbol) translated).PartialImplementationPart;
+            }
+
+            return translated;
         }
 
         public override ISymbol? VisitNamedType( INamedTypeSymbol symbol )
         {
             if ( symbol.IsGenericType && !symbol.IsGenericTypeDefinition() )
             {
-                var constructedFrom = this._parent.Translate( symbol.ConstructedFrom );
+                var constructedFrom = this.Translate( symbol.ConstructedFrom );
 
                 if ( constructedFrom == null )
                 {
@@ -137,7 +139,7 @@ internal sealed partial class SymbolTranslator
 
                 for ( var i = 0; i < typeArguments.Length; i++ )
                 {
-                    var typeArgument = this._parent.Translate( symbol.TypeArguments[i] );
+                    var typeArgument = this.Translate( symbol.TypeArguments[i] );
 
                     if ( typeArgument == null )
                     {
@@ -155,7 +157,7 @@ internal sealed partial class SymbolTranslator
 
                 if ( symbol.ContainingType != null )
                 {
-                    var containingType = this._parent.Translate( symbol.ContainingType );
+                    var containingType = this.Translate( symbol.ContainingType );
 
                     if ( containingType == null )
                     {
@@ -166,7 +168,7 @@ internal sealed partial class SymbolTranslator
                 }
                 else if ( symbol.ContainingNamespace != null )
                 {
-                    var ns = this._parent.Translate( symbol.ContainingNamespace );
+                    var ns = this.Translate( symbol.ContainingNamespace );
 
                     if ( ns == null )
                     {
@@ -201,7 +203,7 @@ internal sealed partial class SymbolTranslator
                 switch ( symbol.NamespaceKind )
                 {
                     case NamespaceKind.Assembly:
-                        var assembly = this._parent.Translate( symbol.ContainingAssembly );
+                        var assembly = this.Translate( symbol.ContainingAssembly );
 
                         if ( assembly == null )
                         {
@@ -211,7 +213,7 @@ internal sealed partial class SymbolTranslator
                         return assembly.GlobalNamespace;
 
                     case NamespaceKind.Module:
-                        var module = this._parent.Translate( symbol.ContainingModule );
+                        var module = this.Translate( symbol.ContainingModule );
 
                         if ( module == null )
                         {
@@ -229,7 +231,7 @@ internal sealed partial class SymbolTranslator
             }
             else
             {
-                var ns = this._parent.Translate( symbol.ContainingNamespace );
+                var ns = this.Translate( symbol.ContainingNamespace );
 
                 if ( ns == null )
                 {
@@ -242,7 +244,7 @@ internal sealed partial class SymbolTranslator
 
         public override ISymbol? VisitParameter( IParameterSymbol symbol )
         {
-            var containingSymbol = this._parent.Translate( symbol.ContainingSymbol );
+            var containingSymbol = this.Translate( symbol.ContainingSymbol );
 
             ImmutableArray<IParameterSymbol> parameters;
 
@@ -275,7 +277,7 @@ internal sealed partial class SymbolTranslator
 
         public override ISymbol? VisitPointerType( IPointerTypeSymbol symbol )
         {
-            var pointedAtType = this._parent.Translate( symbol.PointedAtType );
+            var pointedAtType = this.Translate( symbol.PointedAtType );
 
             if ( pointedAtType == null )
             {
@@ -285,11 +287,37 @@ internal sealed partial class SymbolTranslator
             return this._parent._targetCompilationContext.Compilation.CreatePointerTypeSymbol( pointedAtType );
         }
 
-        public override ISymbol? VisitProperty( IPropertySymbol symbol ) => this.TranslateNonUniquelyNamedTypeMember( symbol );
+        public override ISymbol? VisitProperty( IPropertySymbol symbol )
+        {
+#if ROSLYN_4_12_0_OR_GREATER
+            if ( symbol.PartialImplementationPart != null )
+            {
+                var partialImplementation = this.Translate( symbol.PartialImplementationPart );
+
+                return partialImplementation?.PartialDefinitionPart;
+            }
+#endif
+
+            var translated = this.TranslateNonUniquelyNamedTypeMember( symbol );
+
+#if ROSLYN_4_12_0_OR_GREATER
+            if ( translated == null )
+            {
+                return null;
+            }
+
+            if ( symbol.PartialDefinitionPart != null )
+            {
+                return ((IPropertySymbol) translated).PartialImplementationPart;
+            }
+#endif
+
+            return translated;
+        }
 
         public override ISymbol? VisitTypeParameter( ITypeParameterSymbol symbol )
         {
-            var containingSymbol = this._parent.Translate( symbol.ContainingSymbol );
+            var containingSymbol = this.Translate( symbol.ContainingSymbol );
 
             ImmutableArray<ITypeParameterSymbol> parameters;
 
@@ -328,7 +356,7 @@ internal sealed partial class SymbolTranslator
 
         public override ISymbol? VisitModule( IModuleSymbol symbol )
         {
-            var assembly = this._parent.Translate( symbol.ContainingAssembly );
+            var assembly = this.Translate( symbol.ContainingAssembly );
 
             if ( assembly == null )
             {

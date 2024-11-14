@@ -1,6 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -68,13 +68,13 @@ internal sealed class AspectReferenceOverrideSubstitution : AspectReferenceRenam
             }
             else
             {
-                if ( this.CompilationContext.SymbolComparer.Is(
+                if ( this.CompilationContext.SymbolComparer.IsConvertibleTo(
                         targetSymbol.ContainingType,
                         this.AspectReference.ContainingSemantic.Symbol.ContainingType ) )
                 {
                     throw new AssertionFailedException( $"Resolved symbol is declared in a derived class: {targetSymbol.ContainingType}" );
                 }
-                else if ( this.CompilationContext.SymbolComparer.Is(
+                else if ( this.CompilationContext.SymbolComparer.IsConvertibleTo(
                              this.AspectReference.ContainingSemantic.Symbol.ContainingType,
                              targetSymbol.ContainingType ) )
                 {

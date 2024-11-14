@@ -2,9 +2,10 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Framework.Engine.Advising;
-using Metalama.Framework.Engine.CodeModel;
-using Metalama.Framework.Engine.CodeModel.Builders;
+using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Introductions.Helpers;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.CompileTime.Serialization;
 using Metalama.Framework.Engine.Formatting;
@@ -70,7 +71,8 @@ public static class ServiceProviderFactory
             .WithServiceConditional<ICompileTimeDomainFactory>( sp => new DefaultCompileTimeDomainFactory( sp ) )
             .WithServiceConditional<IMetalamaProjectClassifier>( _ => new MetalamaProjectClassifier() )
             .WithServiceConditional( sp => new UserCodeInvoker( sp ) )
-            .WithServiceConditional( _ => new ReferenceAssemblyLocatorProvider() )
+            .WithServiceConditional<IReferenceAssemblyLocatorProvider>(
+                sp => new ReferenceAssemblyLocatorProvider( sp.GetRequiredBackstageService<ITempFileManager>() ) )
             .WithServiceConditional( _ => new FrameworkCompileTimeProjectFactory() )
             .WithServiceConditional( _ => new AttributeClassificationService() )
             .WithServiceConditional<IProjectOptionsFactory>( _ => new MSBuildProjectOptionsFactory() );
@@ -124,7 +126,7 @@ public static class ServiceProviderFactory
 
             if ( projectOptions.IsTest )
             {
-                concurrentTaskRunner = new RandomizingSingleThreadedTaskRunner( serviceProvider );
+                concurrentTaskRunner = new RandomizingSingleThreadedTaskRunner( ((ProjectServiceProvider) projectServiceProvider).Global );
             }
             else
             {
@@ -136,14 +138,15 @@ public static class ServiceProviderFactory
 
         projectServiceProvider = projectServiceProvider
             .WithServiceConditional<SerializerFactoryProvider>( sp => new BuiltInSerializerFactoryProvider( sp ) )
+            .WithServiceConditional<IDeserializationSurrogateProvider>( sp => new DeserializationSurrogateProvider() )
             .WithServiceConditional<IAssemblyLocator>( sp => new AssemblyLocator( sp, metadataReferences ) )
             .WithService( _ => new SyntaxSerializationService() )
-            .WithService( _ => new CompileTimeTypeFactory() )
-            .WithServiceConditional<SystemTypeResolver>( sp => new SystemTypeResolver( sp ) )
-            .WithServiceConditional<ISystemAttributeDeserializer>( sp => new SystemAttributeDeserializer( sp ) )
+            .WithServiceConditional( sp => new SystemTypeResolver.Provider( sp ) )
+            .WithServiceConditional( sp => new SystemAttributeDeserializer.Provider( sp ) )
             .WithService( provider => new ClassifyingCompilationContextFactory( provider ) )
             .WithService( provider => new ObjectReaderFactory( provider ) )
-            .WithService( provider => new ProjectIntrospectionService( provider ) );
+            .WithService( provider => new ProjectIntrospectionService( provider ) )
+            .WithService( provider => new SourceGeneratorDetectionService( provider ) );
 
         if ( projectOptions.FormatCompileTimeCode || projectOptions.CodeFormattingOptions == CodeFormattingOptions.Formatted || projectOptions.WriteHtml )
         {
@@ -159,9 +162,10 @@ public static class ServiceProviderFactory
     {
         return serviceProvider.Underlying
             .WithService( repository )
-            .WithService( sp => new ProjectSpecificCompileTimeTypeResolver( sp ) )
-            .WithServiceConditional<IUserCodeAttributeDeserializer>( sp => new UserCodeAttributeDeserializer( sp ) )
+            .WithService<CompilationServiceProvider<ProjectSpecificCompileTimeTypeResolver>>( sp => new ProjectSpecificCompileTimeTypeResolver.Provider( sp ) )
+            .WithServiceConditional<UserCodeAttributeDeserializer.Provider>( sp => new UserCodeAttributeDeserializer.Provider( sp ) )
             .WithService<SymbolClassificationService>( _ => new SymbolClassificationService( repository ) )
-            .WithServiceConditional<TemplateAttributeFactory>( sp => new TemplateAttributeFactory( sp ) );
+            .WithServiceConditional<TemplateAttributeFactory>( sp => new TemplateAttributeFactory( sp ) )
+            .WithService( sp => new TemplateClassMemberBuilder( sp ) );
     }
 }

@@ -17,13 +17,15 @@ namespace Metalama.Framework.Engine.Templating.Expressions
             bool? isReferenceable = null,
             bool? isAssignable = null )
         {
+            Invariant.Assert( type is not { TypeKind: TypeKind.Dynamic } );
+
             this.Expression = expression;
             this.Type = type;
             this.IsAssignable = isAssignable;
             this.IsReferenceable = isReferenceable;
         }
 
-        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext ) => this.Expression;
+        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext, IType? targetType = null ) => this.Expression;
 
         public override IType Type { get; }
 
