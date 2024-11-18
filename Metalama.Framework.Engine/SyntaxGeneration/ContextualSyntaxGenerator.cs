@@ -602,18 +602,18 @@ internal sealed partial class ContextualSyntaxGenerator
             var constructorArgumentValues = attribute.ConstructorArguments.ToMutableList();
             constructorArgumentValues.RemoveAt( constructorArgumentValues.Count - 1 );
             constructorArgumentValues.AddRange( lastArray.Values );
-            constructorArguments = constructorArgumentValues.SelectAsReadOnlyCollection( a => AttributeArgument( this.AttributeValueExpression( a ) ) );
+            constructorArguments = constructorArgumentValues.SelectAsReadOnlyCollection( a => AttributeArgument( this.TypedConstantExpression( a ) ) );
         }
         else
         {
-            constructorArguments = attribute.ConstructorArguments.Select( a => AttributeArgument( this.AttributeValueExpression( a ) ) );
+            constructorArguments = attribute.ConstructorArguments.Select( a => AttributeArgument( this.TypedConstantExpression( a ) ) );
         }
 
         var namedArguments = attribute.NamedArguments.SelectAsImmutableArray(
             a => AttributeArgument(
                 NameEquals( a.Key ),
                 null,
-                this.AttributeValueExpression( a.Value ) ) );
+                this.TypedConstantExpression( a.Value ) ) );
 
         var attributeSyntax = SyntaxFactory.Attribute( (NameSyntax) this.TypeSyntax( attribute.Type ) );
 
@@ -703,7 +703,7 @@ internal sealed partial class ContextualSyntaxGenerator
         };
     }
 
-    private ExpressionSyntax AttributeValueExpression( TypedConstant typedConstant )
+    private ExpressionSyntax TypedConstantExpression( TypedConstant typedConstant )
     {
         if ( typedConstant.IsNullOrDefault )
         {
@@ -819,14 +819,19 @@ internal sealed partial class ContextualSyntaxGenerator
         => SeparatedList( parameters.SelectAsReadOnlyList( p => this.Parameter( p, compilation, removeDefaultValues ) ) );
 
     public ParameterSyntax Parameter( IParameter parameter, CompilationModel compilation, bool removeDefaultValue )
-        => SyntaxFactory.Parameter(
-            this.AttributesForDeclaration( parameter.ToValueTypedRef<IDeclaration>(), compilation ),
-            parameter.GetSyntaxModifierList(),
-            this.TypeSyntax( parameter.Type ).WithOptionalTrailingTrivia( ElasticSpace, this.Options ),
-            Identifier( parameter.Name ),
-            removeDefaultValue || parameter.DefaultValue == null
-                ? null
-                : EqualsValueClause( LiteralExpressionOrNull( parameter.DefaultValue.Value.Value ).AssertNotNull() ) );
+    {
+        // We intentionally generate non-literal values to be more tolerant to invalid inputs.
+        var equalsValueClause = removeDefaultValue || parameter.DefaultValue == null
+            ? null
+            : EqualsValueClause( this.TypedConstantExpression( parameter.DefaultValue.Value ) );
+
+        return SyntaxFactory.Parameter(
+                this.AttributesForDeclaration( parameter.ToValueTypedRef<IDeclaration>(), compilation ),
+                parameter.GetSyntaxModifierList(),
+                this.TypeSyntax( parameter.Type ).WithOptionalTrailingTrivia( ElasticSpace, this.Options ),
+                Identifier( parameter.Name ),
+                equalsValueClause );
+    }
 
     public SyntaxList<TypeParameterConstraintClauseSyntax> TypeParameterConstraintClauses( ImmutableArray<ITypeParameterSymbol> typeParameters )
     {
