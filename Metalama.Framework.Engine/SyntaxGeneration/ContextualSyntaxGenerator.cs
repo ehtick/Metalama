@@ -153,9 +153,22 @@ internal sealed partial class ContextualSyntaxGenerator
         return (TypeOfExpressionSyntax) _roslynSyntaxGenerator.TypeOfExpression( rewrittenTypeSyntax );
     }
 
-    public DefaultExpressionSyntax DefaultExpression( IType type )
-        => SyntaxFactory.DefaultExpression( this.TypeSyntax( type ) )
-            .WithSimplifierAnnotationIfNecessary( this.SyntaxGenerationContext );
+    public ExpressionSyntax DefaultExpression( IType type, IType? targetType = null )
+    {
+        if ( targetType == null )
+        {
+            return SyntaxFactory.DefaultExpression( this.TypeSyntax( type ) )
+                .WithSimplifierAnnotationIfNecessary( this.SyntaxGenerationContext );
+        }
+        else if ( type.IsReferenceType == true )
+        {
+            return Null;
+        }
+        else
+        {
+            return Default;
+        }
+    }
 
     public ArrayCreationExpressionSyntax ArrayCreationExpression( TypeSyntax elementType, IEnumerable<SyntaxNode> elements )
     {
@@ -602,18 +615,18 @@ internal sealed partial class ContextualSyntaxGenerator
             var constructorArgumentValues = attribute.ConstructorArguments.ToMutableList();
             constructorArgumentValues.RemoveAt( constructorArgumentValues.Count - 1 );
             constructorArgumentValues.AddRange( lastArray.Values );
-            constructorArguments = constructorArgumentValues.SelectAsReadOnlyCollection( a => AttributeArgument( this.AttributeValueExpression( a ) ) );
+            constructorArguments = constructorArgumentValues.SelectAsReadOnlyCollection( a => AttributeArgument( this.TypedConstantExpression( a ) ) );
         }
         else
         {
-            constructorArguments = attribute.ConstructorArguments.Select( a => AttributeArgument( this.AttributeValueExpression( a ) ) );
+            constructorArguments = attribute.ConstructorArguments.Select( a => AttributeArgument( this.TypedConstantExpression( a ) ) );
         }
 
         var namedArguments = attribute.NamedArguments.SelectAsImmutableArray(
             a => AttributeArgument(
                 NameEquals( a.Key ),
                 null,
-                this.AttributeValueExpression( a.Value ) ) );
+                this.TypedConstantExpression( a.Value ) ) );
 
         var attributeSyntax = SyntaxFactory.Attribute( (NameSyntax) this.TypeSyntax( attribute.Type ) );
 
@@ -703,11 +716,11 @@ internal sealed partial class ContextualSyntaxGenerator
         };
     }
 
-    private ExpressionSyntax AttributeValueExpression( TypedConstant typedConstant )
+    private ExpressionSyntax TypedConstantExpression( TypedConstant typedConstant, IType? targetType = null )
     {
         if ( typedConstant.IsNullOrDefault )
         {
-            return this.DefaultExpression( typedConstant.Type );
+            return this.DefaultExpression( typedConstant.Type, targetType );
         }
 
         ExpressionSyntax GetValue( object? value, IType type )
@@ -819,14 +832,20 @@ internal sealed partial class ContextualSyntaxGenerator
         => SeparatedList( parameters.SelectAsReadOnlyList( p => this.Parameter( p, compilation, removeDefaultValues ) ) );
 
     public ParameterSyntax Parameter( IParameter parameter, CompilationModel compilation, bool removeDefaultValue )
-        => SyntaxFactory.Parameter(
-            this.AttributesForDeclaration( parameter.ToValueTypedRef<IDeclaration>(), compilation ),
-            parameter.GetSyntaxModifierList(),
-            this.TypeSyntax( parameter.Type ).WithOptionalTrailingTrivia( ElasticSpace, this.Options ),
-            Identifier( parameter.Name ),
-            removeDefaultValue || parameter.DefaultValue == null
-                ? null
-                : EqualsValueClause( LiteralExpressionOrNull( parameter.DefaultValue.Value.Value ).AssertNotNull() ) );
+    {
+        // We intentionally generate non-literal values to be more tolerant to invalid inputs.
+        // Also, it's required to generate the correct syntax for enum values (other than 0).
+        var equalsValueClause = removeDefaultValue || parameter.DefaultValue == null
+            ? null
+            : EqualsValueClause( this.TypedConstantExpression( parameter.DefaultValue.Value, parameter.Type ) );
+
+        return SyntaxFactory.Parameter(
+                this.AttributesForDeclaration( parameter.ToValueTypedRef<IDeclaration>(), compilation ),
+                parameter.GetSyntaxModifierList(),
+                this.TypeSyntax( parameter.Type ).WithOptionalTrailingTrivia( ElasticSpace, this.Options ),
+                Identifier( parameter.Name ),
+                equalsValueClause );
+    }
 
     public SyntaxList<TypeParameterConstraintClauseSyntax> TypeParameterConstraintClauses( ImmutableArray<ITypeParameterSymbol> typeParameters )
     {

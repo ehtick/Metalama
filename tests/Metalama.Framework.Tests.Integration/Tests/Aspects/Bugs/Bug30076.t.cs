@@ -9,12 +9,12 @@ internal class Target
     try
     {
       object result = null;
-      global::Metalama.Framework.Tests.Integration.Aspects.Bugs.Bug30076.LoggingHelper.Log($"{$"Target.M() succeeded."}", resultColour);
+      global::Metalama.Framework.Tests.Integration.Tests.Aspects.Bugs.Bug30076.LoggingHelper.Log($"{$"Target.M() succeeded."}", resultColour);
       return;
     }
     catch (global::System.Exception e)
     {
-      global::Metalama.Framework.Tests.Integration.Aspects.Bugs.Bug30076.LoggingHelper.Log($"{$"Target.M() failed: {e.Message}"}", errorColour);
+      global::Metalama.Framework.Tests.Integration.Tests.Aspects.Bugs.Bug30076.LoggingHelper.Log($"{$"Target.M() failed: {e.Message}"}", errorColour);
       throw;
     }
   }
