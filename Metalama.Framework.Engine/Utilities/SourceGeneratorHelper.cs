@@ -11,7 +11,7 @@ public static class SourceGeneratorHelper
     private static readonly char[] _pathSeparators = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
 
     public static bool IsGeneratedFile( SyntaxTree syntaxTree )
-        => syntaxTree.FilePath.Split( _pathSeparators ).Any( part => part is "Metalama.Framework.CompilerExtensions.MetalamaSourceGenerator" );
+        => syntaxTree.FilePath.AnySegmentEquals( _pathSeparators, "Metalama.Framework.CompilerExtensions.MetalamaSourceGenerator" );
 
     internal static bool IsGeneratedSymbol( ISymbol symbol )
     {
