@@ -15,8 +15,10 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Tests.ConfigurationManager;
 
-public class ConfigurationManagerLoadTests( ITestOutputHelper logger ) : TestsBase( logger )
+public class ConfigurationManagerLoadTests : TestsBase
 {
+    public ConfigurationManagerLoadTests( ITestOutputHelper logger ) : base( logger ) { }
+
     [Fact]
     public async Task ConcurrentConditionalUpdateSucceedsOnlyOnce()
     {
