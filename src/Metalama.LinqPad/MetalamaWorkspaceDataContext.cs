@@ -3,6 +3,8 @@
 using JetBrains.Annotations;
 using LINQPad;
 using Metalama.Framework.Workspaces;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Metalama.LinqPad
 {
@@ -22,11 +24,27 @@ namespace Metalama.LinqPad
         {
             DriverInitialization.Initialize();
 
-            this.workspace = WorkspaceCollection.Default.Load( path );
-
-            if ( reportWorkspaceErrors )
+            try
             {
-                this.workspace.WorkspaceDiagnostics.Dump( "Loading Issues" );
+                this.workspace = WorkspaceCollection.Default.Load( path );
+
+                if ( reportWorkspaceErrors )
+                {
+                    this.workspace.WorkspaceDiagnostics.Dump( "Loading Issues" );
+                }
+            }
+            catch ( AggregateException e ) when ( e.InnerException is MSBuildInitializationException initializationException )
+            {
+                if ( initializationException.HasArchitectureMismatch )
+                {
+                    throw new MSBuildInitializationException(
+                        $"LINQPad was launched for a process architecture ({RuntimeInformation.ProcessArchitecture}) for which no suitable .NET SDK is installed. "
+                        + "Try running LINQPad with a different processor architecture." );
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
     }
