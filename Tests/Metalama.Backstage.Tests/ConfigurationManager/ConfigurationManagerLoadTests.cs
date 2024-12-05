@@ -1,5 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+// Don't run this test on .Net Framework, to prevent concurrent execution of the .Net Framework and .Net tests.
+
+#if NETCOREAPP
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Infrastructure;
@@ -50,3 +53,4 @@ public class ConfigurationManagerLoadTests : TestsBase
         }
     }
 }
+#endif
