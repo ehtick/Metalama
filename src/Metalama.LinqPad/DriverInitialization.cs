@@ -7,7 +7,6 @@ using Metalama.Framework.Engine.Utilities.Diagnostics;
 using Metalama.Framework.Workspaces;
 using Microsoft.CodeAnalysis.MSBuild;
 using System.IO;
-using System.Reflection;
 
 namespace Metalama.LinqPad;
 
