@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Patterns.Caching.Tests;
 
-public class AsyncEnumeratorTests : AsyncEnumTestsBase
+public sealed class AsyncEnumeratorTests : AsyncEnumTestsBase
 {
     public AsyncEnumeratorTests( ITestOutputHelper testOutputHelper ) : base( testOutputHelper ) { }
 

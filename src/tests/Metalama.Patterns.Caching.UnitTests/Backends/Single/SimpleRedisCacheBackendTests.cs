@@ -27,16 +27,16 @@ public class SimpleRedisCacheBackendTests : BaseCacheBackendTests, IAssemblyFixt
     protected override void AddServices( ServiceCollection serviceCollection )
     {
         base.AddServices( serviceCollection );
-        serviceCollection.AddSingleton<IRedisBackendObserver>( this.Observer );
+        serviceCollection.AddSingleton<IRedisBackendObserver>( this._observer );
     }
 
-    internal RedisBackendObserver Observer { get; } = new();
+    private readonly RedisBackendObserver _observer = new();
 
     protected override void Cleanup()
     {
         base.Cleanup();
 
-        AssertEx.Equal( 0, this.Observer.ActiveNotificationThreads, "RedisNotificationQueue.NotificationProcessingThreads" );
+        AssertEx.Equal( 0, this._observer.ActiveNotificationThreads, "RedisNotificationQueue.NotificationProcessingThreads" );
     }
 
     protected override bool TestDependencies => false;

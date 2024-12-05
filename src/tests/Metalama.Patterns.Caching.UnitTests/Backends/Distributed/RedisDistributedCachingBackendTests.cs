@@ -29,7 +29,7 @@ public class RedisDistributedCachingBackendTests : BaseDistributedCacheTests, IA
         return
         [
             await RedisFactory.CreateBackendAsync( this.ClassFixture, this._redisAssemblyFixture, this.ServiceProvider, prefix, supportsDependencies: true ),
-            await RedisFactory.CreateBackendAsync( this.ClassFixture, this._redisAssemblyFixture, this.ServiceProvider,  prefix, supportsDependencies: true )
+            await RedisFactory.CreateBackendAsync( this.ClassFixture, this._redisAssemblyFixture, this.ServiceProvider, prefix, supportsDependencies: true )
         ];
     }
 

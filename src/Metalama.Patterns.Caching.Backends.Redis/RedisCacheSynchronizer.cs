@@ -40,14 +40,9 @@ internal sealed class RedisCacheSynchronizer : CacheSynchronizer
     {
         var redisConnectionFactory = ((RedisCacheSynchronizerConfiguration) this.Configuration).ConnectionFactory;
 
-        if ( redisConnectionFactory != null )
-        {
-            this._connection = redisConnectionFactory.GetConnection( this.ServiceProvider );
-        }
-        else
-        {
-            this._connection = this.ServiceProvider.GetRequiredService<IConnectionMultiplexer>();
-        }
+        this._connection = redisConnectionFactory != null!
+            ? redisConnectionFactory.GetConnection( this.ServiceProvider )
+            : this.ServiceProvider.GetRequiredService<IConnectionMultiplexer>();
 
         this.NotificationQueueProcessor = RedisNotificationQueueProcessor.Create(
             this.ToString(),
@@ -64,7 +59,7 @@ internal sealed class RedisCacheSynchronizer : CacheSynchronizer
     {
         var configuration = (RedisCacheSynchronizerConfiguration) this.Configuration;
 
-        if ( configuration.ConnectionFactory != null )
+        if ( configuration.ConnectionFactory != null! )
         {
             this._connection =
                 await configuration.ConnectionFactory.GetConnectionAsync(
