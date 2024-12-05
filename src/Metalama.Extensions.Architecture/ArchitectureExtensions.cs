@@ -74,8 +74,7 @@ public static class ArchitectureExtensions
                     description,
                     referenceKinds ) );
 
-        taggedReceiver
-                .ValidateInboundReferences( ( _, validator ) => validator );
+        taggedReceiver.ValidateInboundReferences( ( _, validator ) => validator );
     }
 
     /// <summary>
@@ -124,7 +123,7 @@ public static class ArchitectureExtensions
         where TDeclaration : class, IDeclaration
         => receiver
             .Tag( ( d, tag ) => predicate( new ReferencePredicateBuilder( ReferenceEndRole.Origin, receiver ), d, tag ).Not() )
-                .ValidateInboundReferences( ( _, validator ) => new ReferencePredicateValidator( validator, description, referenceKinds ) );
+            .ValidateInboundReferences( ( _, validator ) => new ReferencePredicateValidator( validator, description, referenceKinds ) );
 
     private static void VerifyInternalsAccess<TDeclaration, TTag>(
         this IAspectReceiver<TDeclaration, TTag> receiver,
@@ -156,13 +155,13 @@ public static class ArchitectureExtensions
         // Check internal types.
         types
             .Where( t => t.Accessibility == Accessibility.Internal )
-                .ValidateInboundReferences( ( _, tag ) => tag.typeValidator );
+            .ValidateInboundReferences( ( _, tag ) => tag.typeValidator );
 
         // Check internal members of public types.
         publicTypes
             .SelectMany( t => t.Members() )
             .Where( m => m.Accessibility is Accessibility.Internal or Accessibility.PrivateProtected or Accessibility.ProtectedInternal )
-                .ValidateInboundReferences( ( _, tag ) => tag.memberValidator );
+            .ValidateInboundReferences( ( _, tag ) => tag.memberValidator );
 
         // Check internal accessors of public properties.
         publicTypes
@@ -170,7 +169,7 @@ public static class ArchitectureExtensions
             .Where( p => p.Accessibility is Accessibility.Public or Accessibility.Protected )
             .SelectMany( p => p.Accessors )
             .Where( m => m.Accessibility is Accessibility.Internal or Accessibility.PrivateProtected or Accessibility.ProtectedInternal )
-                .ValidateInboundReferences( ( _, tag ) => tag.memberValidator );
+            .ValidateInboundReferences( ( _, tag ) => tag.memberValidator );
     }
 
     /// <summary>
@@ -271,7 +270,7 @@ public static class ArchitectureExtensions
         this IAspectReceiver<IDeclaration> receiver,
         string pattern,
         Func<ReferencePredicateBuilder, ReferencePredicate>? exclusions = null )
-            => receiver.ValidateInboundReferences(
+        => receiver.ValidateInboundReferences(
             DerivedTypeNamingConventionValidator.CreateStarPatternValidator(
                 pattern,
                 ReferencePredicateBuilder.Build( exclusions, receiver, ReferenceEndRole.Origin ) ) );
@@ -284,7 +283,7 @@ public static class ArchitectureExtensions
         this IAspectReceiver<IDeclaration> receiver,
         string pattern,
         Func<ReferencePredicateBuilder, ReferencePredicate>? exclusions = null )
-            => receiver.ValidateInboundReferences(
+        => receiver.ValidateInboundReferences(
             DerivedTypeNamingConventionValidator.CreateRegexValidator(
                 pattern,
                 ReferencePredicateBuilder.Build( exclusions, receiver, ReferenceEndRole.Origin ) ) );
