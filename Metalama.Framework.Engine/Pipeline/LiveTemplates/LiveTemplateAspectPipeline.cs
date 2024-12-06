@@ -18,7 +18,6 @@ using Metalama.Framework.Services;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +30,8 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
 {
     private readonly Func<AspectPipelineConfiguration, IAspectClass> _aspectSelector;
     private readonly ISymbol _targetSymbol;
+
+    private IAspectClass? _aspectClass;
 
     private LiveTemplateAspectPipeline(
         ServiceProvider<IProjectService> serviceProvider,
@@ -50,6 +51,8 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
         CancellationToken cancellationToken )
     {
         var aspectClass = this._aspectSelector( configuration );
+
+        this._aspectClass = aspectClass;
 
         return new PipelineContributorSources(
             ImmutableArray.Create<IAspectSource>( new AspectSource( this, aspectClass ) ),
@@ -72,12 +75,13 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
 
         var result = await pipeline.ExecuteAsync( inputCompilation, diagnosticAdder, pipelineConfiguration, cancellationToken );
 
-        // Enforce licensing
-        var aspectInstance = result.Value.AspectInstanceResults.Single().AspectInstance;
-        var aspectClass = aspectInstance.AspectClass;
+        var aspectClass = pipeline._aspectClass;
 
-        if ( result.IsSuccessful )
+        Invariant.Implies( result.IsSuccessful, aspectClass != null );
+
+        if ( result.IsSuccessful && aspectClass != null )
         {
+            // Enforce licensing
             var licenseVerifier = result.Value.Configuration.ServiceProvider.GetService<LicenseVerifier>();
 
             if ( !isComputingPreview && licenseVerifier != null
@@ -87,9 +91,7 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
 
                 diagnosticAdder.Report(
                     LicensingDiagnosticDescriptors.CodeActionNotAvailable.CreateRoslynDiagnostic(
-                        aspectInstance.TargetDeclaration.GetSymbol( result.Value.LastCompilation.Compilation )
-                            .AssertNotNull( "Live templates should be always applied on a target." )
-                            .GetDiagnosticLocation(),
+                        targetSymbol.GetDiagnosticLocation(),
                         ($"Apply [{aspectClass.DisplayName}] aspect", aspectClass.DisplayName) ) );
 
                 return default;
