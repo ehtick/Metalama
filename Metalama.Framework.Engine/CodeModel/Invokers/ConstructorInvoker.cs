@@ -2,7 +2,9 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Invokers;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
+using Metalama.Framework.Engine.SyntaxGeneration;
 using Metalama.Framework.Engine.SyntaxSerialization;
 using Metalama.Framework.Engine.Templating.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -115,13 +117,17 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
             this._argumentFactory = argumentFactory;
         }
 
-        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext )
-        {
-            return CreateObjectCreationExpression(
+        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext, IType? targetType = null )
+            => CreateObjectCreationExpression(
                 syntaxSerializationContext.SyntaxGenerator.TypeSyntax( this._constructor.DeclaringType ),
-                this._argumentFactory( syntaxSerializationContext ).Select( Argument ),
+                this._argumentFactory( syntaxSerializationContext )
+                    .Select(
+                        ( e, i ) =>
+                            Argument(
+                                NameColon( IdentifierName( this._constructor.Parameters[i].Name ) ),
+                                this._constructor.Parameters[i].RefKind.InvocationRefKindToken(),
+                                e ) ),
                 null );
-        }
 
         public IExpression WithObjectInitializer( params (IFieldOrProperty FieldOrProperty, IExpression Value)[] initializationExpressions )
             => new ObjectCreationExpressionWithObjectInitializer(
@@ -151,11 +157,16 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
             this._initializers = initializers;
         }
 
-        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext )
-        {
-            return CreateObjectCreationExpression(
+        protected override ExpressionSyntax ToSyntax( SyntaxSerializationContext syntaxSerializationContext, IType? targetType = null )
+            => CreateObjectCreationExpression(
                 syntaxSerializationContext.SyntaxGenerator.TypeSyntax( this._constructor.DeclaringType ),
-                this._argumentFactory( syntaxSerializationContext ).Select( Argument ),
+                this._argumentFactory( syntaxSerializationContext )
+                    .Select(
+                        ( e, i ) =>
+                            Argument(
+                                NameColon( IdentifierName( this._constructor.Parameters[i].Name ) ),
+                                this._constructor.Parameters[i].RefKind.InvocationRefKindToken(),
+                                e ) ),
                 InitializerExpression(
                     SyntaxKind.ObjectInitializerExpression,
                     SeparatedList<ExpressionSyntax>(
@@ -165,6 +176,5 @@ internal sealed class ConstructorInvoker : Invoker<IConstructor>, IConstructorIn
                                     SyntaxKind.SimpleAssignmentExpression,
                                     IdentifierName( i.FieldOrPropertyName ),
                                     i.Value.ToExpressionSyntax( syntaxSerializationContext ) ) ) ) ) );
-        }
     }
 }

@@ -1,12 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Framework.Code;
-using Metalama.Framework.Engine.Advising;
-using Metalama.Framework.Engine.CodeModel;
-using Metalama.Framework.Engine.CodeModel.Builders;
+using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Helpers;
+using Metalama.Framework.Engine.CodeModel.Introductions.BuilderData;
 using Metalama.Framework.Engine.Transformations;
 using Metalama.Framework.Engine.Utilities.Roslyn;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
@@ -16,59 +15,90 @@ using SpecialType = Metalama.Framework.Code.SpecialType;
 
 namespace Metalama.Framework.Engine.AdviceImpl.Introduction;
 
-internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTransformation<NamedTypeBuilder>
+internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTransformation<NamedTypeBuilderData>
 {
-    public IntroduceNamedTypeTransformation( Advice advice, NamedTypeBuilder introducedDeclaration ) : base( advice, introducedDeclaration ) { }
+    public IntroduceNamedTypeTransformation( AspectLayerInstance aspectLayerInstance, NamedTypeBuilderData introducedDeclaration ) : base(
+        aspectLayerInstance,
+        introducedDeclaration ) { }
 
     public override TransformationObservability Observability => TransformationObservability.Always;
 
     public override IEnumerable<InjectedMember> GetInjectedMembers( MemberInjectionContext context )
     {
-        var typeBuilder = this.IntroducedDeclaration;
+        var introducedType = this.BuilderData.ToRef().GetTarget( context.FinalCompilation );
 
         BaseListSyntax? baseList;
 
-        if ( this.IntroducedDeclaration.BaseType != null && this.IntroducedDeclaration.BaseType.SpecialType != SpecialType.Object )
+        if ( introducedType.BaseType != null && introducedType.BaseType.SpecialType != SpecialType.Object )
         {
             baseList = BaseList(
-                SingletonSeparatedList<BaseTypeSyntax>(
-                    SimpleBaseType( context.SyntaxGenerator.TypeSyntax( this.IntroducedDeclaration.BaseType.ToNonNullableType() ) ) ) );
+                SingletonSeparatedList<BaseTypeSyntax>( SimpleBaseType( context.SyntaxGenerator.TypeSyntax( introducedType.BaseType.ToNonNullable() ) ) ) );
         }
         else
         {
             baseList = null;
         }
 
-        var type =
-            ClassDeclaration(
-                    typeBuilder.GetAttributeLists( context ),
-                    typeBuilder.GetSyntaxModifierList(),
-                    Identifier( typeBuilder.Name ),
-                    this.IntroducedDeclaration.TypeParameters.Count == 0
-                        ? null
-                        : TypeParameterList(
-                            SeparatedList(
-                                ((IEnumerable<TypeParameterBuilder>) this.IntroducedDeclaration.TypeParameters).Select(
-                                    tp => TypeParameter( Identifier( tp.Name ) ) ) ) ),
-                    baseList,
-                    List<TypeParameterConstraintClauseSyntax>(),
-                    List<MemberDeclarationSyntax>() )
-                .NormalizeWhitespaceIfNecessary( context.SyntaxGenerationContext );
+        var typeArgs =
+            introducedType.TypeParameters.Count == 0
+                ? null
+                : TypeParameterList(
+                    SeparatedList(
+                        introducedType.TypeParameters.SelectAsReadOnlyList(
+                            tp => TypeParameter(
+                                List<AttributeListSyntax>(),
+                                tp.Variance switch
+                                {
+                                    VarianceKind.In => Token( SyntaxKind.InKeyword ),
+                                    VarianceKind.Out => Token( SyntaxKind.OutKeyword ),
+                                    _ => default
+                                },
+                                Identifier( tp.Name ) ) ) ) );
 
-        switch ( typeBuilder.ContainingDeclaration )
+        var type =
+            (this.BuilderData.TypeKind switch
+            {
+                TypeKind.Class =>
+                    (TypeDeclarationSyntax) ClassDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        typeArgs,
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses( introducedType ),
+                        List<MemberDeclarationSyntax>() ),
+                TypeKind.Struct =>
+                    StructDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        typeArgs,
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses( introducedType ),
+                        List<MemberDeclarationSyntax>() ),
+                TypeKind.Interface =>
+                    InterfaceDeclaration(
+                        AdviceSyntaxGenerator.GetAttributeLists( introducedType, context ),
+                        introducedType.GetSyntaxModifierList(),
+                        Identifier( introducedType.Name ),
+                        typeArgs,
+                        baseList,
+                        context.SyntaxGenerator.ConstraintClauses( introducedType ),
+                        List<MemberDeclarationSyntax>() ),
+                _ => throw new AssertionFailedException( $"Unsupported type kind '{introducedType.TypeKind}'." )
+            }).NormalizeWhitespaceIfNecessary( context.SyntaxGenerationContext );
+
+        switch ( introducedType.ContainingDeclaration )
         {
             case INamedType:
             case INamespace { IsGlobalNamespace: true }:
-                return new[]
-                {
-                    new InjectedMember( this, type, this.ParentAdvice.AspectLayerId, InjectedMemberSemantic.Introduction, this.IntroducedDeclaration )
-                };
+                return [new InjectedMember( this, type, this.AspectLayerId, InjectedMemberSemantic.Introduction, this.BuilderData.ToRef() )];
 
             case INamespace:
                 var namespaceDeclaration =
                     NamespaceDeclaration(
                         Token( TriviaList(), SyntaxKind.NamespaceKeyword, TriviaList( ElasticSpace ) ),
-                        ParseName( typeBuilder.ContainingNamespace.FullName ),
+                        ParseName( introducedType.ContainingNamespace.FullName ),
                         Token( TriviaList(), SyntaxKind.OpenBraceToken, TriviaList( context.SyntaxGenerationContext.ElasticEndOfLineTrivia ) ),
                         List<ExternAliasDirectiveSyntax>(),
                         List<UsingDirectiveSyntax>(),
@@ -76,20 +106,19 @@ internal sealed class IntroduceNamedTypeTransformation : IntroduceDeclarationTra
                         Token( TriviaList( context.SyntaxGenerationContext.ElasticEndOfLineTrivia ), SyntaxKind.CloseBraceToken, TriviaList() ),
                         default );
 
-                return new[]
-                {
+                return
+                [
                     new InjectedMember(
                         this,
                         namespaceDeclaration,
-                        this.ParentAdvice.AspectLayerId,
+                        this.AspectLayerId,
                         InjectedMemberSemantic.Introduction,
-                        this.IntroducedDeclaration )
-                };
+                        this.BuilderData.ToRef() )
+                ];
 
             default:
-                throw new AssertionFailedException( $"Unsupported containing declaration type '{typeBuilder.ContainingDeclaration.GetType()}'." );
+                throw new AssertionFailedException(
+                    $"Unsupported containing declaration type '{introducedType.ContainingDeclaration.AssertNotNull().GetType()}'." );
         }
     }
-
-    public override SyntaxTree TransformedSyntaxTree => this.IntroducedDeclaration.PrimarySyntaxTree;
 }

@@ -2,6 +2,7 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Source;
 using Metalama.Framework.Engine.Utilities;
 using Metalama.Framework.Engine.Validation;
 using Metalama.Framework.Introspection;
@@ -12,7 +13,7 @@ using System.Linq;
 
 namespace Metalama.Framework.Engine.Introspection.References;
 
-internal class InboundReference( ISymbol referencedSymbol, ReferencingSymbolInfo referencingSymbolInfo, CompilationModel compilation )
+internal sealed class InboundReference( ISymbol referencedSymbol, ReferencingSymbolInfo referencingSymbolInfo, CompilationModel compilation )
     : IIntrospectionReference
 {
     [Memo]
@@ -25,7 +26,7 @@ internal class InboundReference( ISymbol referencedSymbol, ReferencingSymbolInfo
 
     [Memo]
     public IReadOnlyList<IntrospectionReferenceDetail> Details
-        => referencingSymbolInfo.Nodes.SelectAsReadOnlyList(
+        => referencingSymbolInfo.Nodes.SelectAsImmutableArray(
             n => new IntrospectionReferenceDetail(
                 this,
                 n.ReferenceKind,

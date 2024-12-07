@@ -2,7 +2,8 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Types;
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.GenericContexts;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -233,6 +234,11 @@ internal sealed partial class SyntaxGeneratorForIType
 
         protected override TypeSyntax VisitTypeParameter( ITypeParameter type )
         {
+            if ( !type.GenericContext.IsEmptyOrIdentity )
+            {
+                return this.Visit( ((GenericContext) type.GenericContext).Map( type ) );
+            }
+
             TypeSyntax typeSyntax = this.AddInformationTo( ToIdentifierName( type.Name ), type );
 
             if ( type.IsNullableReferenceType() )
@@ -245,6 +251,4 @@ internal sealed partial class SyntaxGeneratorForIType
             return typeSyntax;
         }
     }
-
-    // Copied from Roslyn.
 }

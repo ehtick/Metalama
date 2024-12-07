@@ -36,7 +36,7 @@ internal abstract class AdviceResult : IAdviceResult
             throw this.CreateException( caller );
         }
 
-        return reference.GetTarget( this.Compilation.AssertNotNull(), ReferenceResolutionOptions.CanBeMissing )
+        return reference.GetTarget( this.Compilation.AssertNotNull() )
             .Assert( d => d is not IDeclarationBuilder );
     }
 

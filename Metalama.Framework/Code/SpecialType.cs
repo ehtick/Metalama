@@ -18,7 +18,7 @@ namespace Metalama.Framework.Code
         None,
 
         /// <summary>
-        /// <see cref="System.Void" />.
+        /// <see cref="Void" />.
         /// </summary>
         Void,
 
@@ -152,6 +152,9 @@ namespace Metalama.Framework.Code
         /// </summary>
         Char,
 
+        /// <summary>
+        /// <see cref="System.Type" />.
+        /// </summary>
         Type,
 
         // Must be last.

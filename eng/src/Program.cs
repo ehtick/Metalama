@@ -10,7 +10,7 @@ using PostSharp.Engineering.BuildTools.Docker;
 using PostSharp.Engineering.BuildTools.Utilities;
 using System.IO;
 using System.Runtime.InteropServices;
-using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2024_2;
+using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2025_0;
 
 var product = new Product( MetalamaDependencies.Metalama )
 {
@@ -28,8 +28,10 @@ var product = new Product( MetalamaDependencies.Metalama )
             [
                 // Test payloads should not be formatted because it would break the test output comparison.
                 // In some cases, formatting or redundant keywords may be intentional.
-                "Tests\\Metalama.Framework.Tests.Integration\\Tests\\**\\*",
-                "Tests\\Metalama.Framework.Tests.Integration.Internals\\Tests\\**\\*",
+                "Tests\\Metalama.Framework.Tests.AspectTests\\Tests\\**\\*",
+                "Tests\\Metalama.Framework.Tests.LinkerTests\\Tests\\**\\*",
+                "Tests\\Metalama.Framework.Tests.TemplateTests\\Tests\\**\\*",
+
 
                 // XML formatting seems to be conflicting.
                 "**\\*.props", "**\\*.targets", "**\\*.csproj", "**\\*.md", "**\\*.xml", "**\\*.config"

@@ -2,6 +2,8 @@
 
 using JetBrains.Annotations;
 using Metalama.Framework.Engine.Formatting;
+using Metalama.Framework.Engine.Services;
+using Metalama.Framework.Services;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Immutable;
@@ -10,7 +12,7 @@ using System.Reflection;
 namespace Metalama.Testing.UnitTesting;
 
 /// <summary>
-/// Options that influence the <see cref="UnitTestClass.CreateTestContext(Metalama.Testing.UnitTesting.TestContextOptions?,Metalama.Framework.Engine.Services.IAdditionalServiceCollection?)"/>
+/// Options that influence the <see cref="UnitTestClass.CreateTestContext(Metalama.Testing.UnitTesting.TestContextOptions?,Metalama.Framework.Engine.Services.IAdditionalServiceCollection?,string?,string?)"/>
 /// method.
 /// </summary>
 [PublicAPI]
@@ -27,6 +29,8 @@ public record TestContextOptions
     /// Gets the set of MSBuild properties exposed to the tests.
     /// </summary>
     public ImmutableDictionary<string, string> Properties { get; init; } = ImmutableDictionary<string, string>.Empty;
+
+    public GlobalServiceProvider RunnerServiceProvider { get; init; } = (GlobalServiceProvider) ServiceProvider<IGlobalService>.Empty;
 
     /// <summary>
     /// Gets a value indicating whether the output code should be formatted.
@@ -79,7 +83,7 @@ public record TestContextOptions
     /// <summary>
     /// Gets the test timeout period, after which the <see cref="TestContext.CancellationToken"/> of the <see cref="TestContext"/> is signalled.
     /// </summary>
-    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds( 30 );
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds( 240 );
 
     public string? ProjectName { get; init; }
 

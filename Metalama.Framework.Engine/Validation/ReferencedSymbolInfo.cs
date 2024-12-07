@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Framework.Code.Collections;
+using Metalama.Framework.Engine.CodeModel;
 using Metalama.Framework.Validation;
 using Microsoft.CodeAnalysis;
 using System.Collections.Concurrent;
@@ -47,7 +48,7 @@ internal sealed class ReferencedSymbolInfo
         => this._explicitReferences?.SelectAsReadOnlyCollection( x => new ReferencingSymbolInfo( x.Key, this.ReferencedSymbol, x.Value ) )
            ?? Enumerable.Empty<ReferencingSymbolInfo>();
 
-    internal IEnumerable<ReferencedSymbolInfo> Children( ChildKinds kinds ) => this._children?.Where( x => (x.Kind & kinds) != 0 ).Select( x => x.Info ) ?? [];
+    private IEnumerable<ReferencedSymbolInfo> Children( ChildKinds kinds ) => this._children?.Where( x => (x.Kind & kinds) != 0 ).Select( x => x.Info ) ?? [];
 
     internal IEnumerable<ReferencedSymbolInfo> DescendantsAndSelf( ChildKinds kinds )
     {
@@ -64,5 +65,5 @@ internal sealed class ReferencedSymbolInfo
     // ReSharper disable once MemberCanBeInternal
     public IEnumerable<ReferencingSymbolInfo> GetAllReferences( ChildKinds kinds ) => this.DescendantsAndSelf( kinds ).SelectMany( x => x.References );
 
-    public override string ToString() => $"{{Symbol={this.ReferencedSymbol.ToDisplayString()}, References.Count={this.References.Count()}}}";
+    public override string ToString() => $"{{Symbol={this.ReferencedSymbol.ToDebugString()}, References.Count={this.References.Count()}}}";
 }

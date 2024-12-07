@@ -40,7 +40,10 @@ internal sealed class SwitchStatement : IStatementImpl
 
             if ( switchCase.When != null )
             {
-                when = WhenClause( ((IUserExpression) switchCase.When).ToTypedExpressionSyntax( templateSyntaxFactory.SyntaxSerializationContext ) );
+                when = WhenClause(
+                    ((IUserExpression) switchCase.When).ToTypedExpressionSyntax(
+                        templateSyntaxFactory.SyntaxSerializationContext,
+                        this._expression.Type.Compilation.Factory.GetSpecialType( SpecialType.Boolean ) ) );
             }
             else
             {
@@ -101,8 +104,6 @@ internal sealed class SwitchStatement : IStatementImpl
             switchExpression = tuple.WithArguments( SeparatedList( tuple.Arguments.SelectAsReadOnlyCollection( a => a.WithNameColon( null ) ) ) );
         }
 
-        return SwitchStatement(
-            switchExpression,
-            List( sections ) );
+        return SwitchStatement( switchExpression, List( sections ) );
     }
 }

@@ -35,7 +35,8 @@ public static class DiagnosticDescriptorExtensions
         ImmutableDictionary<string, string?>? properties = null )
         where T : notnull
     {
-        var argumentArray = ConvertDiagnosticArguments( arguments );
+        // ConvertDiagnosticArguments treats an array as multiple arguments, so we need to wrap it in another array.
+        var argumentArray = ConvertDiagnosticArguments( typeof(T).IsArray ? new[] { arguments } : arguments );
 
         return definition.CreateRoslynDiagnosticImpl( location, argumentArray, null, additionalLocations, codeFixes, deduplicationKey, properties );
     }
@@ -54,7 +55,8 @@ public static class DiagnosticDescriptorExtensions
         ImmutableDictionary<string, string?>? properties = null )
         where T : notnull
     {
-        var argumentArray = ConvertDiagnosticArguments( arguments );
+        // ConvertDiagnosticArguments treats an array as multiple arguments, so we need to wrap it in another array.
+        var argumentArray = ConvertDiagnosticArguments( typeof(T).IsArray ? new[] { arguments } : arguments );
 
         return definition.CreateRoslynDiagnosticImpl( location, argumentArray, diagnosticSource, additionalLocations, codeFixes, deduplicationKey, properties );
     }
@@ -81,7 +83,7 @@ public static class DiagnosticDescriptorExtensions
 
         if ( arguments == null )
         {
-            return Array.Empty<object?>();
+            return [];
         }
 
         if ( arguments.GetType().Name.StartsWith( nameof(ValueTuple), StringComparison.OrdinalIgnoreCase ) )
@@ -94,7 +96,7 @@ public static class DiagnosticDescriptorExtensions
         }
         else
         {
-            argumentArray = new[] { arguments };
+            argumentArray = [arguments];
         }
 
         return argumentArray;

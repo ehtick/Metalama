@@ -20,13 +20,16 @@ public sealed class SuppressionDefinition : ISuppression
     /// </summary>
     public string SuppressedDiagnosticId { get; }
 
+    public string? Justification { get; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SuppressionDefinition"/> class.
     /// </summary>
     /// <param name="suppressedDiagnosticId">The ID of the diagnostic to be suppressed (e.g. <c>CS0169</c>).</param>
-    public SuppressionDefinition( string suppressedDiagnosticId )
+    public SuppressionDefinition( string suppressedDiagnosticId, string? justification = null )
     {
         this.SuppressedDiagnosticId = suppressedDiagnosticId;
+        this.Justification = justification;
     }
 
     SuppressionDefinition ISuppression.Definition => this;

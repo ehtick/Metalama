@@ -7,7 +7,7 @@ namespace Metalama.Framework.DesignTime.Utilities;
 #pragma warning disable SA1402 // File may only contain a single type
 
 // Based on PostSharp.Patterns.Model.WeakEventHandler, but significantly changed.
-public sealed class WeakEvent<TEventArgs> : WeakEventBase<Action<TEventArgs>, TEventArgs>
+internal sealed class WeakEvent<TEventArgs> : WeakEventBase<Action<TEventArgs>, TEventArgs>
 {
     public void Invoke( TEventArgs eventArgs )
     {
@@ -48,7 +48,7 @@ public sealed class WeakEvent<TEventArgs> : WeakEventBase<Action<TEventArgs>, TE
     }
 }
 
-public sealed class AsyncWeakEvent<TEventArgs> : WeakEventBase<Func<TEventArgs, Task>, TEventArgs>
+internal sealed class AsyncWeakEvent<TEventArgs> : WeakEventBase<Func<TEventArgs, Task>, TEventArgs>
 {
     public async Task InvokeAsync( TEventArgs eventArgs )
     {
@@ -92,13 +92,13 @@ public sealed class AsyncWeakEvent<TEventArgs> : WeakEventBase<Func<TEventArgs, 
 public abstract class WeakEventBase<TDelegate, TEventArgs>
     where TDelegate : MulticastDelegate
 {
-    private readonly object _lock;
+    private readonly object _lock = new();
 
     private readonly ConditionalWeakTable<object, TDelegate> _handlers = new();
 
     protected WeakReference<object>?[]? Targets { get; private set; }
 
-    public bool HasHandlers()
+    internal bool HasHandlers()
     {
         var targets = this.Targets;
 
@@ -107,9 +107,9 @@ public abstract class WeakEventBase<TDelegate, TEventArgs>
             return false;
         }
 
-        for ( var i = 0; i < targets.Length; i++ )
+        foreach ( var t in targets )
         {
-            if ( targets[i] != null )
+            if ( t != null )
             {
                 return true;
             }
@@ -118,12 +118,7 @@ public abstract class WeakEventBase<TDelegate, TEventArgs>
         return false;
     }
 
-    public WeakEventBase()
-    {
-        this._lock = new();
-    }
-
-    public void AddHandler( TDelegate handler )
+    private void AddHandler( TDelegate handler )
     {
         if ( handler.Target == null )
         {
@@ -171,13 +166,13 @@ public abstract class WeakEventBase<TDelegate, TEventArgs>
 
             this._handlers.Add( handler.Target, handler );
 
-            myTargets[index] = new( handler.Target );
+            myTargets[index] = new WeakReference<object>( handler.Target );
 
             this.Targets = myTargets;
         }
     }
 
-    public void RemoveHandler( TDelegate handler )
+    private void RemoveHandler( TDelegate handler )
     {
         lock ( this._lock )
         {
@@ -245,19 +240,12 @@ public abstract class WeakEventBase<TDelegate, TEventArgs>
         return handler;
     }
 
-    public Accessors GetAccessors() => new( this );
+    internal Accessors GetAccessors() => new( this );
 
-    public readonly struct Accessors
+    public readonly struct Accessors( WeakEventBase<TDelegate, TEventArgs> parent )
     {
-        private readonly WeakEventBase<TDelegate, TEventArgs> _parent;
+        public void RegisterHandler( TDelegate handler ) => parent.AddHandler( handler );
 
-        public Accessors( WeakEventBase<TDelegate, TEventArgs> parent )
-        {
-            this._parent = parent;
-        }
-
-        public void RegisterHandler( TDelegate handler ) => this._parent.AddHandler( handler );
-
-        public void UnregisterHandler( TDelegate handler ) => this._parent.RemoveHandler( handler );
+        public void UnregisterHandler( TDelegate handler ) => parent.RemoveHandler( handler );
     }
 }

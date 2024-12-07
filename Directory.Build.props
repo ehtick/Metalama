@@ -14,7 +14,7 @@
         <EnforceExtendedAnalyzerRules>True</EnforceExtendedAnalyzerRules>
 
         <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
-        <LangMaxVersion>12</LangMaxVersion>
+        <LangMaxVersion>latest</LangMaxVersion>
     </PropertyGroup>
 
     <Import Project="eng/Versions.props"/>
@@ -39,12 +39,8 @@
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
 
     <ItemGroup>
-        <!-- Validate async code -->
-        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" />
-
         <!-- Resharper annotations -->
         <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
-     
     </ItemGroup>
 
     <!-- Include the package version in metadata. -->

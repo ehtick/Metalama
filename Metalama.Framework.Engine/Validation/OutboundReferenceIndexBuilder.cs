@@ -2,6 +2,7 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.Utilities.Threading;
 using Metalama.Framework.Validation;
@@ -45,29 +46,34 @@ internal sealed class OutboundReferenceIndexBuilder : ReferenceIndexBuilder
         return this._references;
     }
 
-    public void IndexSyntaxNode( SyntaxNode node, SemanticModel semanticModel, CancellationToken cancellationToken = default )
+    private void IndexSyntaxNode( SyntaxNode node, SemanticModel semanticModel, CancellationToken cancellationToken = default )
     {
-        var walker = new ReferenceIndexWalker( this._serviceProvider, cancellationToken, this, ReferenceIndexerOptions.All, semanticModel );
+        var walker = new ReferenceIndexWalker( this._serviceProvider, this, ReferenceIndexerOptions.All, semanticModel, cancellationToken );
         walker.Visit( node );
     }
 
     public void IndexDeclaration( IDeclaration declaration, CancellationToken cancellationToken )
     {
-        var semanticModelProvider = declaration.GetCompilationModel().CompilationContext.SemanticModelProvider;
+        var semanticModelProvider = declaration.GetCompilationContext().SemanticModelProvider;
 
         var sources = declaration.Sources;
 
-        if ( sources.Length == 0 )
+        switch ( sources.Length )
         {
-            return;
-        }
-        else if ( sources.Length == 1 )
-        {
-            Index( sources[0] );
-        }
-        else
-        {
-            this._taskRunner.RunSynchronously( () => this._concurrentTaskRunner.RunConcurrentlyAsync( sources, Index, cancellationToken ), cancellationToken );
+            case 0:
+                return;
+
+            case 1:
+                Index( sources[0] );
+
+                break;
+
+            default:
+                this._taskRunner.RunSynchronously(
+                    () => this._concurrentTaskRunner.RunConcurrentlyAsync( sources, Index, cancellationToken ),
+                    cancellationToken );
+
+                break;
         }
 
         void Index( SourceReference source )

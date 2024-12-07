@@ -1,7 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Framework.Advising;
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Metalama.Framework.Serialization;
 using Microsoft.CodeAnalysis;
@@ -55,7 +55,8 @@ namespace Metalama.Framework.Engine.CompileTime
                              .Any(
                                  a =>
                                      this._compilationContext.SymbolComparer.Equals( a.AttributeClass, this._nonSerializedAttribute )
-                                     || this._compilationContext.SymbolComparer.Is( a.AttributeClass.AssertNotNull(), this._templateAttribute ) ) &&
+                                     || this._compilationContext.SymbolComparer.IsConvertibleTo( a.AttributeClass.AssertNotNull(), this._templateAttribute ) )
+                         &&
                          !this._compilationContext.SymbolClassifier.IsTemplate( fieldSymbol ) )
                     {
                         this._serializableFieldsOrProperties.Add( fieldSymbol );
@@ -81,7 +82,7 @@ namespace Metalama.Framework.Engine.CompileTime
                          .Any(
                              a =>
                                  this._compilationContext.SymbolComparer.Equals( a.AttributeClass, this._nonSerializedAttribute )
-                                 || this._compilationContext.SymbolComparer.Is( a.AttributeClass.AssertNotNull(), this._templateAttribute ) )
+                                 || this._compilationContext.SymbolComparer.IsConvertibleTo( a.AttributeClass.AssertNotNull(), this._templateAttribute ) )
                      && !this._compilationContext.SymbolClassifier.IsTemplate( propertySymbol ) )
                 {
                     this._serializableFieldsOrProperties.Add( propertySymbol );

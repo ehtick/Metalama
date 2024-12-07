@@ -2,16 +2,14 @@
 
 using Metalama.Framework.Advising;
 using Metalama.Framework.Code;
-using Metalama.Framework.Engine.CodeModel;
-using Metalama.Framework.Engine.CodeModel.Builders;
-using Metalama.Framework.Engine.Services;
-using Metalama.Framework.Engine.Transformations;
-using System;
+using Metalama.Framework.Engine.CodeModel.Introductions.Builders;
 
 namespace Metalama.Framework.Engine.AdviceImpl.Introduction;
 
 internal sealed class IntroduceNamespaceAdvice : IntroduceDeclarationAdvice<INamespace, NamespaceBuilder>
 {
+    private readonly string _name;
+
     private static readonly char[] _nsSplitChars = ['.'];
 
     public override AdviceKind AdviceKind => AdviceKind.IntroduceNamespace;
@@ -20,26 +18,30 @@ internal sealed class IntroduceNamespaceAdvice : IntroduceDeclarationAdvice<INam
         AdviceConstructorParameters<INamespace> parameters,
         string name ) : base( parameters, null )
     {
-        var nameParts = name.Split( _nsSplitChars );
+        this._name = name;
+    }
 
-        var parentNamespace = parameters.TargetDeclaration;
+    protected override NamespaceBuilder CreateBuilder()
+    {
+        var nameParts = this._name.Split( _nsSplitChars );
+
+        var parentNamespace = (INamespace) this.TargetDeclaration;
 
         for ( var index = 0; index < nameParts.Length - 1; index++ )
         {
             var childNs = parentNamespace.Namespaces.OfName( nameParts[index] )
-                          ?? new NamespaceBuilder( this, parentNamespace, nameParts[index] );
+                          ?? new NamespaceBuilder( this.AspectLayerInstance, parentNamespace, nameParts[index] );
 
             parentNamespace = childNs;
         }
 
-        this.Builder = new NamespaceBuilder( this, parentNamespace, nameParts[^1] );
+        return new NamespaceBuilder( this.AspectLayerInstance, parentNamespace, nameParts[^1] );
     }
 
-    protected override IntroductionAdviceResult<INamespace> Implement(
-        ProjectServiceProvider serviceProvider,
-        CompilationModel compilation,
-        Action<ITransformation> addTransformation )
+    protected override IntroductionAdviceResult<INamespace> ImplementCore( NamespaceBuilder builder, in AdviceImplementationContext context )
     {
+        var contextCopy = context;
+     
         void AddTransformationRecursive( NamespaceBuilder ns )
         {
             if ( ns.ContainingNamespace is NamespaceBuilder parentBuilder )
@@ -48,19 +50,19 @@ internal sealed class IntroduceNamespaceAdvice : IntroduceDeclarationAdvice<INam
                 AddTransformationRecursive( parentBuilder );
             }
 
-            addTransformation( ns.ToTransformation() );
+            contextCopy.AddTransformation( ns.CreateTransformation() );
         }
 
-        var existingNamespace = this.Builder.ContainingNamespace.TryForCompilation( compilation, out var containingNamespace )
-            ? containingNamespace.Namespaces.OfName( this.Builder.Name )
+        var existingNamespace = builder.ContainingNamespace.TryForCompilation( context.MutableCompilation, out var containingNamespace )
+            ? containingNamespace.Namespaces.OfName( builder.Name )
             : null;
 
         if ( existingNamespace == null )
         {
             // We have a new namespace.
-            AddTransformationRecursive( this.Builder );
+            AddTransformationRecursive( builder );
 
-            return this.CreateSuccessResult( AdviceOutcome.Default, this.Builder );
+            return this.CreateSuccessResult( AdviceOutcome.Default, builder );
         }
         else
         {

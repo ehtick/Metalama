@@ -2,6 +2,7 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Source;
 using Metalama.Framework.Engine.Utilities;
 using Metalama.Framework.Introspection;
 using Metalama.Framework.Validation;
@@ -11,7 +12,7 @@ using System.Linq;
 
 namespace Metalama.Framework.Engine.Introspection.References;
 
-internal class OutboundReference(
+internal sealed class OutboundReference(
     ISymbol referencedSymbol,
     ISymbol referencingSymbol,
     IEnumerable<Validation.OutboundReference> references,

@@ -30,8 +30,6 @@ namespace Metalama.Framework.Engine.Templating
             => symbol.Name == nameof(meta.RunTime) &&
                symbol.ContainingType.GetDocumentationCommentId() == this.MetaType.GetDocumentationCommentId();
 
-        public bool IsDynamicParameter( ArgumentSyntax argument ) => IsDynamicParameter( this._syntaxTreeAnnotationMap.GetParameterSymbol( argument )?.Type );
-
         public bool IsTemplateParameter( ExpressionSyntax expression )
         {
             var symbol = this._syntaxTreeAnnotationMap.GetSymbol( expression );
@@ -118,6 +116,8 @@ namespace Metalama.Framework.Engine.Templating
                     "ProceedAsyncEnumerator" => MetaMemberKind.ProceedAsyncEnumerator,
                     nameof(meta.InvokeTemplate) => MetaMemberKind.InvokeTemplate,
                     nameof(meta.Return) => MetaMemberKind.Return,
+                    nameof(meta.DefineLocalVariable) => MetaMemberKind.DefineLocalVariable,
+                    nameof(meta.RunTime) => MetaMemberKind.RunTime,
                     _ => MetaMemberKind.Default
                 };
             }

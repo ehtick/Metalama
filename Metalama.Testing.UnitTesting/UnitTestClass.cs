@@ -6,12 +6,13 @@ using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.SyntaxGeneration;
 using Metalama.Framework.Services;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Xunit.Abstractions;
 
 namespace Metalama.Testing.UnitTesting
 {
     /// <summary>
-    /// A base class for all Metalama unit tests that require Metalama services. Exposes a <see cref="CreateTestContext(IAdditionalServiceCollection)"/>
+    /// A base class for all Metalama unit tests that require Metalama services. Exposes a <see cref="CreateTestContext(IAdditionalServiceCollection,string?,string?)"/>
     /// that creates a context with all services. The next step is typically to call one of the methods or properties of the returned <see cref="TestContext"/>.
     /// </summary>
     public abstract class UnitTestClass
@@ -51,14 +52,16 @@ namespace Metalama.Testing.UnitTesting
 
         /// <summary>
         /// Adds services or mocks that are common to all tests in the current class. This method is called
-        /// by <see cref="CreateTestContext(Metalama.Framework.Engine.Services.IAdditionalServiceCollection)"/> and the
-        /// <paramref name="services"/> parameter is the one passed to the <see cref="CreateTestContext(Metalama.Framework.Engine.Services.IAdditionalServiceCollection)"/>, if any,
+        /// by <see cref="CreateTestContext(string?,string?)"/> and the
+        /// <paramref name="services"/> parameter is the one passed to the <see cref="CreateTestContext(IAdditionalServiceCollection,string?,string?)"/>, if any,
         /// or an empty collection otherwise.
         /// </summary>
         protected virtual void ConfigureServices( IAdditionalServiceCollection services )
         {
             this.AddSyntaxGenerationOptions( services );
             this.AddXunitLogging( services );
+            
+            services.AddGlobalService( _ => TestingServices.ReferenceAssemblyLocatorProvider );
         }
 
         protected virtual void AddSyntaxGenerationOptions( IAdditionalServiceCollection services )
@@ -67,7 +70,7 @@ namespace Metalama.Testing.UnitTesting
         }
 
         /// <summary>
-        /// Creates a collection of additional services that can then be passed to <see cref="CreateTestContext(IAdditionalServiceCollection)"/>.
+        /// Creates a collection of additional services that can then be passed to <see cref="CreateTestContext(IAdditionalServiceCollection,string?,string?)"/>.
         /// </summary>
         [PublicAPI]
         protected static IAdditionalServiceCollection CreateAdditionalServiceCollection( params IService[] services )
@@ -76,23 +79,52 @@ namespace Metalama.Testing.UnitTesting
         }
 
         [MustDisposeResource]
-        protected TestContext CreateTestContext() => this.CreateTestContext( null, null );
+        protected TestContext CreateTestContext( [CallerFilePath] string? callerFile = null, [CallerMemberName] string? callerMemberName = null )
+            => this.CreateTestContextImpl( null, null, callerFile, callerMemberName );
 
         /// <summary>
         /// Creates a test context with a collection of additional services or mocks.
         /// </summary>
         [MustDisposeResource]
-        protected TestContext CreateTestContext( IAdditionalServiceCollection service ) => this.CreateTestContext( null, service );
+        protected TestContext CreateTestContext(
+            IAdditionalServiceCollection service,
+            [CallerFilePath] string? callerFile = null,
+            [CallerMemberName] string? callerMemberName = null )
+            => this.CreateTestContextImpl(
+                null,
+                service,
+                callerFile,
+                callerMemberName );
 
         /// <summary>
         /// Creates a test context, optionally with a non-default <see cref="TestContextOptions"/> or a collection of additional services or mocks.
         /// </summary>
         [MustDisposeResource]
-        protected TestContext CreateTestContext( TestContextOptions? contextOptions, IAdditionalServiceCollection? services = null )
-            => this.CreateTestContextCore(
+        protected TestContext CreateTestContext(
+            TestContextOptions? contextOptions,
+            IAdditionalServiceCollection? services = null,
+            [CallerFilePath] string? callerFile = null,
+            [CallerMemberName] string? callerMemberName = null )
+            => this.CreateTestContextImpl( contextOptions, services, callerFile, callerMemberName );
+
+        [MustDisposeResource]
+        private TestContext CreateTestContextImpl(
+            TestContextOptions? contextOptions,
+            IAdditionalServiceCollection? services = null,
+            string? callerFile = null,
+            string? callerMemberName = null )
+        {
+            var context = this.CreateTestContextCore(
                 contextOptions ?? this.GetDefaultTestContextOptions(),
                 this.GetMockServices( services ) );
 
+            context.TestName = $"{callerFile}:{callerMemberName}";
+            context.TestOutputWriter = this._testOutputHelper;
+
+            return context;
+        }
+
+        [MustDisposeResource]
         protected virtual TestContext CreateTestContextCore( TestContextOptions contextOptions, IAdditionalServiceCollection services )
             => new( contextOptions, services );
 

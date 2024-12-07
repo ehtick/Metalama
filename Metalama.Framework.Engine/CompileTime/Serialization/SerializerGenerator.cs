@@ -2,7 +2,7 @@
 
 using Metalama.Framework.Advising;
 using Metalama.Framework.Code.Collections;
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.SyntaxGeneration;
@@ -705,16 +705,15 @@ internal sealed class SerializerGenerator : ISerializerGenerator
                             IdentifierName( nameof(IArgumentsWriter.SetValue) ) ),
                         ArgumentList(
                             SeparatedList(
-                                new[]
-                                {
-                                    Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( member.Name ) ) ),
-                                    Argument(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            objectExpression,
-                                            IdentifierName( member.Name ) ) ),
-                                    Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( serializedType.Type.Name ) ) )
-                                } ) ) ) ) );
+                            [
+                                Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( member.Name ) ) ),
+                                Argument(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        objectExpression,
+                                        IdentifierName( member.Name ) ) ),
+                                Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( serializedType.Type.Name ) ) )
+                            ] ) ) ) ) );
         }
 
         return Block( statements );
@@ -756,11 +755,10 @@ internal sealed class SerializerGenerator : ISerializerGenerator
                                     TypeArgumentList( SingletonSeparatedList( this._context.SyntaxGenerator.TypeSyntax( memberType ) ) ) ) ),
                             ArgumentList(
                                 SeparatedList(
-                                    new[]
-                                    {
-                                        Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( member.Name ) ) ),
-                                        Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( serializedType.Type.Name ) ) )
-                                    } ) ) ) ) ) );
+                                [
+                                    Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( member.Name ) ) ),
+                                    Argument( LiteralExpression( SyntaxKind.StringLiteralExpression, Literal( serializedType.Type.Name ) ) )
+                                ] ) ) ) ) ) );
         }
 
         foreach ( var member in defaultLocationSelector( serializedType ) )
@@ -820,7 +818,7 @@ internal sealed class SerializerGenerator : ISerializerGenerator
 
         if ( fieldOrProperty.GetAttributes()
             .Any(
-                a => this._runTimeCompilationContext.SymbolComparer.Is(
+                a => this._runTimeCompilationContext.SymbolComparer.IsConvertibleTo(
                     a.AttributeClass.AssertNotNull(),
                     this._runTimeCompilationContext.ReflectionMapper.GetTypeSymbol( typeof(IAdviceAttribute) ) ) ) )
         {

@@ -2,6 +2,9 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Framework.Engine.Services;
+using Metalama.Framework.Project;
+using Metalama.Framework.Services;
 using System.Collections.Concurrent;
 
 namespace Metalama.Framework.DesignTime.Utilities;
@@ -13,11 +16,13 @@ public sealed class TaskBag
 {
     private readonly ConcurrentDictionary<int, (Task Task, Func<Task> Func)> _pendingTasks = new();
     private readonly ILogger _logger;
+    private readonly DesignTimeExceptionHandler _exceptionHandler;
     private int _nextId;
 
-    public TaskBag( ILogger logger )
+    public TaskBag( ILogger logger, ServiceProvider<IGlobalService> exceptionHandler )
     {
         this._logger = logger;
+        this._exceptionHandler = exceptionHandler.GetRequiredService<DesignTimeExceptionHandler>();
     }
 
     public void Run( Func<Task> asyncAction, CancellationToken cancellationToken = default )
@@ -35,7 +40,7 @@ public sealed class TaskBag
                 }
                 catch ( Exception e )
                 {
-                    DesignTimeExceptionHandler.ReportException( e, this._logger );
+                    this._exceptionHandler.ReportException( e, this._logger );
                 }
                 finally
                 {
@@ -66,24 +71,26 @@ public sealed class TaskBag
     {
 #pragma warning disable VSTHRD003
 
-        var shortDelay = Task.Delay( 5_000 );
+        var shortDelay = TimeSpan.FromSeconds( 5 );
+        var shortDelayTask = Task.Delay( 5_000 );
 
-        if ( await Task.WhenAny( shortDelay, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == shortDelay )
+        if ( await Task.WhenAny( shortDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == shortDelayTask )
         {
             this._logger.Warning?.Log(
-                "The following tasks take a long time to complete: " + string.Join(
+                $"The following tasks take more than {shortDelay} to complete: " + string.Join(
                     ", ",
                     this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.ToString() ) ) );
         }
 
         // Avoid blocking forever in case of bug.
 
-        var longDelay = Task.Delay( 180_000 );
+        var longDelay = TimeSpan.FromSeconds( 180 );
+        var longDelayTask = Task.Delay( 180_000 );
 
-        if ( await Task.WhenAny( longDelay, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == longDelay )
+        if ( await Task.WhenAny( longDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == longDelayTask )
         {
             throw new TimeoutException(
-                "The following tasks did not complete complete in time: " + string.Join(
+                $"The following tasks did not complete complete in {longDelay}: " + string.Join(
                     ", ",
                     this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.Method.ToString() ) ) );
         }

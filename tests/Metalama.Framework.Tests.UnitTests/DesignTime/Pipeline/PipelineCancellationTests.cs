@@ -29,7 +29,7 @@ namespace Metalama.Framework.Tests.UnitTests.DesignTime.Pipeline;
 
 #pragma warning disable VSTHRD200 // Use "Async" suffix for async methods
 
-public sealed class PipelineCancellationTests : UnitTestClass
+public sealed class PipelineCancellationTests : FrameworkBaseTestClass
 {
     private const int _maxCancellationPoints = 24;
     private const int _getConfigurationMaxCancellationPoints = 2;
@@ -83,7 +83,10 @@ public sealed class PipelineCancellationTests : UnitTestClass
 
     private async Task<bool> RunTestAsync( int cancelOnCancellationPointIndex ) // Return value: whether the test was cancelled.
     {
-        using var testContext = this.CreateTestContext( new TestContextOptions() { HasSourceGeneratorTouchFile = true } );
+        // We need a large timeout because this test has many "yield" points, and other tests running concurrently will take precedence over it.
+        // Therefore, a timeout equal than the expected duration of all tests is not exagerated.
+        
+        using var testContext = this.CreateTestContext( new TestContextOptions() { HasSourceGeneratorTouchFile = true, Timeout = TimeSpan.FromMinutes( 10 ) } );
         var serviceProvider = testContext.ServiceProvider.Global;
         serviceProvider = serviceProvider.WithService( new AnalysisProcessEventHub( serviceProvider ) );
 

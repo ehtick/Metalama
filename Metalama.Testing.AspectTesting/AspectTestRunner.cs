@@ -106,7 +106,8 @@ internal class AspectTestRunner : BaseTestRunner
             testContext.Domain );
 
         var pipelineResult = await pipeline.ExecuteAsync(
-            testResult.PipelineDiagnostics,
+            testResult.PipelineDiagnostics.Report,
+            testResult.DiagnosticSuppressions.Add,
             testResult.InputCompilation!,
             default );
 
@@ -210,7 +211,7 @@ internal class AspectTestRunner : BaseTestRunner
         var resultCompilation = pipelineResult.ResultingCompilation.Compilation;
         testResult.OutputCompilation = resultCompilation;
         testResult.HasOutputCode = true;
-        testResult.DiagnosticSuppressions = pipelineResult.DiagnosticSuppressions;
+        testResult.AddDiagnosticSuppressions( pipelineResult.DiagnosticSuppressions );
 
         await testResult.SetOutputCompilationAsync( resultCompilation );
 
@@ -229,7 +230,7 @@ internal class AspectTestRunner : BaseTestRunner
             var peStream = new MemoryStream();
             var emitResult = resultCompilation.Emit( peStream );
 
-            testResult.OutputCompilationDiagnostics.Report( emitResult.Diagnostics );
+            testResult.OutputCompilationDiagnostics.Report( emitResult.Diagnostics.Where( d => d.Severity == DiagnosticSeverity.Error ) );
 
             if ( !emitResult.Success )
             {
@@ -254,7 +255,7 @@ internal class AspectTestRunner : BaseTestRunner
         }
         else
         {
-            testResult.OutputCompilationDiagnostics.Report( resultCompilation.GetDiagnostics() );
+            testResult.OutputCompilationDiagnostics.Report( resultCompilation.GetDiagnostics().Where( d => d.Severity == DiagnosticSeverity.Error ) );
         }
 
         return true;
@@ -275,7 +276,8 @@ internal class AspectTestRunner : BaseTestRunner
                 testContext.Domain );
 
             var unformattedPipelineResult = await unformattedPipeline.ExecuteAsync(
-                new UserDiagnosticSink( null ),
+                null,
+                null,
                 testResult.InputCompilation!,
                 default );
 

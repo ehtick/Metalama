@@ -6,6 +6,7 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Eligibility.Implementation;
 using Metalama.Framework.Project;
+using Metalama.Framework.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +24,9 @@ namespace Metalama.Framework.Eligibility;
 [PublicAPI]
 public static partial class EligibilityExtensions
 {
-    private static readonly List<(Type Type, string Name)> _interfaceNames = new()
-    {
-        // The order is significant: the most significant should come first.
-
+    // The order is significant: the most significant should come first.
+    private static readonly List<(Type Type, string Name)> _interfaceNames =
+    [
         (typeof(IMethod), "method"),
         (typeof(IField), "field"),
         (typeof(INamedType), "type"),
@@ -46,7 +46,7 @@ public static partial class EligibilityExtensions
         (typeof(IHasParameters), "property, indexer or event"),
         (typeof(IMember), "method, constructor, field, property, indexer or event"),
         (typeof(IMemberOrNamedType), "method, constructor, field, property, indexer, event or type")
-    };
+    ];
 
     /// <summary>
     /// Gets an <see cref="IEligibilityBuilder"/> for the declaring type of the member validated by the given <see cref="IEligibilityBuilder"/>.
@@ -226,12 +226,20 @@ public static partial class EligibilityExtensions
             } );
 
     /// <summary>
-    /// Requires the target method to not be partial.
+    /// Requires the target method not to be partial.
     /// </summary>
     public static void MustNotBePartial( this IEligibilityBuilder<IMethod> eligibilityBuilder )
         => eligibilityBuilder.MustSatisfy(
             m => !m.IsPartial,
             method => $"{method} must not be partial" );
+
+    /// <summary>
+    /// Requires the target declaration not to be partial.
+    /// </summary>
+    public static void MustNotBePartial( this IEligibilityBuilder<IMemberOrNamedType> eligibilityBuilder )
+        => eligibilityBuilder.MustSatisfy(
+            d => !d.IsPartial,
+            declaration => $"{declaration} must not be partial" );
 
     /// <summary>
     /// Requires the target property or indexer to be writable.
@@ -246,7 +254,7 @@ public static partial class EligibilityExtensions
     /// </summary>
     public static void MustBeReadable( this IEligibilityBuilder<IFieldOrPropertyOrIndexer> eligibilityBuilder )
         => eligibilityBuilder.MustSatisfyAny(
-            b => b.MustBeOfType( typeof(IField) ),
+            b => b.MustBeInstanceOfType( typeof(IField) ),
             b => b.Convert().To<IPropertyOrIndexer>().MustSatisfy( d => d.GetMethod != null, d => $"{d} must have a getter" ) );
 
     /// <summary>
@@ -294,7 +302,7 @@ public static partial class EligibilityExtensions
     /// </summary>
     public static void MustNotBeVoid( this IEligibilityBuilder<IParameter> eligibilityBuilder )
         => eligibilityBuilder.MustSatisfy(
-            p => !p.Type.Is( SpecialType.Void ),
+            p => !p.Type.Equals( SpecialType.Void ),
             member => $"{member} must not be void" );
 
     /// <summary>
@@ -343,6 +351,11 @@ public static partial class EligibilityExtensions
         return type.Name;
     }
 
+    [Obsolete( "This method has been renamed IsInstanceOfType." )]
+    public static void MustBeOfType<T>( this IEligibilityBuilder<T> eligibilityBuilder, Type type )
+        where T : class
+        => MustBeInstanceOfType( eligibilityBuilder, type );
+
     /// <summary>
     /// Requires the validated object to be of a certain type of metadata object, e.g. an <see cref="IField"/> or <see cref="IMethod"/>.
     /// To check the type of a field, property or parameter, use code like <c>builder.Type().MustBe(typeof(string));</c> instead.
@@ -353,7 +366,7 @@ public static partial class EligibilityExtensions
     /// this method will fail with an exception, because no conversion exists from <see cref="IParameter"/> to <c>string</c>.</para>
     /// <para>On the other hand, code like <c>builder.MustBeOfType(typeof(IProperty));</c> will correctly check that a declaration is a property.</para>
     /// </remarks>
-    public static void MustBeOfType<T>( this IEligibilityBuilder<T> eligibilityBuilder, Type type )
+    public static void MustBeInstanceOfType<T>( this IEligibilityBuilder<T> eligibilityBuilder, Type type )
         where T : class
     {
         if ( !typeof(T).IsAssignableFrom( type ) )
@@ -368,12 +381,19 @@ public static partial class EligibilityExtensions
             d => $"{d} must be a {GetInterfaceName( type )}" );
     }
 
+    [Obsolete( "This method has been renamed MustBeInstanceOfAnyType." )]
+    public static void MustBeOfAnyType<T>(
+        this IEligibilityBuilder<T> eligibilityBuilder,
+        params Type[] types )
+        where T : class
+        => MustBeInstanceOfAnyType( eligibilityBuilder, types );
+
     /// <summary>
     /// Requires the validated object to be of one of the specified types. Note that this validates the object itself, not the declaration
     /// that it represents. For instance, if the object is an <see cref="IParameter"/> and the <paramref name="types"/> parameter
     /// is set to <c>string</c>, this method will fail with an exception no conversion exists from <see cref="IParameter"/> to <c>string</c>.
     /// </summary>
-    public static void MustBeOfAnyType<T>(
+    public static void MustBeInstanceOfAnyType<T>(
         this IEligibilityBuilder<T> eligibilityBuilder,
         params Type[] types )
         where T : class
@@ -465,27 +485,55 @@ public static partial class EligibilityExtensions
             member => member.TypeKind != TypeKind.Interface,
             member => $"{member} must not an interface" );
 
+    [Obsolete( "This method has been renamed MustBeConvertibleTo or MustEqual." )]
+    public static void MustBe( this IEligibilityBuilder<IType> eligibilityBuilder, Type type, ConversionKind conversionKind = ConversionKind.Default )
+        => MustBeConvertibleTo( eligibilityBuilder, type, conversionKind );
+
     /// <summary>
     /// Requires the target type to be convertible to a given type (specified as a reflection <see cref="System.Type"/>).
     /// </summary>
-    public static void MustBe( this IEligibilityBuilder<IType> eligibilityBuilder, Type type, ConversionKind conversionKind = ConversionKind.Default )
+    public static void MustBeConvertibleTo(
+        this IEligibilityBuilder<IType> eligibilityBuilder,
+        Type type,
+        ConversionKind conversionKind = ConversionKind.Default )
         => eligibilityBuilder.MustSatisfy(
-            t => t.Is( type, conversionKind ),
-            member => $"{member} must be of type '{type}'" );
+            t => t.IsConvertibleTo( type, conversionKind ),
+            t => $"{t} must be convertible to '{type}'" );
+
+    [Obsolete( "This method has been renamed MustBeConvertibleTo or MustEqual." )]
+    public static void MustBe( this IEligibilityBuilder<IType> eligibilityBuilder, IType type, ConversionKind conversionKind = ConversionKind.Default )
+        => MustBeConvertibleTo( eligibilityBuilder, type, conversionKind );
 
     /// <summary>
     /// Requires the target type to be convertible to a given type (specified as an <see cref="IType"/>).
     /// </summary>
-    public static void MustBe( this IEligibilityBuilder<IType> eligibilityBuilder, IType type, ConversionKind conversionKind = ConversionKind.Default )
+    public static void MustBeConvertibleTo(
+        this IEligibilityBuilder<IType> eligibilityBuilder,
+        IType type,
+        ConversionKind conversionKind = ConversionKind.Default )
         => eligibilityBuilder.MustSatisfy(
-            t => t.Is( type, conversionKind ),
-            member => $"{member} must be of type '{type}'" );
+            t => t.IsConvertibleTo( type, conversionKind ),
+            t => $"{t} must be convertible to '{type}'" );
+
+    [Obsolete( "This method has been renamed MustBeConvertibleTo or MustEqual." )]
+    public static void MustBe<T>( this IEligibilityBuilder<IType> eligibilityBuilder, ConversionKind conversionKind = ConversionKind.Default )
+        => MustBeConvertibleTo<T>( eligibilityBuilder, conversionKind );
 
     /// <summary>
     /// Requires the target type to be convertible to a given type (specified as a type parameter).
     /// </summary>
-    public static void MustBe<T>( this IEligibilityBuilder<IType> eligibilityBuilder, ConversionKind conversionKind = ConversionKind.Default )
-        => eligibilityBuilder.MustBe( typeof(T), conversionKind );
+    public static void MustBeConvertibleTo<T>( this IEligibilityBuilder<IType> eligibilityBuilder, ConversionKind conversionKind = ConversionKind.Default )
+        => eligibilityBuilder.MustBeConvertibleTo( typeof(T), conversionKind );
+
+    public static void MustEqual<T>( this IEligibilityBuilder<T> eligibilityBuilder, T other )
+        where T : class, IEquatable<T>
+        => eligibilityBuilder.MustSatisfy( t => t.Equals( other ), x => $"{x} must equal '{other}'" );
+
+    public static void MustEqual( this IEligibilityBuilder<IType> eligibilityBuilder, Type otherType )
+        => eligibilityBuilder.MustSatisfy( t => t.Equals( t.Compilation.Factory.GetTypeByReflectionType( otherType ) ), x => $"{x} must equal '{otherType}'" );
+
+    public static void MustEqual( this IEligibilityBuilder<IType> eligibilityBuilder, SpecialType otherType )
+        => eligibilityBuilder.MustSatisfy( t => t.Equals( t.Compilation.Factory.GetSpecialType( otherType ) ), x => $"{x} must equal '{otherType}'" );
 
     private static void Aggregate<T>(
         this IEligibilityBuilder<T> eligibilityBuilder,
@@ -536,6 +584,21 @@ public static partial class EligibilityExtensions
         => eligibilityBuilder.MustSatisfy(
             d => !d.Enhancements().HasAspect( aspectType ),
             d => $"{d} must not have an aspect of type {aspectType.Name}" );
+
+    public static void MustHaveAttributeOfType( this IEligibilityBuilder<IDeclaration> eligibilityBuilder, Type attributeType )
+        => eligibilityBuilder.MustSatisfy(
+            d => d.Attributes.Any( attributeType ),
+            d => $"{d} must have an attribute of type {attributeType.Name}" );
+
+    public static void MustNotHaveAttributeOfType( this IEligibilityBuilder<IDeclaration> eligibilityBuilder, Type attributeType )
+        => eligibilityBuilder.MustSatisfy(
+            d => !d.Attributes.Any( attributeType ),
+            d => $"{d} must not have an attribute of type {attributeType.Name}" );
+
+    internal static void MustNotBePartialMemberWithSourceGeneratorAttribute( this IEligibilityBuilder<IMember> eligibilityBuilder )
+        => eligibilityBuilder.MustSatisfy(
+            m => !m.Compilation.Project.ServiceProvider.GetRequiredService<ISourceGeneratorDetectionService>().IsWellKnownGeneratedDeclaration( m ),
+            m => $"{m} must not be a partial member marked with source generator attribute" );
 
     /// <summary>
     /// Determines whether the given declaration is an eligible target for a specified aspect type given as a type parameter.

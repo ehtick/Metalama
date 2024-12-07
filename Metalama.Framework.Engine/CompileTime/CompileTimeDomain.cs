@@ -33,8 +33,8 @@ namespace Metalama.Framework.Engine.CompileTime
         private readonly int _domainId = Interlocked.Increment( ref _nextDomainId );
         private readonly ILogger _logger;
         private readonly object _sync = new();
-        private readonly AssemblyLoader _assemblyLoader;
         private readonly ConcurrentDictionary<string, (Assembly Assembly, AssemblyIdentity Identity)> _assembliesByName = new();
+        private AssemblyLoader? _assemblyLoader;
         private ImmutableDictionaryOfArray<string, string> _assemblyPathsByName = ImmutableDictionaryOfArray<string, string>.Empty;
 
         [UsedImplicitly]
@@ -91,9 +91,11 @@ namespace Metalama.Framework.Engine.CompileTime
         [PublicAPI] // Overridden by Metalama.Try.
         public virtual Assembly LoadAssembly( string path )
         {
+            var assemblyLoader = this._assemblyLoader ?? throw new ObjectDisposedException( this.ToString() );
+
             try
             {
-                return this._assemblyLoader.LoadAssembly( path );
+                return assemblyLoader.LoadAssembly( path );
             }
             catch ( Exception e )
             {
@@ -152,7 +154,8 @@ namespace Metalama.Framework.Engine.CompileTime
 
                 this._assembliesByName.Clear();
 
-                this._assemblyLoader.Dispose();
+                this._assemblyLoader?.Dispose();
+                this._assemblyLoader = null;
             }
         }
 

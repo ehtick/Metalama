@@ -2,7 +2,7 @@
 
 using Metalama.Framework.Code;
 using Metalama.Framework.Diagnostics;
-using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.SerializableIds;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -17,27 +17,37 @@ public sealed class ScopedSuppression : IScopedSuppression
 {
     public ISuppression Suppression { get; }
 
-    public ISymbol? GetScopeSymbolOrNull( CompilationContext compilationContext ) => this.Declaration.GetSymbol();
+    public ISymbol GetScopeSymbolOrNull( CompilationContext compilationContext ) => this.ScopeSymbol;
 
-    public IDeclaration Declaration { get; }
+    public ISymbol ScopeSymbol { get; }
 
-    internal ScopedSuppression( ISuppression suppression, IDeclaration declaration )
+    internal ScopedSuppression( ISuppression suppression, ISymbol symbol )
     {
         this.Suppression = suppression;
-        this.Declaration = declaration;
+        this.ScopeSymbol = symbol;
     }
 
-    public override string ToString() => $"{this.Suppression} on {this.Declaration}";
+    public override string ToString() => $"{this.Suppression} on {this.ScopeSymbol}";
 
     public bool Matches( Diagnostic diagnostic, Compilation compilation, Func<Func<bool>, bool> codeInvoker )
     {
-        var symbolId = this.Declaration.GetSourceSerializableId();
+        if ( diagnostic.Id != this.Suppression.Definition.SuppressedDiagnosticId )
+        {
+            return false;
+        }
+
+        var symbolId = this.ScopeSymbol.GetSerializableId();
 
         return this.Matches( diagnostic, compilation, codeInvoker, symbolId );
     }
 
     internal bool Matches( Diagnostic diagnostic, Compilation compilation, Func<Func<bool>, bool> codeInvoker, SerializableDeclarationId declarationId )
     {
+        if ( diagnostic.Id != this.Suppression.Definition.SuppressedDiagnosticId )
+        {
+            return false;
+        }
+
         var location = diagnostic.Location;
 
         if ( location.SourceTree == null )
@@ -86,11 +96,4 @@ public sealed class ScopedSuppression : IScopedSuppression
 
         return true;
     }
-}
-
-public interface IScopedSuppression
-{
-    ISuppression Suppression { get; }
-
-    ISymbol? GetScopeSymbolOrNull( CompilationContext compilationContext );
 }

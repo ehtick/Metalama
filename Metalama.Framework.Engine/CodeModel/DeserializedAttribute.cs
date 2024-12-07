@@ -4,6 +4,7 @@ using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Abstractions;
 using Metalama.Framework.Engine.CodeModel.Collections;
 using Metalama.Framework.Engine.CodeModel.References;
 using Metalama.Framework.Engine.CompileTime.Serialization.Serializers;
@@ -18,23 +19,27 @@ using TypedConstant = Metalama.Framework.Code.TypedConstant;
 
 namespace Metalama.Framework.Engine.CodeModel;
 
-internal class DeserializedAttribute : IAttributeImpl
+internal sealed class DeserializedAttribute : IAttributeImpl
 {
     private readonly AttributeSerializationData _serializationData;
 
     public DeserializedAttribute( AttributeSerializationData serializationData, CompilationModel compilation )
     {
         this._serializationData = serializationData;
-        this.Compilation = compilation;
+        this._compilation = compilation;
     }
 
     string IDisplayable.ToDisplayString( CodeDisplayFormat? format, CodeDisplayContext? context ) => throw new NotImplementedException();
 
-    internal CompilationModel Compilation { get; }
+    private readonly CompilationModel _compilation;
 
-    ICompilation ICompilationElement.Compilation => this.Compilation;
+    public ICompilationElement Translate(
+        CompilationModel newCompilation,
+        IGenericContext? genericContext = null,
+        Type? interfaceType = null )
+        => throw new NotImplementedException();
 
-    Ref<IDeclaration> IDeclarationImpl.ToValueTypedRef() => throw new NotSupportedException();
+    ICompilation ICompilationElement.Compilation => this._compilation;
 
     ImmutableArray<SyntaxReference> IDeclarationImpl.DeclaringSyntaxReferences => ImmutableArray<SyntaxReference>.Empty;
 
@@ -44,15 +49,15 @@ internal class DeserializedAttribute : IAttributeImpl
 
     IEnumerable<IDeclaration> IDeclarationImpl.GetDerivedDeclarations( DerivedTypesOptions options ) => [];
 
-    Ref<ICompilationElement> ICompilationElementImpl.ToValueTypedRef() => throw new NotSupportedException();
+    DeclarationImplementationKind IDeclarationImpl.ImplementationKind => DeclarationImplementationKind.DeserializedAttribute;
 
     bool IEquatable<IDeclaration>.Equals( IDeclaration? other ) => throw new NotImplementedException();
 
     [Memo]
-    public IDeclaration ContainingDeclaration => this._serializationData.ContainingDeclaration.GetTarget( this.Compilation );
+    public IDeclaration ContainingDeclaration => this._serializationData.ContainingDeclaration.GetTarget( this._compilation );
 
     [Memo]
-    private AttributeRef AttributeRef => new( this._serializationData );
+    private AttributeRef AttributeRef => new DeserializedAttributeRef( this._serializationData );
 
     IRef<IDeclaration> IDeclaration.ToRef() => this.AttributeRef;
 
@@ -66,7 +71,7 @@ internal class DeserializedAttribute : IAttributeImpl
 
     IAttributeCollection IDeclaration.Attributes => AttributeCollection.Empty;
 
-    DeclarationKind IDeclaration.DeclarationKind => DeclarationKind.Attribute;
+    DeclarationKind ICompilationElement.DeclarationKind => DeclarationKind.Attribute;
 
     bool IDeclaration.IsImplicitlyDeclared => false;
 
@@ -76,21 +81,23 @@ internal class DeserializedAttribute : IAttributeImpl
 
     ImmutableArray<SourceReference> IDeclaration.Sources => ImmutableArray<SourceReference>.Empty;
 
-    [Memo]
-    public INamedType Type => this._serializationData.Type.GetTarget( this.Compilation );
+    public IGenericContext GenericContext => this.ContainingDeclaration.GenericContext;
 
     [Memo]
-    public IConstructor Constructor => this._serializationData.Constructor.GetTarget( this.Compilation );
+    public INamedType Type => this._serializationData.Type.GetTarget( this._compilation );
+
+    [Memo]
+    public IConstructor Constructor => this._serializationData.Constructor.GetTarget( this._compilation );
 
     [Memo]
     public ImmutableArray<TypedConstant> ConstructorArguments
-        => this._serializationData.ConstructorArguments.SelectAsImmutableArray( x => x.Resolve( this.Compilation ) );
+        => this._serializationData.ConstructorArguments.SelectAsImmutableArray( x => x.ToTypedConstant( this._compilation ) );
 
     [Memo]
     public INamedArgumentList NamedArguments
         => new NamedArgumentList(
             this._serializationData.NamedArguments.SelectAsMutableList(
-                x => new KeyValuePair<string, TypedConstant>( x.Key, x.Value.Resolve( this.Compilation ) ) ) );
+                x => new KeyValuePair<string, TypedConstant>( x.Key, x.Value.ToTypedConstant( this._compilation ) ) ) );
 
     int IAspectPredecessor.PredecessorDegree => 0;
 
@@ -107,11 +114,9 @@ internal class DeserializedAttribute : IAttributeImpl
 
     ImmutableArray<SyntaxTree> IAspectPredecessorImpl.PredecessorTreeClosure => ImmutableArray<SyntaxTree>.Empty;
 
-    ISymbol? ISdkDeclaration.Symbol => null;
-
     Location? ISdkDeclaration.DiagnosticLocation => null;
 
     T IMeasurableInternal.GetMetric<T>() => throw new NotSupportedException();
 
-    CompilationModel ICompilationElementImpl.Compilation => this.Compilation;
+    CompilationModel ICompilationElementImpl.Compilation => this._compilation;
 }

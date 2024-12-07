@@ -14,6 +14,7 @@ using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Options;
 using Metalama.Framework.Engine.Pipeline.CompileTime;
 using Metalama.Framework.Engine.Services;
+using Metalama.Framework.Engine.Utilities.Threading;
 using Metalama.Framework.Engine.Utilities.UserCode;
 using Metalama.Framework.Project;
 using Microsoft.CodeAnalysis;
@@ -25,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Xunit.Abstractions;
 
 namespace Metalama.Testing.UnitTesting;
 
@@ -37,15 +39,12 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     private static readonly IApplicationInfo _applicationInfo = new TestApiApplicationInfo();
     private readonly ITempFileManager _backstageTempFileManager;
     private readonly bool _isRoot;
-    private readonly Stopwatch? _stopwatch;
-    private readonly IDisposable? _throttlingHandle;
     private readonly StackTrace _stackTrace = new();
 
     // We keep the domain in a strongbox so that we share domain instances with TestContext instances created with With* method.
     private readonly StrongBox<CompileTimeDomain?> _domain;
 
-    private volatile CancellationTokenSource? _timeout;
-    private CancellationTokenRegistration? _timeoutAction;
+    private readonly CancellationTokenSource? _timeoutCancellationTokenSource;
 
     internal TestProjectOptions ProjectOptions { get; }
 
@@ -57,59 +56,40 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
     /// <summary>
     /// Gets the <see cref="ProjectServiceProvider"/> for the current context.
     /// </summary>
-    public ProjectServiceProvider ServiceProvider { get; }
+    public ProjectServiceProvider ServiceProvider { get; private set; }
 
     /// <summary>
     /// Gets a <see cref="CancellationToken"/> used to cancel the test in case of timeout. The timeout period is defined
     /// by the <see cref="TestContextOptions.Timeout"/> option.
     /// </summary>
-    public CancellationToken CancellationToken
-    {
-        get
-        {
-            if ( this._timeout == null )
-            {
-                if ( Interlocked.CompareExchange( ref this._timeout, new CancellationTokenSource( TimeSpan.FromSeconds( 240 ) ), null ) == null )
-                {
-                    this._timeoutAction = this._timeout.Token.Register(
-                        () => this.ServiceProvider.GetLoggerFactory()
-                            .GetLogger( "Test" )
-                            .Error?.Log( $"Test timeout. It has been running {this._stopwatch?.Elapsed}. Cancelling." ) );
-                }
-            }
-
-            return this._timeout.Token;
-        }
-    }
+    public CancellationToken CancellationToken => this._timeoutCancellationTokenSource?.Token ?? default;
 
     // ReSharper disable once RedundantOverload.Global
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestContext"/> class. Tests typically
-    /// do not call this constructor directly, but instead the <see cref="UnitTestClass.CreateTestContext(IAdditionalServiceCollection)"/>
+    /// do not call this constructor directly, but instead the <see cref="UnitTestClass.CreateTestContext(IAdditionalServiceCollection,string?,string?)"/>
     /// method.
     /// </summary>
     public TestContext( TestContextOptions contextOptions ) : this( contextOptions, null ) { }
 
-    [Obsolete( "Instead of supplying the testName parameter, set the ProjectName property of TestContextOptions." )]
-    public TestContext(
-        TestContextOptions contextOptions,
-        IAdditionalServiceCollection? additionalServices = null,
-        string? testName = null ) : this( contextOptions with { ProjectName = testName }, additionalServices ) { }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="TestContext"/> class and specify an optional <see cref="IAdditionalServiceCollection"/>. Tests typically
-    /// do not call this constructor directly, but instead the <see cref="UnitTestClass.CreateTestContext(IAdditionalServiceCollection)"/>
+    /// do not call this constructor directly, but instead the <see cref="UnitTestClass.CreateTestContext(IAdditionalServiceCollection,string?,string?)"/>
     /// method.
     /// </summary>
     public TestContext(
         TestContextOptions contextOptions,
         IAdditionalServiceCollection? additionalServices = null )
     {
-        this._throttlingHandle = TestThrottlingHelper.StartTest( contextOptions.RequiresExclusivity );
-
-        // Start the Stopwatch only after we get after the throttle wall.
-        this._stopwatch = Stopwatch.StartNew();
+        if ( !Debugger.IsAttached )
+        {
+            this._timeoutCancellationTokenSource = new CancellationTokenSource( contextOptions.Timeout );
+        }
+        else
+        {
+            // We don't cancel tests when a debugger is attached because it's then normal that a test runs during a long time.
+        }
 
         this._domain = new StrongBox<CompileTimeDomain?>();
         this._isRoot = true;
@@ -118,7 +98,6 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 
         try
         {
-
             this._backstageTempFileManager = BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<ITempFileManager>();
 
             var platformInfo = BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<IPlatformInfo>();
@@ -148,6 +127,9 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
             serviceProvider = serviceProvider
                 .WithService( this.ProjectOptions.DomainObserver );
 
+            var randomGeneratorService = contextOptions.RunnerServiceProvider.GetService<IRandomNumberProvider>() ?? new RandomNumberProvider();
+            serviceProvider = serviceProvider.WithService( randomGeneratorService );
+
             this.ServiceProvider = serviceProvider
                 .WithProjectScopedServices( this.ProjectOptions, contextOptions.References );
         }
@@ -160,15 +142,14 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
         }
     }
 
-    private TestContext( TestContext prototype, IEnumerable<PortableExecutableReference> newReferences )
+    /// <summary>
+    /// Replaces the <see cref="ServiceProvider"/> with a new instance initialized with a specified list of <see cref="PortableExecutableReference"/>.
+    /// </summary>
+    /// <param name="newReferences"></param>
+    internal void SetMetadataReferences( IEnumerable<PortableExecutableReference> newReferences )
     {
-        this._domain = prototype._domain;
-        this.ProjectOptions = prototype.ProjectOptions;
-        this._backstageTempFileManager = prototype._backstageTempFileManager;
-        this.ServiceProvider = prototype.ServiceProvider.Global.Underlying.WithProjectScopedServices( this.ProjectOptions, newReferences );
+        this.ServiceProvider = this.ServiceProvider.Global.Underlying.WithProjectScopedServices( this.ProjectOptions, newReferences );
     }
-
-    public TestContext WithReferences( IEnumerable<PortableExecutableReference> newReferences ) => new( this, newReferences );
 
     /// <summary>
     /// Creates an <see cref="ICompilation"/> made of a single source file.
@@ -279,7 +260,7 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 #if NET5_0_OR_GREATER
     {
         var domain = new UnloadableCompileTimeDomain( this.ServiceProvider.Global );
-        domain.UnloadTimeout += MemoryLeakHelper.CaptureDotMemoryDumpAndThrow;
+        domain.UnloadError += DiagnosticsHelper.CaptureDotMemoryDumpAndThrow;
 
         return domain;
     }
@@ -326,15 +307,20 @@ public class TestContext : IDisposable, ITempFileManager, IApplicationInfoProvid
 
     DateTime IDateTimeProvider.UtcNow => DateTime.UtcNow;
 
+    /// <summary>
+    /// Gets the test name, for diagnostics.
+    /// </summary>
+    public string? TestName { get; internal set; }
+
+    internal ITestOutputHelper? TestOutputWriter { get; set; }
+
     protected virtual void Dispose( bool disposing )
     {
         if ( this._isRoot )
         {
             this.ProjectOptions.Dispose();
             this._domain.Value?.Dispose();
-            this._timeout?.Dispose();
-            this._timeoutAction?.Dispose();
-            this._throttlingHandle?.Dispose();
+            this._timeoutCancellationTokenSource?.Dispose();
         }
 
         if ( disposing )

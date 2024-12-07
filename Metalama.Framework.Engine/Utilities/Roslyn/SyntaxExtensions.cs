@@ -58,7 +58,7 @@ public static class SyntaxExtensions
     internal static bool IsAutoPropertyDeclaration( this PropertyDeclarationSyntax propertyDeclaration )
         => propertyDeclaration.ExpressionBody == null
            && propertyDeclaration.AccessorList?.Accessors.All( x => x.Body == null && x.ExpressionBody == null ) == true
-           && propertyDeclaration.Modifiers.All( x => !x.IsKind( SyntaxKind.AbstractKeyword ) );
+           && propertyDeclaration.Modifiers.All( x => x.Kind() is not (SyntaxKind.AbstractKeyword or SyntaxKind.PartialKeyword) );
 
     internal static bool HasSetterAccessorDeclaration( this PropertyDeclarationSyntax propertyDeclaration )
         => propertyDeclaration.AccessorList != null
@@ -163,7 +163,7 @@ public static class SyntaxExtensions
         return node.WithLeadingTrivia( leadingTrivia );
     }
 
-    internal static TNode WithRequiredLeadingTrivia<TNode>( this TNode node, IList<SyntaxTrivia> leadingTrivia )
+    internal static TNode WithRequiredLeadingTrivia<TNode>( this TNode node, IEnumerable<SyntaxTrivia> leadingTrivia )
         where TNode : SyntaxNode
         => node.WithLeadingTrivia( TriviaList( leadingTrivia ) );
 
@@ -171,7 +171,7 @@ public static class SyntaxExtensions
         where TNode : SyntaxNode
         => node.WithLeadingTrivia( leadingTrivia );
 
-    internal static SyntaxToken WithRequiredLeadingTrivia( this SyntaxToken token, IList<SyntaxTrivia> leadingTrivia )
+    internal static SyntaxToken WithRequiredLeadingTrivia( this SyntaxToken token, IEnumerable<SyntaxTrivia> leadingTrivia )
         => token.WithLeadingTrivia( TriviaList( leadingTrivia ) );
 
     internal static SyntaxToken WithRequiredLeadingTrivia( this SyntaxToken token, SyntaxTriviaList leadingTrivia ) => token.WithLeadingTrivia( leadingTrivia );
@@ -348,4 +348,11 @@ public static class SyntaxExtensions
     /// </summary>
     public static bool ContainsGlobalAttributes( this SyntaxTree tree )
         => tree.GetCompilationUnitRoot().AttributeLists.Any( list => list.Attributes.Any() );
+
+    internal static ExpressionSyntax IgnoreSuppressNullWarning( this ExpressionSyntax expression )
+        => expression switch
+        {
+            PostfixUnaryExpressionSyntax postfix when postfix.IsKind( SyntaxKind.SuppressNullableWarningExpression ) => postfix.Operand,
+            _ => expression
+        };
 }

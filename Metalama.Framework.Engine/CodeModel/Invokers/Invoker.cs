@@ -3,10 +3,13 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.Invokers;
 using Metalama.Framework.Engine.Aspects;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.SyntaxSerialization;
 using Metalama.Framework.Engine.Templating;
 using Metalama.Framework.Engine.Templating.Expressions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Metalama.Framework.Engine.CodeModel.Invokers;
@@ -67,12 +70,34 @@ internal abstract class Invoker<T>
 
     protected T Member { get; }
 
-    protected readonly record struct ReceiverTypedExpressionSyntax(
-        TypedExpressionSyntaxImpl TypedExpressionSyntax,
-        bool RequiresConditionalAccess,
-        AspectReferenceSpecification AspectReferenceSpecification )
+    protected readonly record struct ReceiverTypedExpressionSyntax
     {
+        public ReceiverTypedExpressionSyntax(
+            TypedExpressionSyntaxImpl typedExpressionSyntax,
+            bool requiresConditionalAccess,
+            AspectReferenceSpecification aspectReferenceSpecification )
+        {
+            if ( requiresConditionalAccess && typedExpressionSyntax.Syntax is PostfixUnaryExpressionSyntax postfix
+                                           && postfix.IsKind( SyntaxKind.SuppressNullableWarningExpression ) )
+            {
+                this.TypedExpressionSyntax = new TypedExpressionSyntaxImpl( postfix.Operand, typedExpressionSyntax );
+            }
+            else
+            {
+                this.TypedExpressionSyntax = typedExpressionSyntax;
+            }
+
+            this.RequiresConditionalAccess = requiresConditionalAccess;
+            this.AspectReferenceSpecification = aspectReferenceSpecification;
+        }
+
         public ExpressionSyntax Syntax => this.TypedExpressionSyntax.Syntax;
+
+        public TypedExpressionSyntaxImpl TypedExpressionSyntax { get; }
+
+        public bool RequiresConditionalAccess { get; }
+
+        public AspectReferenceSpecification AspectReferenceSpecification { get; }
 
         public ReceiverExpressionSyntax WithSyntax( ExpressionSyntax syntax )
             => new( syntax, this.RequiresConditionalAccess, this.AspectReferenceSpecification );
@@ -160,10 +185,12 @@ internal abstract class Invoker<T>
     {
         // Specifying Base or Current option with non-default target is only allowed when the method is in the inheritance hierarchy of the template target.
         if ( this.Target != null && (this.Options & InvokerOptions.OrderMask) is InvokerOptions.Base or InvokerOptions.Current &&
-             !(GetTargetType()?.Is( this.Member.DeclaringType ) ?? false) )
+             !(GetTargetType()?.IsConvertibleTo( this.Member.DeclaringType ) ?? false) )
         {
             throw GeneralDiagnosticDescriptors.CantInvokeBaseOrCurrentOutsideTargetType.CreateException(
                 (this.Member, GetTargetType()!, this.Options & InvokerOptions.OrderMask) );
         }
     }
+
+    public override string ToString() => $"{this.GetType().Name} Member={{{this.Member}}}, Options={{{this.Options}}}";
 }

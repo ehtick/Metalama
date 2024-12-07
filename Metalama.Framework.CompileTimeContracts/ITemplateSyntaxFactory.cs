@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.SyntaxBuilders;
@@ -68,10 +69,18 @@ public interface ITemplateSyntaxFactory
     TypedExpressionSyntax GetTypedExpression( IExpression expression );
 
     TypedExpressionSyntax RunTimeExpression( ExpressionSyntax syntax, string? type = null );
+    
+    // This is to easily work around errors when we emit a redundant call to RunTimeExpression.
+    [PublicAPI]
+    TypedExpressionSyntax RunTimeExpression( IUserExpression syntax, string? type = null );
 
+    ExpressionSyntax ConvertToExpressionSyntax( object value );
+    
     IUserExpression GetUserExpression( object expression );
 
-    ExpressionSyntax SuppressNullableWarningExpression( ExpressionSyntax operand );
+    ExpressionSyntax SuppressNullableWarningExpression( ExpressionSyntax operand, string? type = null );
+    
+    IUserExpression SuppressNullableWarningUserExpression( object operand, string? type = null );
 
     ExpressionSyntax ConditionalAccessExpression( ExpressionSyntax expression, ExpressionSyntax whenNotNullExpression );
 
@@ -90,4 +99,20 @@ public interface ITemplateSyntaxFactory
     ITemplateSyntaxFactory ForTemplate( string templateName, object? templateInstanceOrType );
 
     TemplateTypeArgument TemplateTypeArgument( string name, Type type );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, IType type );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, IType type, IExpression? expression );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, IType type, ExpressionSyntax? expression );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, Type type );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, Type type, IExpression? expression );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, Type type, ExpressionSyntax? expression );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, ExpressionSyntax expression );
+
+    IExpression DefineLocalVariable( List<StatementOrTrivia> statementList, string name, IExpression expression );
 }

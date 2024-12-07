@@ -6,6 +6,8 @@ using Metalama.Framework.CompileTimeContracts;
 using Metalama.Framework.Engine.Advising;
 using Metalama.Framework.Engine.Aspects;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
+using Metalama.Framework.Engine.CodeModel.References;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Formatting;
 using Metalama.Framework.Engine.Linking;
@@ -33,7 +35,7 @@ namespace Metalama.Framework.Engine.Templating;
 
 internal sealed partial class TemplateExpansionContext : UserCodeExecutionContext
 {
-    private readonly TemplateMember<IMethod>? _template;
+    private readonly TemplateMember<IMethod>? _methodTemplate;
     private readonly Func<TemplateKind, IUserExpression>? _proceedExpressionProvider;
     private readonly TemplateClassProvider _templateClassProvider;
     private readonly LocalFunctionInfo? _localFunctionInfo;
@@ -77,7 +79,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
             return false;
         }
 
-        declaration = declaration.ForCompilation( metaApi.Compilation, ReferenceResolutionOptions.CanBeMissing );
+        declaration = declaration.ForCompilation( metaApi.Compilation );
 
         if ( metaApi.Declaration.Equals( declaration ) || metaApi.Declaration.ContainingDeclaration?.Equals( declaration ) == true )
         {
@@ -103,7 +105,13 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
     /// </summary>
     internal static IDisposable WithTestingContext( SyntaxSerializationContext serializationContext, in ProjectServiceProvider serviceProvider )
     {
-        var handle = WithContext( new UserCodeExecutionContext( serviceProvider, NullDiagnosticAdder.Instance, default, new AspectLayerId( "(test)" ) ) );
+        var handle = WithContext(
+            new UserCodeExecutionContext(
+                serviceProvider,
+                default,
+                serializationContext.CompilationContext,
+                new AspectLayerId( "(test)" ) ) );
+
         _currentSyntaxSerializationContext.Value = serializationContext;
 
         return new DisposeCookie(
@@ -122,46 +130,61 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
 
     public TemplateExpansionContext(
         TransformationContext transformationContext,
-        TemplateProvider templateProvider,
         MetaApi metaApi,
         IDeclaration declarationForLexicalScope,
-        BoundTemplateMethod? template,
+        BoundTemplateMethod methodTemplate,
         Func<TemplateKind, IUserExpression>? proceedExpressionProvider,
         AspectLayerId aspectLayerId ) : this(
         transformationContext.ServiceProvider,
-        templateProvider,
         metaApi,
-        transformationContext.LexicalScopeProvider.GetLexicalScope( declarationForLexicalScope ),
+        transformationContext.LexicalScopeProvider.GetLexicalScope( declarationForLexicalScope.ToFullRef() ),
         transformationContext.SyntaxGenerationContext,
-        template,
+        methodTemplate,
+        methodTemplate.TemplateProvider,
         proceedExpressionProvider,
         aspectLayerId ) { }
 
     public TemplateExpansionContext(
-        ProjectServiceProvider serviceProvider,
+        TransformationContext transformationContext,
+        MetaApi metaApi,
+        IDeclaration declarationForLexicalScope,
         TemplateProvider templateProvider,
+        AspectLayerId aspectLayerId ) : this(
+        transformationContext.ServiceProvider,
+        metaApi,
+        transformationContext.LexicalScopeProvider.GetLexicalScope( declarationForLexicalScope.ToFullRef() ),
+        transformationContext.SyntaxGenerationContext,
+        null,
+        templateProvider,
+        null,
+        aspectLayerId ) { }
+
+    public TemplateExpansionContext(
+        ProjectServiceProvider serviceProvider,
         MetaApi metaApi,
         TemplateLexicalScope lexicalScope,
         SyntaxGenerationContext syntaxGenerationContext,
-        BoundTemplateMethod? template,
+        BoundTemplateMethod? methodTemplate,
+        TemplateProvider templateProvider,
         Func<TemplateKind, IUserExpression>? proceedExpressionProvider,
         AspectLayerId aspectLayerId ) : base(
         serviceProvider,
-        metaApi.Diagnostics,
         UserCodeDescription.Create(
             "executing the template method '{0}' in the context of the aspect '{1}' applied to '{2}'",
-            template?.TemplateMember.Declaration.GetSymbol(),
+            methodTemplate?.TemplateMember.Symbol,
             metaApi.AspectInstance?.AspectClass.FullName,
             metaApi.AspectInstance?.TargetDeclaration ),
+        syntaxGenerationContext.CompilationContext,
         aspectLayerId,
         (CompilationModel?) metaApi.Compilation,
         metaApi.Target.Declaration,
+        diagnostics: metaApi.Diagnostics,
         metaApi: metaApi )
     {
-        this._template = template?.TemplateMember;
+        this._methodTemplate = methodTemplate?.TemplateMember;
         this.TemplateProvider = templateProvider;
         this.SyntaxSerializationService = serviceProvider.GetRequiredService<SyntaxSerializationService>();
-        this.SyntaxSerializationContext = new SyntaxSerializationContext( (CompilationModel) metaApi.Compilation, syntaxGenerationContext, metaApi.Type );
+        this.SyntaxSerializationContext = new SyntaxSerializationContext( metaApi.Compilation, syntaxGenerationContext, metaApi.Type );
         this.SyntaxGenerationContext = syntaxGenerationContext;
         this.LexicalScope = lexicalScope;
         this._proceedExpressionProvider = proceedExpressionProvider;
@@ -169,10 +192,10 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
 
         var templateTypeArguments = ImmutableDictionary<string, IType>.Empty.ToBuilder();
 
-        if ( template != null )
+        if ( methodTemplate != null )
         {
             templateTypeArguments.AddRange(
-                template.TemplateArguments.OfType<TemplateTypeArgumentFactory>().Select( x => new KeyValuePair<string, IType>( x.Name, x.Type ) ) );
+                methodTemplate.TemplateArguments.OfType<TemplateTypeArgumentFactory>().Select( x => new KeyValuePair<string, IType>( x.Name, x.Type ) ) );
         }
 
         if ( metaApi.Target.Declaration is IMethod { TypeParameters.Count: > 0 } targetMethod )
@@ -198,8 +221,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
 
     private TemplateExpansionContext( TemplateExpansionContext prototype, LocalFunctionInfo localFunctionInfo ) : base( prototype )
     {
-        this._template = prototype._template;
-        this.TemplateProvider = prototype.TemplateProvider;
+        this._methodTemplate = prototype._methodTemplate;
         this.SyntaxSerializationService = prototype.SyntaxSerializationService;
         this.SyntaxSerializationContext = prototype.SyntaxSerializationContext;
         this.SyntaxGenerationContext = prototype.SyntaxGenerationContext;
@@ -209,13 +231,13 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
         this.TemplateGenericArguments = prototype.TemplateGenericArguments;
         this._proceedExpressionProvider = prototype._proceedExpressionProvider;
         this._templateClassProvider = prototype._templateClassProvider;
+        this.TemplateProvider = prototype.TemplateProvider;
     }
 
-    private TemplateExpansionContext( TemplateExpansionContext prototype, TemplateMember<IMethod> template, TemplateProvider templateProvider ) : base(
-        prototype )
+    private TemplateExpansionContext( TemplateExpansionContext prototype, TemplateMember<IMethod> methodTemplate, TemplateProvider templateProvider )
+        : base( prototype )
     {
-        this._template = template;
-        this.TemplateProvider = templateProvider.IsNull ? prototype.TemplateProvider : templateProvider;
+        this._methodTemplate = methodTemplate;
         this.SyntaxSerializationService = prototype.SyntaxSerializationService;
         this.SyntaxSerializationContext = prototype.SyntaxSerializationContext;
         this.SyntaxGenerationContext = prototype.SyntaxGenerationContext;
@@ -225,6 +247,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
         this.TemplateGenericArguments = prototype.TemplateGenericArguments;
         this._proceedExpressionProvider = prototype._proceedExpressionProvider;
         this._templateClassProvider = prototype._templateClassProvider;
+        this.TemplateProvider = templateProvider.IsNull ? prototype.TemplateProvider : templateProvider;
     }
 
     public TemplateProvider TemplateProvider { get; }
@@ -275,7 +298,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                         var method = this.MetaApi.Method;
                         var returnType = method.ReturnType;
 
-                        if ( this._template != null && this._template.MustInterpretAsAsyncTemplate() )
+                        if ( this._methodTemplate != null && this._methodTemplate.MustInterpretAsAsyncTemplate() )
                         {
                             // If we are in an awaitable async method, the consider the return type as seen by the method body,
                             // not the one as seen from outside.
@@ -293,7 +316,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                         }
                         else if ( method.GetIteratorInfoImpl() is
                                       { EnumerableKind: EnumerableKind.IAsyncEnumerable or EnumerableKind.IAsyncEnumerator } iteratorInfo &&
-                                  this._template != null && this._template.MustInterpretAsAsyncIteratorTemplate() )
+                                  this._methodTemplate != null && this._methodTemplate.MustInterpretAsAsyncIteratorTemplate() )
                         {
                             switch ( iteratorInfo.EnumerableKind )
                             {
@@ -360,7 +383,11 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                      returnExpression,
                      compilation,
                      out var expressionType ) &&
-                 compilation.Comparers.Default.Is( expressionType, returnType, ConversionKind.Implicit ) )
+                 compilation.Comparers.Default.IsConvertibleTo( expressionType, returnType, ConversionKind.Implicit ) )
+            {
+                // No need to emit a cast.
+            }
+            else if ( returnExpression.IgnoreSuppressNullWarning().Kind() is SyntaxKind.NullLiteralExpression or SyntaxKind.DefaultLiteralExpression )
             {
                 // No need to emit a cast.
             }
@@ -557,7 +584,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                     }
 
                     var returnExpression = returnUserExpression
-                        .ToExpressionSyntax( this.SyntaxSerializationContext )
+                        .ToExpressionSyntax( this.SyntaxSerializationContext, returnType )
                         .RemoveParenthesis();
 
                     return Block( ExpressionStatement( returnExpression ), returnStatement )
@@ -579,7 +606,8 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
             }
             else if ( awaitResult && returnUserExpression.Type.GetAsyncInfo().ResultType.Equals( SpecialType.Void ) )
             {
-                Invariant.Assert( this._template != null && (this._template.MustInterpretAsAsyncTemplate() || this._localFunctionInfo is { IsAsync: true }) );
+                Invariant.Assert(
+                    this._methodTemplate != null && (this._methodTemplate.MustInterpretAsAsyncTemplate() || this._localFunctionInfo is { IsAsync: true }) );
 
                 var returnType = this._localFunctionInfo?.ReturnType ?? this.MetaApi.Method.ReturnType;
 
@@ -591,7 +619,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                                 ExpressionStatement(
                                     AwaitExpression(
                                         Token( SyntaxKind.AwaitKeyword ).WithTrailingTrivia( Space ),
-                                        returnUserExpression.ToExpressionSyntax( this.SyntaxSerializationContext ) ) ),
+                                        returnUserExpression.ToExpressionSyntax( this.SyntaxSerializationContext, returnType ) ) ),
                                 ReturnStatement().WithAdditionalAnnotations( FormattingAnnotations.PossibleRedundantAnnotation ) )
                             .WithLinkerGeneratedFlags( LinkerGeneratedFlags.FlattenableBlock );
                 }
@@ -602,7 +630,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                                 ExpressionStatement(
                                     AwaitExpression(
                                         Token( SyntaxKind.AwaitKeyword ).WithTrailingTrivia( Space ),
-                                        returnUserExpression.ToExpressionSyntax( this.SyntaxSerializationContext ) ) ),
+                                        returnUserExpression.ToExpressionSyntax( this.SyntaxSerializationContext, returnType ) ) ),
                                 ReturnStatement( SyntaxFactoryEx.Default ).WithAdditionalAnnotations( FormattingAnnotations.PossibleRedundantAnnotation ) )
                             .WithLinkerGeneratedFlags( LinkerGeneratedFlags.FlattenableBlock );
                 }
@@ -634,7 +662,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
 
     internal BlockSyntax AddYieldBreakIfNecessary( BlockSyntax block )
     {
-        if ( this._template?.MustInterpretAsAsyncIteratorTemplate() != true )
+        if ( this._methodTemplate?.MustInterpretAsAsyncIteratorTemplate() != true )
         {
             return block;
         }
@@ -672,7 +700,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
     {
         if ( templateProvider.IsNull )
         {
-            return this._template.AssertNotNull().TemplateClassMember.TemplateClass;
+            return this._methodTemplate.AssertNotNull().TemplateClassMember.TemplateClass;
         }
 
         return this._templateClassProvider.Get( templateProvider );
@@ -692,7 +720,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
                 TemplatingDiagnosticDescriptors.AspectUsesHigherCSharpVersion.CreateRoslynDiagnostic(
                     this.TargetDeclaration?.GetDiagnosticLocation(),
                     (aspectClass?.ShortName, requiredLanguageVersion.Value.ToDisplayString(),
-                     targetLanguageVersion.Value.ToDisplayString(), templateMember.Declaration),
+                     targetLanguageVersion.Value.ToDisplayString(), templateMember.GetDeclaration( context.Compilation.AssertNotNull() )),
                     deduplicationKey: aspectClass?.FullName ) );
         }
     }

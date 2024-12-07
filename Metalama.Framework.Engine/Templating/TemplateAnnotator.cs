@@ -3,6 +3,7 @@
 using Metalama.Framework.Code;
 using Metalama.Framework.Diagnostics;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.CompileTime.Manifest;
 using Metalama.Framework.Engine.Diagnostics;
@@ -873,9 +874,11 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                 (transformedName.ToString(), typeParameter) );
         }
 
-        return node
+        var transformedNode = node
             .Update( transformedExpression, transformedOperator, (SimpleNameSyntax) transformedName )
             .AddScopeAnnotation( scope );
+
+        return transformedNode;
     }
 
     public override SyntaxNode VisitConditionalAccessExpression( ConditionalAccessExpressionSyntax node )
@@ -897,9 +900,11 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                 (node.ToString(), node.Expression.ToString(), node.Expression + node.WhenNotNull.ToString()) );
         }
 
-        return node
+        var transformedNode = node
             .Update( transformedExpression, transformedOperator, transformedWhenNotNull )
             .AddScopeAnnotation( scope );
+
+        return transformedNode;
     }
 
     private void VisitAccessExpressionCore(
@@ -952,47 +957,47 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
         using ( this.WithScopeContext( context ) )
         {
             transformedLeft = this.Visit( left );
+        }
 
-            if ( scope == RunTimeOrCompileTime )
+        var leftScope = this.GetNodeScope( transformedLeft );
+
+        if ( scope == RunTimeOrCompileTime )
+        {
+            if ( rightScope == Conflict )
             {
-                var leftScope = this.GetNodeScope( transformedLeft );
+                // Conflicts are ignored. They should be reported elsewhere.
+                scope = leftScope;
+            }
+            else
+            {
+                Invariant.Assert( rightScope == RunTimeOrCompileTime );
 
-                if ( rightScope == Conflict )
+                if ( leftScope is CompileTimeOnlyReturningRuntimeOnly )
                 {
-                    // Conflicts are ignored. They should be reported elsewhere.
-                    scope = leftScope;
+                    // Special case: we need to force run-time-only scope here.
+                    scope = RunTimeOnly;
                 }
                 else
                 {
-                    Invariant.Assert( rightScope == RunTimeOrCompileTime );
-
-                    if ( leftScope is CompileTimeOnlyReturningRuntimeOnly )
+                    scope = leftScope.GetExpressionExecutionScope() switch
                     {
-                        // Special case: we need to force run-time-only scope here.
-                        scope = RunTimeOnly;
-                    }
-                    else
-                    {
-                        scope = leftScope.GetExpressionExecutionScope() switch
-                        {
-                            RunTimeOnly => RunTimeOnly,
-                            CompileTimeOnly => CompileTimeOnlyReturningBoth,
-                            RunTimeOrCompileTime => RunTimeOrCompileTime,
-                            LateBound => RunTimeOrCompileTime,
-                            _ => throw new AssertionFailedException( $"Invalid combination: {leftScope}, {rightScope}." )
-                        };
-                    }
+                        RunTimeOnly => RunTimeOnly,
+                        CompileTimeOnly => CompileTimeOnlyReturningBoth,
+                        RunTimeOrCompileTime => RunTimeOrCompileTime,
+                        LateBound => RunTimeOrCompileTime,
+                        _ => throw new AssertionFailedException( $"Invalid combination: {leftScope}, {rightScope}." )
+                    };
                 }
             }
+        }
 
-            // If both sides of the member are template keywords, display the . as a template keyword too.
-            transformedOperatorToken = operatorToken;
+        // If both sides of the member are template keywords, display the . as a template keyword too.
+        transformedOperatorToken = operatorToken;
 
-            if ( transformedLeft.GetColorFromAnnotation() == TextSpanClassification.TemplateKeyword &&
-                 transformedRight.GetColorFromAnnotation() == TextSpanClassification.TemplateKeyword )
-            {
-                transformedOperatorToken = transformedOperatorToken.AddColoringAnnotation( TextSpanClassification.TemplateKeyword );
-            }
+        if ( transformedLeft.GetColorFromAnnotation() == TextSpanClassification.TemplateKeyword &&
+             transformedRight.GetColorFromAnnotation() == TextSpanClassification.TemplateKeyword )
+        {
+            transformedOperatorToken = transformedOperatorToken.AddColoringAnnotation( TextSpanClassification.TemplateKeyword );
         }
     }
 
@@ -1124,7 +1129,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
 
                 var parameter = this._syntaxTreeAnnotationMap.GetParameterSymbol( argument );
 
-                ExpressionSyntax transformedArgumentValue;
+                ExpressionSyntax transformedArgumentExpression;
 
                 // Transform the argument value.
                 var isDynamicParameter = TemplateMemberSymbolClassifier.IsDynamicParameter( parameter?.Type );
@@ -1143,7 +1148,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                                this._currentScopeContext.RunTimePreferred(
                                    $"argument of the dynamic parameter '{parameter?.Name ?? argumentIndex.ToString( CultureInfo.InvariantCulture )}'" ) ) )
                     {
-                        transformedArgumentValue = this.Visit( argument.Expression );
+                        transformedArgumentExpression = this.Visit( argument.Expression );
                     }
 
                     // Dynamic arguments passed to a a compile-time method returning a compile-time value are forbidden.
@@ -1166,14 +1171,14 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                     using ( this.WithScopeContext(
                                this._currentScopeContext.RunTimePreferred( $"argument of the run-time parameter '{parameter!.Name}' of a called template" ) ) )
                     {
-                        transformedArgumentValue = this.Visit( argument.Expression );
+                        transformedArgumentExpression = this.Visit( argument.Expression ).AddTargetScopeAnnotation( RunTimeOnly );
                     }
                 }
                 else if ( expressionScope.EvaluatesToRunTimeValue() )
                 {
                     using ( this.WithScopeContext( this._currentScopeContext.RunTimePreferred( $"argument of the run-time method '{node.Expression}'" ) ) )
                     {
-                        transformedArgumentValue = this.Visit( argument.Expression );
+                        transformedArgumentExpression = this.Visit( argument.Expression );
                     }
 
                     var argumentType = this._syntaxTreeAnnotationMap.GetExpressionType( argument.Expression );
@@ -1190,14 +1195,26 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                 {
                     using ( this.WithScopeContext( this._currentScopeContext.CompileTimeOnly( $"a compile-time expression '{node.Expression}'" ) ) )
                     {
-                        transformedArgumentValue = this.Visit( argument.Expression );
+                        transformedArgumentExpression = this.Visit( argument.Expression );
                     }
                 }
 
+                if ( isDynamicParameter )
+                {
+                    // Make sure that RunTimeOrCompileTime is interpreted as run-time, so we get the meta-expression we need.
+                    transformedArgumentExpression = transformedArgumentExpression
+                        .AddTargetScopeAnnotation( RunTimeOnly );
+                }
+
                 // The scope of the argument itself copies the scope of the method.
-                var transformedArgument = argument.WithExpression( transformedArgumentValue )
+                var transformedArgument = argument.WithExpression( transformedArgumentExpression )
                     .WithTriviaFrom( argument )
                     .AddScopeAnnotation( expressionScope );
+
+                if ( isDynamicParameter )
+                {
+                    transformedArgument = transformedArgument.AddTargetRequiresUserExpressionAnnotation();
+                }
 
                 transformedArguments.Add( transformedArgument );
             }
@@ -1210,6 +1227,12 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                     node.ArgumentList.CloseParenToken ) );
 
             updatedInvocation = updatedInvocation.AddScopeAnnotation( expressionScope );
+
+            if ( expressionScope == CompileTimeOnlyReturningRuntimeOnly && this._syntaxTreeAnnotationMap.GetExpressionType( node ) is
+                    { TypeKind: TypeKind.Dynamic } )
+            {
+                updatedInvocation = updatedInvocation.AddTargetRequiresUserExpressionAnnotation();
+            }
         }
         else
         {
@@ -1252,7 +1275,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                  arg => arg.Expression.GetScopeFromAnnotation()?.GetExpressionExecutionScope() == CompileTimeOnly ) )
         {
             updatedInvocation = updatedInvocation.ReplaceTokens(
-                new[] { updatedInvocation.ArgumentList.OpenParenToken, updatedInvocation.ArgumentList.CloseParenToken },
+                [updatedInvocation.ArgumentList.OpenParenToken, updatedInvocation.ArgumentList.CloseParenToken],
                 ( token, _ ) => token.AddColoringAnnotation( TextSpanClassification.CompileTime ) );
 
             // Note: if there is ever a non-compile-time TemplateKeyword that has multiple arguments, ArgumentList commas might need coloring too.
@@ -1485,7 +1508,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
             transformedDesignation = this.Visit( node.Designation );
         }
 
-        var scope = this.GetExpressionScope( new SyntaxNode[] { transformedType, transformedDesignation }, node );
+        var scope = this.GetExpressionScope( [transformedType, transformedDesignation], node );
 
         return node.Update( transformedType, transformedDesignation ).AddScopeAnnotation( scope );
     }
@@ -1985,6 +2008,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
 
         ExpressionSyntax annotatedExpression;
         TemplatingScope castScope;
+        var targetRequiresUserExpression = false;
 
         if ( typeScope == RunTimeOnly )
         {
@@ -1995,21 +2019,23 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
             }
 
             var expressionScope = this.GetNodeScope( annotatedExpression );
-            castScope = this.GetExpressionScope( new SyntaxNode[] { annotatedExpression, annotatedType }, new[] { expressionScope, typeScope }, node );
+            castScope = this.GetExpressionScope( [annotatedExpression, annotatedType], [expressionScope, typeScope], node );
         }
         else
         {
             var type = this._syntaxTreeAnnotationMap.GetSymbol( node.Type );
             var typeIsIExpression = type is INamedTypeSymbol { Name: nameof(IExpression) };
 
-            if ( typeIsIExpression )
+            if ( typeIsIExpression && this._syntaxTreeAnnotationMap.GetExpressionType( node.Expression ) is IDynamicTypeSymbol )
             {
+                // This is the special case of casting dynamic to IExpression.
                 using ( this.WithScopeContext( this._currentScopeContext.RunTimePreferred( $"cast to IExpression" ) ) )
                 {
                     annotatedExpression = this.Visit( node.Expression );
                 }
 
                 castScope = CompileTimeOnly;
+                targetRequiresUserExpression = true;
             }
             else
             {
@@ -2019,24 +2045,35 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
 
                 if ( typeScope == CompileTimeOnly && expressionScope.GetExpressionValueScope() == RunTimeOnly )
                 {
-                    // We cannot cast a run-time expression to a compile-time type, except to IExpression.
-                    this.ReportDiagnostic(
-                        TemplatingDiagnosticDescriptors.CannotCastRunTimeExpressionToCompileTimeType,
-                        node.Type,
-                        (node.Expression.ToString(), node.Type.ToString()) );
+                    if ( typeIsIExpression )
+                    {
+                        this.ReportDiagnostic(
+                            TemplatingDiagnosticDescriptors.CannotCastRunTimeExpressionToIExpression,
+                            node.Type,
+                            node.Expression.ToString() );
+                    }
+                    else
+                    {
+                        // We cannot cast a run-time expression to a compile-time type, except to IExpression.
+                        this.ReportDiagnostic(
+                            TemplatingDiagnosticDescriptors.CannotCastRunTimeExpressionToCompileTimeType,
+                            node.Type,
+                            (node.Expression.ToString(), node.Type.ToString()) );
+                    }
 
                     // Act as if the cast worked, to suppress other errors.
                     castScope = CompileTimeOnly;
                 }
                 else
                 {
-                    castScope = this.GetExpressionScope( new SyntaxNode[] { annotatedExpression, annotatedType }, new[] { expressionScope, typeScope }, node );
+                    castScope = this.GetExpressionScope( [annotatedExpression, annotatedType], [expressionScope, typeScope], node );
                 }
             }
         }
 
         return node.Update( node.OpenParenToken, annotatedType, node.CloseParenToken, annotatedExpression )
-            .AddScopeAnnotation( castScope );
+            .AddScopeAnnotation( castScope )
+            .AddTargetRequiresUserExpressionAnnotation( targetRequiresUserExpression );
     }
 
     public override SyntaxNode VisitBinaryExpression( BinaryExpressionSyntax node )
@@ -2072,7 +2109,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
     {
         var combinedScope = this.GetNodeScope( annotatedType ) == RunTimeOrCompileTime
             ? this.GetNodeScope( annotatedExpression ).GetExpressionValueScope()
-            : this.GetExpressionScope( new[] { annotatedExpression }, transformedCastNode );
+            : this.GetExpressionScope( [annotatedExpression], transformedCastNode );
 
         return transformedCastNode.AddScopeAnnotation( combinedScope );
     }
@@ -2112,7 +2149,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
             // Use the default rule.
             annotatedRight = this.Visit( node.Right );
             var rightScope = this.GetNodeScope( annotatedRight );
-            combinedScope = this.GetExpressionScope( new SyntaxNode[] { annotatedLeft, annotatedRight }, new[] { leftScope, rightScope }, node );
+            combinedScope = this.GetExpressionScope( [annotatedLeft, annotatedRight], [leftScope, rightScope], node );
         }
 
         return node.Update( annotatedLeft, node.OperatorToken, annotatedRight ).AddScopeAnnotation( combinedScope );
@@ -2624,7 +2661,7 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
         SyntaxNode? transformedWhen,
         SyntaxNode? transformedExpression,
         SyntaxNode originalNode )
-        => this.GetExpressionScope( new[] { transformedPattern, transformedWhen, transformedExpression }, originalNode );
+        => this.GetExpressionScope( [transformedPattern, transformedWhen, transformedExpression], originalNode );
 
     public override SyntaxNode VisitCasePatternSwitchLabel( CasePatternSwitchLabelSyntax node )
     {
@@ -2922,8 +2959,8 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
                 CompileTimeOnly => CompileTimeOnly,
                 RunTimeOnly => RunTimeOnly,
                 _ => this.GetExpressionScope(
-                    new SyntaxNode?[] { node.ArgumentList, transformedInitializer },
-                    new[] { argumentsScope, initializerScope },
+                    [node.ArgumentList, transformedInitializer],
+                    [argumentsScope, initializerScope],
                     node )
             };
 
@@ -2963,8 +3000,8 @@ internal sealed partial class TemplateAnnotator : SafeSyntaxRewriter, IDiagnosti
 
             var scope = expressionScope == RunTimeOrCompileTime
                 ? this.GetExpressionScope(
-                    new SyntaxNode[] { node.Expression, node.Initializer },
-                    new[] { expressionScope, this.GetNodeScope( transformedInitializer ) },
+                    [node.Expression, node.Initializer],
+                    [expressionScope, this.GetNodeScope( transformedInitializer )],
                     node )
                 : expressionScope;
 

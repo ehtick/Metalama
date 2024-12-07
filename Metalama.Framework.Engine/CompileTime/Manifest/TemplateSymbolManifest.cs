@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Framework.Code;
-using Metalama.Framework.Engine.Utilities.Roslyn;
+using Metalama.Framework.Engine.SerializableIds;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -16,6 +16,8 @@ internal sealed class TemplateSymbolManifest : ITemplateInfo
     public string Id { get; }
 
     bool ITemplateInfo.IsAbstract => this.TemplateInfo?.IsAbstract ?? false;
+
+    bool ITemplateInfo.HasNoBody => this.TemplateInfo?.HasNoBody ?? false;
 
     TemplateAttributeType ITemplateInfo.AttributeType => this.TemplateInfo?.AttributeType ?? TemplateAttributeType.None;
 
@@ -128,7 +130,7 @@ internal sealed class TemplateSymbolManifest : ITemplateInfo
             => new(
                 this._symbol.GetSerializableId().Id,
                 this._scope?.ToExecutionScope(),
-                this._templateInfo == null ? null : new TemplateInfoManifest( this._templateInfo.AttributeType, this._templateInfo.IsAbstract ),
+                this._templateInfo == null ? null : new TemplateInfoManifest( this._templateInfo.AttributeType, this._templateInfo.IsAbstract, this._templateInfo.HasNoBody ),
                 this._usedApiVersion,
                 this._children?.ToDictionary( x => x.Key, x => (IReadOnlyList<TemplateSymbolManifest>) x.Value.SelectAsArray( b => b.Build() ) ) );
     }

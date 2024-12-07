@@ -4,6 +4,7 @@ using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Code.Types;
 using Metalama.Framework.Engine.CodeModel;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
         // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
         if ( x is IType xType && y is IType yType )
         {
-            if ( xType.GetSymbol() is { } xSymbol && yType.GetSymbol() is { } ySymbol && this._symbolComparer != null )
+            if ( xType.GetSymbol( false ) is { } xSymbol && yType.GetSymbol( false ) is { } ySymbol && this._symbolComparer != null )
             {
                 return this._symbolComparer.Compare( xSymbol, ySymbol );
             }
@@ -90,7 +91,7 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
         }
         else if ( x is IDeclaration xDeclaration && y is IDeclaration yDeclaration )
         {
-            if ( xDeclaration.GetSymbol() is { } xSymbol && yDeclaration.GetSymbol() is { } ySymbol && this._symbolComparer != null )
+            if ( xDeclaration.GetSymbol( false ) is { } xSymbol && yDeclaration.GetSymbol( false ) is { } ySymbol && this._symbolComparer != null )
             {
                 return this._symbolComparer.Compare( xSymbol, ySymbol );
             }
@@ -275,6 +276,11 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
 
     private int CompareNamespaces( INamespace nsX, INamespace nsY )
     {
+        if ( ReferenceEquals( nsX, nsY ) )
+        {
+            return 0;
+        }
+
         int result;
 
         if ( this._options.HasFlagFast( StructuralComparerOptions.ContainingAssembly ) )
@@ -318,6 +324,11 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
 
     private int CompareNamedTypes( INamedType namedTypeX, INamedType namedTypeY, StructuralComparerOptions options )
     {
+        if ( ReferenceEquals( namedTypeX, namedTypeY ) )
+        {
+            return 0;
+        }
+
         int result;
 
         if ( options.HasFlagFast( StructuralComparerOptions.Name ) )
@@ -716,19 +727,23 @@ internal sealed class StructuralDeclarationComparer : IEqualityComparer<ICompila
     {
         var h = 701_142_619; // Random prime.
 
-        if ( compilationElement is IDeclaration declaration )
+        switch ( compilationElement )
         {
-            h = HashCode.Combine( h, true );
+            case IDeclaration declaration:
+                h = HashCode.Combine( h, true );
 
-            // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
-            h = HashCode.Combine( h, (int) declaration.DeclarationKind );
-        }
-        else if ( compilationElement is IType type )
-        {
-            h = HashCode.Combine( h, false );
+                // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
+                h = HashCode.Combine( h, (int) declaration.DeclarationKind );
 
-            // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
-            h = HashCode.Combine( h, (int) type.TypeKind );
+                break;
+
+            case IType type:
+                h = HashCode.Combine( h, false );
+
+                // PERF: Cast enum to int otherwise it will be boxed on .NET Framework.
+                h = HashCode.Combine( h, (int) type.TypeKind );
+
+                break;
         }
 
         switch ( compilationElement )

@@ -4,7 +4,6 @@ using Metalama.Framework.DesignTime;
 using Metalama.Framework.DesignTime.Diagnostics;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Tests.UnitTests.DesignTime.Mocks;
-using Metalama.Testing.UnitTesting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace Metalama.Framework.Tests.UnitTests.DesignTime.EndToEnd;
 
 #pragma warning disable VSTHRD200
 
-public sealed class DiagnosticSuppressorTests : UnitTestClass
+public sealed class DiagnosticSuppressorTests : FrameworkBaseTestClass
 {
     protected override void ConfigureServices( IAdditionalServiceCollection services )
     {
@@ -55,7 +54,7 @@ public sealed class DiagnosticSuppressorTests : UnitTestClass
                             using Metalama.Framework.Code;
                             using Metalama.Framework.Diagnostics;
 
-                            namespace Metalama.Framework.Tests.Integration.Aspects.Suppressions.Methods
+                            namespace Metalama.Framework.Tests.AspectTests.Aspects.Suppressions.Methods
                             {
                                 public class SuppressWarningAttribute : MethodAspect
                                 {
@@ -100,7 +99,7 @@ public sealed class DiagnosticSuppressorTests : UnitTestClass
                             using Metalama.Framework.Code;
                             using Metalama.Framework.Diagnostics;
 
-                            namespace Metalama.Framework.Tests.Integration.Aspects.Suppressions.Methods
+                            namespace Metalama.Framework.Tests.AspectTests.Aspects.Suppressions.Methods
                             {
                                 public class SuppressWarningAttribute : FieldAspect
                                 {
@@ -171,9 +170,11 @@ public sealed class DiagnosticSuppressorTests : UnitTestClass
 
         var suppression = Assert.Single( suppressions );
 
+#if ROSLYN_4_12_0_OR_GREATER // The diagnostic message has changed between Roslyn 4.8 and 4.12
         Assert.Equal(
-            "code.cs(24,12): warning CS8618: Non-nullable field 'o1' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.",
+            "code.cs(24,12): warning CS8618: Non-nullable field 'o1' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.",
             suppression.SuppressedDiagnostic.ToString() );
+#endif
     }
 
     [Fact]
@@ -207,5 +208,31 @@ public sealed class DiagnosticSuppressorTests : UnitTestClass
         var suppression = Assert.Single( suppressions );
 
         Assert.Equal( "code.cs(19,9): warning CS0169: The field 'TargetClass._field' is never used", suppression.SuppressedDiagnostic.ToString() );
+    }
+    
+    [Fact]
+    public async Task SuppressTemplateWarnings()
+    {
+        const string code = """
+                            using Metalama.Framework.Advising;
+                            using Metalama.Framework.Aspects; 
+                            using Metalama.Framework.Code;
+                            using Metalama.Framework.Diagnostics;
+
+                            internal sealed class SomeAspect : TypeAspect
+                            {
+                                [Template]
+                                protected void SuspendInvariants()
+                                {
+                                }
+                            
+                            }
+                            """;
+
+        var suppressions = await this.ExecuteSuppressorAsync( code, "CS0628" );
+
+        var suppression = Assert.Single( suppressions );
+
+        Assert.Equal( "code.cs(9,20): warning CS0628: 'SomeAspect.SuspendInvariants()': new protected member declared in sealed type", suppression.SuppressedDiagnostic.ToString() );
     }
 }

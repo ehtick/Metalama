@@ -3,8 +3,8 @@
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Eligibility;
-using Metalama.Framework.Engine.CodeModel;
-using Metalama.Framework.Engine.CodeModel.References;
+using Metalama.Framework.Engine.CodeModel.Abstractions;
+using Metalama.Framework.Engine.CodeModel.Helpers;
 using Metalama.Framework.Engine.Diagnostics;
 using Metalama.Framework.Engine.Utilities;
 using Microsoft.CodeAnalysis;
@@ -31,7 +31,7 @@ namespace Metalama.Framework.Engine.Aspects
 
         IRef<IDeclaration> IAspectPredecessor.TargetDeclaration => this.TargetDeclaration;
 
-        public Ref<IDeclaration> TargetDeclaration { get; }
+        public IRef<IDeclaration> TargetDeclaration { get; }
 
         public bool IsSkipped { get; private set; }
 
@@ -54,17 +54,6 @@ namespace Metalama.Framework.Engine.Aspects
         internal AspectInstance( IAspect aspect, IDeclaration targetDeclaration, AspectClass aspectClass, in AspectPredecessor predecessor ) :
             this( aspect, targetDeclaration, aspectClass, ImmutableArray.Create( predecessor ) ) { }
 
-        // This constructor is used by linker tests.
-        internal AspectInstance( IAspect aspect, AspectClass aspectClass )
-        {
-            this.Aspect = aspect;
-            this.AspectClass = aspectClass;
-            this.TargetDeclaration = default;
-
-            this.TemplateInstances = ImmutableDictionary.Create<TemplateClass, TemplateClassInstance>()
-                .Add( aspectClass, new TemplateClassInstance( TemplateProvider.FromInstance( aspect ), aspectClass ) );
-        }
-
         internal AspectInstance(
             IAspect aspect,
             IDeclaration targetDeclaration,
@@ -72,7 +61,7 @@ namespace Metalama.Framework.Engine.Aspects
             ImmutableArray<AspectPredecessor> predecessors )
         {
             this.Aspect = aspect;
-            this.TargetDeclaration = targetDeclaration.ToValueTypedRef();
+            this.TargetDeclaration = targetDeclaration.ToRef();
             this.AspectClass = aspectClass;
             this.Predecessors = predecessors;
             this.TargetDeclarationDepth = targetDeclaration.Depth;
@@ -102,7 +91,7 @@ namespace Metalama.Framework.Engine.Aspects
             ImmutableArray<AspectPredecessor> predecessors )
         {
             this.Aspect = aspect;
-            this.TargetDeclaration = targetDeclaration.ToValueTypedRef();
+            this.TargetDeclaration = targetDeclaration.ToRef();
             this.AspectClass = aspectClass;
             this.Predecessors = predecessors;
             this.TargetDeclarationDepth = targetDeclaration.GetCompilationModel().GetDepth( targetDeclaration );
@@ -204,5 +193,11 @@ namespace Metalama.Framework.Engine.Aspects
             => this.Predecessors.SelectMany( p => (p.Instance as IAspectPredecessorImpl)?.PredecessorTreeClosure ?? ImmutableArray<SyntaxTree>.Empty )
                 .Distinct()
                 .ToImmutableArray();
+
+        DeclarationOriginKind IDeclarationOrigin.Kind => DeclarationOriginKind.Aspect;
+
+        bool IDeclarationOrigin.IsCompilerGenerated => true;
+
+        IAspectInstance IAspectDeclarationOrigin.AspectInstance => this;
     }
 }

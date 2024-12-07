@@ -25,6 +25,11 @@ namespace Metalama.Framework.Code
         bool IsOverride { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the member has an external implementation, i.e. has the <c>extern</c> modifier.
+        /// </summary>
+        bool IsExtern { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the member is an explicit implementation of an interface member.
         /// </summary>
         bool IsExplicitInterfaceImplementation { get; }
@@ -33,7 +38,7 @@ namespace Metalama.Framework.Code
         /// Gets a value indicating whether the member has an implementation or is only a definition without a body.
         /// </summary>
         /// <remarks>
-        /// Members without implementation are, for example, <c>abstract</c> members, <c>extern</c> methods, <c>partial</c> methods without implementation part or <c>const</c> fields. 
+        /// Members without implementation are, for example, <c>abstract</c> members, <c>extern</c> methods, <c>partial</c> members without implementation part or <c>const</c> fields. 
         /// </remarks>
         bool HasImplementation { get; }
 
@@ -49,5 +54,7 @@ namespace Metalama.Framework.Code
         new IMember Definition { get; }
 
         new IRef<IMember> ToRef();
+        
+        IMember? OverriddenMember { get; }
     }
 }

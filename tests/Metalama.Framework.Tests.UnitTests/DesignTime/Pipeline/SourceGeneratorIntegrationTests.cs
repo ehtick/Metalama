@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Metalama.Framework.Tests.UnitTests.DesignTime.Pipeline;
 
-public sealed class SourceGeneratorIntegrationTests : UnitTestClass
+public sealed class SourceGeneratorIntegrationTests : FrameworkBaseTestClass
 {
     [Fact]
     public void ChangeInDependency_ChangeNotification()
@@ -69,10 +69,7 @@ partial class C : BaseClass
         BlockingCollection<ProjectKey> dirtyProjectNotifications = new();
 
         // ReSharper disable once AccessToDisposedClosure
-        if ( factory.EventHub != null )
-        {
-            factory.EventHub.DirtyProject += project => dirtyProjectNotifications.Add( project, testContext.CancellationToken );
-        }
+        factory.EventHub.DirtyProject += project => dirtyProjectNotifications.Add( project, testContext.CancellationToken );
 
         Assert.Single( results1.Result.IntroducedSyntaxTrees );
 

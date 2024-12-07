@@ -112,7 +112,7 @@ internal sealed partial class LinkerAnalysisStep
                     var containingSemantic = containingSymbol.ToSemantic( IntermediateSymbolSemanticKind.Final );
 
                     var sourceNode =
-                        containingSymbol.GetPrimaryDeclaration() switch
+                        containingSymbol.GetPrimaryDeclarationSyntax() switch
                         {
                             ConstructorDeclarationSyntax constructor => constructor.Body ?? (SyntaxNode?) constructor.ExpressionBody ?? constructor,
                             MethodDeclarationSyntax method => method.Body ?? (SyntaxNode?) method.ExpressionBody ?? method,
@@ -121,11 +121,10 @@ internal sealed partial class LinkerAnalysisStep
                                                                       ?? throw new AssertionFailedException( $"'{containingSymbol}' has no implementation." ),
                             OperatorDeclarationSyntax @operator => @operator.Body
                                                                    ?? (SyntaxNode?) @operator.ExpressionBody
-                                                                   ?? throw new AssertionFailedException( $"'{containingSymbol}' has no implementation." ),
+                                                                   ?? @operator,
                             ConversionOperatorDeclarationSyntax conversionOperator => conversionOperator.Body
                                                                                       ?? (SyntaxNode?) conversionOperator.ExpressionBody
-                                                                                      ?? throw new AssertionFailedException(
-                                                                                          $"'{containingSymbol}' has no implementation." ),
+                                                                                      ?? conversionOperator,
                             AccessorDeclarationSyntax accessor => accessor.Body
                                                                   ?? (SyntaxNode?) accessor.ExpressionBody
                                                                   ?? accessor ?? throw new AssertionFailedException(
@@ -150,9 +149,9 @@ internal sealed partial class LinkerAnalysisStep
                             true,
                             true );
 
-                    var wasAdded = aspectReferences.TryAdd( containingSemantic, new[] { resolvedReference } );
+                    _ = aspectReferences.TryAdd( containingSemantic, [resolvedReference] );
 
-                    Invariant.Assert( wasAdded );
+                    // In case of duplicate declarations (which can happen at design time), the aspect may not be added here.
                 }
             }
 
@@ -213,7 +212,7 @@ internal sealed partial class LinkerAnalysisStep
             void AnalyzeIntroducedBody( IMethodSymbol symbol )
             {
                 var semantic = symbol.ToSemantic( IntermediateSymbolSemanticKind.Default );
-                var syntax = symbol.GetPrimaryDeclaration().AssertNotNull();
+                var syntax = symbol.GetPrimaryDeclarationSyntax().AssertNotNull();
 
                 var nodesWithAspectReference = syntax.GetAnnotatedNodes( AspectReferenceAnnotationExtensions.AnnotationKind );
 
