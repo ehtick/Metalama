@@ -41,7 +41,15 @@ public class IntroduceDependencyAttribute : DeclarativeAdviceAttribute
 
         var templateFieldOrProperty = (IFieldOrProperty) templateMember;
 
-        builder.With( templateFieldOrProperty.DeclaringType ).IntroduceDependency( templateFieldOrProperty.Type, this.ToOptions( templateFieldOrProperty ) );
+        var targetType = builder.Target.GetClosestNamedType();
+
+        if ( targetType == null )
+        {
+            builder.Diagnostics.Report( DiagnosticDescriptors.AdviceUsedInNonTypeContext.WithArguments( builder.Target ) );
+            return;
+        }
+
+        builder.With( targetType ).IntroduceDependency( templateFieldOrProperty.Type, this.ToOptions( templateFieldOrProperty ) );
     }
 
     /// <summary>

@@ -30,6 +30,14 @@ internal static class DiagnosticDescriptors
             "None of the registered dependency injection frameworks can handle a dependency.",
             _category );
 
+    internal static readonly DiagnosticDefinition<IDeclaration>
+       AdviceUsedInNonTypeContext = new(
+           "LAMA0703",
+           Severity.Error,
+           "Cannot use the [IntroduceDependency] advice because the target declaration '{0}' is not a type or a type member.",
+           "Cannot use the [IntroduceDependency] advice because the target declaration is not a type or a type member.",
+           _category );
+
     internal static readonly SuppressionDefinition NonNullableFieldMustContainValue = new( "CS8618" );
 
     internal static readonly SuppressionDefinition FieldIsNeverUsed = new( "CS0169" );
