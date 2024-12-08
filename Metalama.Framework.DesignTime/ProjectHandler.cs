@@ -48,7 +48,7 @@ public abstract class ProjectHandler : IDisposable
     {
         if ( disposing )
         {
-            this._taskRunner.RunSynchronously( this.PendingTasks.WaitAllAsync );
+            this._taskRunner.RunSynchronously( () => this.PendingTasks.WaitAllAsync() );
         }
     }
 

@@ -22,7 +22,7 @@ public sealed class TaskBagTests : FrameworkBaseTestClass
             bag.Run( () => Task.CompletedTask );
         }
 
-        await bag.WaitAllAsync();
+        await bag.WaitAllAsync( testContext.CancellationToken );
 
         // This is to test that there is no memory leak.
         Assert.True( bag.IsEmpty );
@@ -39,7 +39,7 @@ public sealed class TaskBagTests : FrameworkBaseTestClass
             bag.Run( async () => await Task.Yield() );
         }
 
-        await bag.WaitAllAsync();
+        await bag.WaitAllAsync( testContext.CancellationToken );
 
         // This is to test that there is no memory leak.
         Assert.True( bag.IsEmpty );

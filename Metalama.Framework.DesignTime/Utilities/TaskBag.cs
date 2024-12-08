@@ -5,6 +5,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Project;
 using Metalama.Framework.Services;
+using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
 
 namespace Metalama.Framework.DesignTime.Utilities;
@@ -67,12 +68,12 @@ public sealed class TaskBag
     }
 
     [PublicAPI]
-    public async Task WaitAllAsync()
+    public async Task WaitAllAsync( CancellationToken cancellationToken = default )
     {
 #pragma warning disable VSTHRD003
 
         var shortDelay = TimeSpan.FromSeconds( 5 );
-        var shortDelayTask = Task.Delay( 5_000 );
+        var shortDelayTask = Task.Delay( 5_000, cancellationToken );
 
         if ( await Task.WhenAny( shortDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == shortDelayTask )
         {
@@ -82,19 +83,17 @@ public sealed class TaskBag
                     this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.ToString() ) ) );
         }
 
-        // Avoid blocking forever in case of bug.
-
-        var longDelay = TimeSpan.FromSeconds( 180 );
-        var longDelayTask = Task.Delay( 180_000 );
-
-        if ( await Task.WhenAny( longDelayTask, Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ) ) == longDelayTask )
+        if ( cancellationToken.CanBeCanceled )
         {
-            throw new TimeoutException(
-                $"The following tasks did not complete complete in {longDelay}: " + string.Join(
-                    ", ",
-                    this._pendingTasks.SelectAsReadOnlyCollection( x => x.Value.Func.Method.ToString() ) ) );
+            await Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ).WithCancellation( cancellationToken );
         }
-#pragma warning restore VSTHRD003
+        else
+        {
+            // Avoid blocking forever in case of bug.
+            
+            using var timeout = new CancellationTokenSource( TimeSpan.FromMinutes( 1 ) );
+            await Task.WhenAll( this._pendingTasks.Values.Select( x => x.Task ) ).WithCancellation( timeout.Token );
+        }
     }
 
     internal bool IsEmpty => this._pendingTasks.IsEmpty;

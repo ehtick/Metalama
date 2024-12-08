@@ -85,7 +85,7 @@ public sealed class PipelineCancellationTests : FrameworkBaseTestClass
     {
         // We need a large timeout because this test has many "yield" points, and other tests running concurrently will take precedence over it.
         // Therefore, a timeout equal than the expected duration of all tests is not exagerated.
-        
+
         using var testContext = this.CreateTestContext( new TestContextOptions() { HasSourceGeneratorTouchFile = true, Timeout = TimeSpan.FromMinutes( 10 ) } );
         var serviceProvider = testContext.ServiceProvider.Global;
         serviceProvider = serviceProvider.WithService( new AnalysisProcessEventHub( serviceProvider ) );
@@ -148,8 +148,8 @@ public sealed class PipelineCancellationTests : FrameworkBaseTestClass
         {
             // Awaiting here avoids cancellations in the middle of the remoting initialization.
             await analysisProcessEndpoint.WaitUntilInitializedAsync( "test" );
-            await analysisProcessProjectHandler.PendingTasks.WaitAllAsync();
-            await userProcessProjectHandler.PendingTasks.WaitAllAsync();
+            await analysisProcessProjectHandler.PendingTasks.WaitAllAsync( testContext.CancellationToken );
+            await userProcessProjectHandler.PendingTasks.WaitAllAsync( testContext.CancellationToken );
         }
 
         return wasCancellationRequested;
