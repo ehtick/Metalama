@@ -37,7 +37,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
 {
     private readonly TemplateMember<IMethod>? _methodTemplate;
     private readonly Func<TemplateKind, IUserExpression>? _proceedExpressionProvider;
-    private readonly OtherTemplateClassProvider _otherTemplateClassProvider;
+    private readonly TemplateClassProvider _templateClassProvider;
     private readonly LocalFunctionInfo? _localFunctionInfo;
 
     private static SyntaxGenerationContext? CurrentSyntaxGenerationContextOrNull
@@ -188,7 +188,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
         this.SyntaxGenerationContext = syntaxGenerationContext;
         this.LexicalScope = lexicalScope;
         this._proceedExpressionProvider = proceedExpressionProvider;
-        this._otherTemplateClassProvider = serviceProvider.GetRequiredService<OtherTemplateClassProvider>();
+        this._templateClassProvider = serviceProvider.GetRequiredService<TemplateClassProvider>();
 
         var templateTypeArguments = ImmutableDictionary<string, IType>.Empty.ToBuilder();
 
@@ -230,7 +230,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
         this._localFunctionInfo = localFunctionInfo;
         this.TemplateGenericArguments = prototype.TemplateGenericArguments;
         this._proceedExpressionProvider = prototype._proceedExpressionProvider;
-        this._otherTemplateClassProvider = prototype._otherTemplateClassProvider;
+        this._templateClassProvider = prototype._templateClassProvider;
         this.TemplateProvider = prototype.TemplateProvider;
     }
 
@@ -246,7 +246,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
         this._localFunctionInfo = prototype._localFunctionInfo;
         this.TemplateGenericArguments = prototype.TemplateGenericArguments;
         this._proceedExpressionProvider = prototype._proceedExpressionProvider;
-        this._otherTemplateClassProvider = prototype._otherTemplateClassProvider;
+        this._templateClassProvider = prototype._templateClassProvider;
         this.TemplateProvider = templateProvider.IsNull ? prototype.TemplateProvider : templateProvider;
     }
 
@@ -703,7 +703,7 @@ internal sealed partial class TemplateExpansionContext : UserCodeExecutionContex
             return this._methodTemplate.AssertNotNull().TemplateClassMember.TemplateClass;
         }
 
-        return this._otherTemplateClassProvider.Get( templateProvider );
+        return this._templateClassProvider.Get( templateProvider );
     }
 
     public void CheckTemplateLanguageVersion<T>( TemplateExpansionContext context, TemplateMember<T> templateMember )
