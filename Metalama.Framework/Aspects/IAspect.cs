@@ -17,7 +17,7 @@ namespace Metalama.Framework.Aspects
     /// The base interface for all aspects, with the type parameter indicating to which types
     /// of declarations the aspect can be added.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    [ForcedGenericRunTimeOrCompileTime]
     public interface IAspect<in T> : IAspect, IEligible<T>
         where T : class, IDeclaration
     {
@@ -26,6 +26,7 @@ namespace Metalama.Framework.Aspects
         /// using the <paramref name="builder"/> parameter.
         /// </summary>
         /// <param name="builder">An object that allows the aspect to add advice, child aspects and validators.</param>
+        [CompileTime]
         void BuildAspect( IAspectBuilder<T> builder )
 #if NET5_0_OR_GREATER
         { }

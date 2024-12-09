@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Engine.CodeModel;
 using Metalama.Framework.Engine.CodeModel.Helpers;
@@ -57,18 +58,19 @@ namespace Metalama.Framework.Tests.UnitTests.Templating
         {
             using var testContext = this.CreateTestContext();
 
-            const string code = @"
-using Metalama.Framework.Advising; 
-using Metalama.Framework.Aspects; 
-class C : TypeAspect 
-{
-   void M() {}
-  int F;
+            const string code = """
+                using Metalama.Framework.Advising;
+                using Metalama.Framework.Aspects;
 
- [TemplateAttribute]
- void Template() {}
-}
-";
+                class C : TypeAspect
+                {
+                  void M() { }
+                  int F;
+
+                  [TemplateAttribute]
+                  void Template() { }
+                }
+                """;
 
             var compilation = testContext.CreateCompilationModel( code );
             var type = compilation.Types.OfName( "C" ).Single();
@@ -76,6 +78,31 @@ class C : TypeAspect
             this.AssertScope( type.Fields.OfName( "F" ).Single(), TemplatingScope.RunTimeOrCompileTime );
             this.AssertScope( type.Methods.OfName( "M" ).Single(), TemplatingScope.RunTimeOrCompileTime );
             this.AssertScope( type.Methods.OfName( "Template" ).Single(), TemplatingScope.CompileTimeOnly );
+        }
+
+        [Fact]
+        public void DirectAspectType()
+        {
+            using var testContext = this.CreateTestContext();
+
+            const string code = """
+                using Metalama.Framework.Aspects;
+                using Metalama.Framework.Code;
+                using Metalama.Framework.Eligibility;
+
+                class C : IAspect<INamedType>
+                {
+                    public void BuildAspect( IAspectBuilder<INamedType> builder ) { }
+
+                    public void BuildEligibility( IEligibilityBuilder<INamedType> builder ) { }
+                }
+                """;
+
+            var compilation = testContext.CreateCompilationModel( code );
+            var type = compilation.Types.OfName( "C" ).Single();
+            this.AssertScope( (IDeclaration) type, TemplatingScope.RunTimeOrCompileTime );
+            this.AssertScope( type.Methods.OfName( "BuildAspect" ).Single(), TemplatingScope.CompileTimeOnly );
+            this.AssertScope( type.Methods.OfName( "BuildEligibility" ).Single(), TemplatingScope.CompileTimeOnly );
         }
 
         [Fact]

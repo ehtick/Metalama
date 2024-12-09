@@ -109,7 +109,7 @@ internal abstract partial class AspectReferenceRenamingSubstitution : SyntaxNode
                 this.AspectReference.ContainingSemantic.Symbol.ContainingType,
                 targetSymbol.ContainingType ) )
         {
-            if ( this.AspectReference.OriginalSymbol.IsInterfaceMemberImplementation() )
+            if ( this.AspectReference.OriginalSymbol.IsExplicitInterfaceMemberImplementation() )
             {
                 throw new AssertionFailedException( Justifications.CoverageMissing );
             }

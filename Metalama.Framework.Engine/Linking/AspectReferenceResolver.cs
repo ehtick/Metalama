@@ -481,7 +481,7 @@ internal sealed class AspectReferenceResolver
         // Check whether we are referencing explicit interface implementation.
         if ( (!this._comparer.Equals( containingSymbol.ContainingType, referencedSymbol.ContainingType )
               && referencedSymbol.ContainingType.TypeKind == TypeKind.Interface)
-             || referencedSymbol.IsInterfaceMemberImplementation() )
+             || referencedSymbol.IsExplicitInterfaceMemberImplementation() )
         {
             // TODO: For some reason we get here in two ways (see the condition):
             //          1) The symbol is directly interface symbol (first condition matches).

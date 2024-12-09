@@ -4,6 +4,7 @@ using Metalama.Framework.Code;
 using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Engine.SerializableIds;
 using Metalama.Framework.Engine.Services;
+using Metalama.Framework.Engine.Utilities.Caching;
 using Metalama.Framework.Engine.Utilities.Comparers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -170,14 +171,46 @@ namespace Metalama.Framework.Engine.Utilities.Roslyn
                 r => r.GetSyntax() is MemberDeclarationSyntax member && member.Modifiers.Any( m => m.IsKind( kind ) ) );
         }
 
-        internal static bool IsInterfaceMemberImplementation( this ISymbol symbol )
+        private static ImmutableArray<ISymbol> ExplicitInterfaceImplementations( this ISymbol symbol )
             => symbol switch
             {
-                IMethodSymbol methodSymbol => methodSymbol.ExplicitInterfaceImplementations.Any(),
-                IPropertySymbol propertySymbol => propertySymbol.ExplicitInterfaceImplementations.Any(),
-                IEventSymbol eventSymbol => eventSymbol.ExplicitInterfaceImplementations.Any(),
-                _ => false
+                IEventSymbol @event => ImmutableArray<ISymbol>.CastUp( @event.ExplicitInterfaceImplementations ),
+                IMethodSymbol method => ImmutableArray<ISymbol>.CastUp( method.ExplicitInterfaceImplementations ),
+                IPropertySymbol property => ImmutableArray<ISymbol>.CastUp( property.ExplicitInterfaceImplementations ),
+                _ => ImmutableArray<ISymbol>.Empty,
             };
+
+        internal static bool IsExplicitInterfaceMemberImplementation( this ISymbol symbol )
+            => symbol.ExplicitInterfaceImplementations().Any();
+
+        private static readonly WeakCache<ISymbol, ImmutableArray<ISymbol>> _explicitOrImplicitInterfaceImplementations = new();
+
+        // Based on https://github.com/dotnet/roslyn/blob/9846ce8ba/src/Workspaces/SharedUtilitiesAndExtensions/Compiler/Core/Extensions/ISymbolExtensions.cs#L145-L159
+        public static ImmutableArray<ISymbol> GetExplicitOrImplicitInterfaceImplementations( this ISymbol symbol )
+        {
+            if ( symbol.Kind is not (SymbolKind.Method or SymbolKind.Property or SymbolKind.Event) )
+            {
+                return ImmutableArray<ISymbol>.Empty;
+            }
+
+            if ( symbol.ContainingType == null )
+            {
+                return ImmutableArray<ISymbol>.Empty;
+            }
+
+            return _explicitOrImplicitInterfaceImplementations.GetOrAdd( symbol, static symbol =>
+            {
+                var containingType = symbol.ContainingType;
+
+                var query = from iface in containingType.AllInterfaces
+                            from interfaceMember in iface.GetMembers()
+                            let impl = containingType.FindImplementationForInterfaceMember( interfaceMember )
+                            where symbol.Equals( impl )
+                            select interfaceMember;
+
+                return query.Concat( symbol.ExplicitInterfaceImplementations() ).Distinct().ToImmutableArray();
+            } );
+        }
 
         // This won't return the correct result for invalid code where multiple properties have the same name,
         // but I think that's fine.
@@ -285,15 +318,6 @@ namespace Metalama.Framework.Engine.Utilities.Roslyn
                 Name: "ConfigureAwait",
                 ContainingType: var containingType
             } && containingType.ConstructedFrom.GetReflectionFullName() is "System.Threading.Tasks.Task" or "System.Threading.Tasks.Task`1";
-
-        internal static bool IsExplicitInterfaceMemberImplementation( this ISymbol? symbol )
-            => symbol switch
-            {
-                IMethodSymbol method => method.ExplicitInterfaceImplementations.Length > 0,
-                IPropertySymbol property => property.ExplicitInterfaceImplementations.Length > 0,
-                IEventSymbol @event => @event.ExplicitInterfaceImplementations.Length > 0,
-                _ => false
-            };
 
         /// <summary>
         /// Translate a symbol to a different <see cref="CompilationContext"/> if necessary, but only in
