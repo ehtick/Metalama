@@ -31,8 +31,6 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
     private readonly Func<AspectPipelineConfiguration, IAspectClass> _aspectSelector;
     private readonly ISymbol _targetSymbol;
 
-    private IAspectClass? _aspectClass;
-
     private LiveTemplateAspectPipeline(
         ServiceProvider<IProjectService> serviceProvider,
         CompileTimeDomain domain,
@@ -51,8 +49,6 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
         CancellationToken cancellationToken )
     {
         var aspectClass = this._aspectSelector( configuration );
-
-        this._aspectClass = aspectClass;
 
         return new PipelineContributorSources(
             ImmutableArray.Create<IAspectSource>( new AspectSource( this, aspectClass ) ),
@@ -75,13 +71,11 @@ public sealed class LiveTemplateAspectPipeline : AspectPipeline
 
         var result = await pipeline.ExecuteAsync( inputCompilation, diagnosticAdder, pipelineConfiguration, cancellationToken );
 
-        var aspectClass = pipeline._aspectClass;
-
-        Invariant.Implies( result.IsSuccessful, aspectClass != null );
-
-        if ( result.IsSuccessful && aspectClass != null )
+        if ( result.IsSuccessful )
         {
             // Enforce licensing
+            var aspectClass = aspectSelector( result.Value.Configuration );
+
             var licenseVerifier = result.Value.Configuration.ServiceProvider.GetService<LicenseVerifier>();
 
             if ( !isComputingPreview && licenseVerifier != null
