@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <name>Metalama_Metalama20250_MetalamaMigration Config DSL Script</name>
-  <groupId>Metalama_Metalama20250_MetalamaMigration</groupId>
-  <artifactId>Metalama_Metalama20250_MetalamaMigration_dsl</artifactId>
+  <name>Metalama_Metalama20251_MetalamaMigration Config DSL Script</name>
+  <groupId>Metalama_Metalama20251_MetalamaMigration</groupId>
+  <artifactId>Metalama_Metalama20251_MetalamaMigration_dsl</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <parent>
