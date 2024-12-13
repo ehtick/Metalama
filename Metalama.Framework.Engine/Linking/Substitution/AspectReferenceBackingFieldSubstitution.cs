@@ -44,7 +44,7 @@ internal sealed class AspectReferenceBackingFieldSubstitution : SyntaxNodeSubsti
             case MemberAccessExpressionSyntax { Name: not null } memberAccessExpression:
                 var backingFieldName = LinkerRewritingDriver.GetBackingFieldName( this._aspectReference.ResolvedSemantic.Symbol );
 
-                if ( this._aspectReference.OriginalSymbol.IsInterfaceMemberImplementation() )
+                if ( this._aspectReference.OriginalSymbol.IsExplicitInterfaceMemberImplementation() )
                 {
                     return memberAccessExpression.PartialUpdate( ThisExpression(), name: IdentifierName( backingFieldName ) );
                 }

@@ -28,6 +28,7 @@ namespace Metalama.Framework.Eligibility
         /// <i>without invoking the class constructor</i>.
         /// </remarks>
         /// <seealso href="@eligibility"/>
+        [CompileTime]
         void BuildEligibility( IEligibilityBuilder<T> builder )
 #if NET5_0_OR_GREATER
         { }

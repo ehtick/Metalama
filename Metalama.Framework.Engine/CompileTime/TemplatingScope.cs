@@ -81,6 +81,11 @@ namespace Metalama.Framework.Engine.CompileTime
         /// Used only with <see cref="SyntaxAnnotationExtensions.AddTargetScopeAnnotation{T}"/>. Means code rewriter must follow the
         /// parent and cannot rely regardless of the scope of the current node. 
         /// </summary>
-        MustFollowParent
+        MustFollowParent,
+
+        /// <summary>
+        /// A generic type that is forced to be run-time-or-compile-time, even if its type arguments are not run-time-or-compile-time.
+        /// </summary>
+        ForcedRunTimeOrCompileTime
     }
 }

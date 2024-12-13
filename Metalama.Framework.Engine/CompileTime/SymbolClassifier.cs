@@ -248,6 +248,7 @@ internal sealed class SymbolClassifier : ISymbolClassifier
             nameof(CompileTimeReturningRunTimeAttribute) => TemplatingScope.CompileTimeOnlyReturningRuntimeOnly,
             nameof(TemplateAttribute) => TemplatingScope.CompileTimeOnly,
             nameof(RunTimeOrCompileTimeAttribute) => TemplatingScope.RunTimeOrCompileTime,
+            nameof(ForcedGenericRunTimeOrCompileTimeAttribute) => TemplatingScope.ForcedRunTimeOrCompileTime,
             nameof(IntroduceAttribute) => TemplatingScope.RunTimeOnly,
             nameof(InterfaceMemberAttribute) => TemplatingScope.RunTimeOnly,
             _ => null
@@ -282,8 +283,16 @@ internal sealed class SymbolClassifier : ISymbolClassifier
     {
         symbol.ThrowIfBelongsToDifferentCompilationThan( this._compilationContext );
 
-        return this.GetTemplatingScopeCore( symbol, GetTemplatingScopeOptions.Default, ImmutableLinkedList<ISymbol>.Empty, null )
+        var scope = this.GetTemplatingScopeCore( symbol, GetTemplatingScopeOptions.Default, ImmutableLinkedList<ISymbol>.Empty, null )
             .GetValueOrDefault( TemplatingScope.RunTimeOnly );
+
+        // Forced RTOCT is an internal concept, so hide it from other parts of the code.
+        if ( scope == TemplatingScope.ForcedRunTimeOrCompileTime )
+        {
+            return TemplatingScope.RunTimeOrCompileTime;
+        }
+
+        return scope;
     }
 
     public bool IsTemplateOnly( ISymbol symbol ) => this._cacheIsTemplateOnly.GetOrAdd( symbol, static ( s, x ) => x.IsTemplateOnlyCore( s ), this );
@@ -602,6 +611,7 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                                     break;
 
                                 case TemplatingScope.RunTimeOrCompileTime:
+                                case TemplatingScope.ForcedRunTimeOrCompileTime:
                                     runTimeOrCompileTimeCount++;
 
                                     break;
@@ -615,6 +625,11 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                                 default:
                                     throw new AssertionFailedException( $"Unexpected scope: {typeArgumentScope}." );
                             }
+                        }
+
+                        if ( declarationScope == TemplatingScope.ForcedRunTimeOrCompileTime )
+                        {
+                            return TemplatingScope.ForcedRunTimeOrCompileTime;
                         }
 
                         switch ( runTimeCount )
@@ -732,7 +747,7 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                         {
                             foreach ( var genericArgument in namedType.TypeArguments )
                             {
-                                this.CombineBaseTypeScope( genericArgument, ref combinedScope, symbolsBeingProcessedIncludingCurrent, tracer );
+                                this.CombineGenericArgumentScope( genericArgument, ref combinedScope, symbolsBeingProcessedIncludingCurrent, tracer );
                             }
                         }
 
@@ -809,7 +824,7 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                             memberScope = this.GetTemplatingScopeCore( associatedSymbol, options, symbolsBeingProcessedIncludingCurrent, tracer );
                         }
 
-                        // If we still have no attribute, look at the containing symbol.
+                        // If we still have no scope, look at the containing symbol.
                         if ( memberScope == null && symbol.ContainingSymbol != null )
                         {
                             memberScope = this.GetTemplatingScopeCore( symbol.ContainingSymbol, options, symbolsBeingProcessedIncludingCurrent, tracer )
@@ -823,8 +838,8 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                             }
                         }
 
-                        // If the scope is given by attributes, we do not try to guess by signature.
-                        if ( memberScope != null && memberScope != TemplatingScope.RunTimeOrCompileTime )
+                        // If the scope is given by other means, we do not try to guess by signature.
+                        if ( memberScope != null && memberScope is not (TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) )
                         {
                             return memberScope;
                         }
@@ -923,13 +938,25 @@ internal sealed class SymbolClassifier : ISymbolClassifier
             }
         }
 
-        static TemplatingScope? GetScopeFromAttributes( SymbolClassifierTracer? tracer, ISymbol symbol )
+        static TemplatingScope? GetScopeFromAttributes( SymbolClassifierTracer? tracer, ISymbol? symbol )
         {
+            if ( symbol == null )
+            {
+                return null;
+            }
+
             // From attributes.
             var scopeFromAttributes = symbol
                 .GetAttributes()
                 .Select( GetTemplatingScope )
                 .FirstOrDefault( s => s != null );
+
+            scopeFromAttributes ??= GetScopeFromAttributes( tracer, symbol.GetOverriddenMember() );
+
+            scopeFromAttributes ??= symbol.GetExplicitOrImplicitInterfaceImplementations()
+                .Select( i => GetScopeFromAttributes( tracer, i ) )
+                .Where( s => s != null )
+                .Aggregate( (TemplatingScope?) null, ( s1, s2 ) => s1 == null ? s2 : s1.Value.GetCombinedValueScope( s2!.Value ) );
 
             if ( scopeFromAttributes != null )
             {
@@ -978,9 +1005,9 @@ internal sealed class SymbolClassifier : ISymbolClassifier
                 (TemplatingScope.Conflict, _) => TemplatingScope.Conflict,
                 (_, TemplatingScope.Conflict) => TemplatingScope.Conflict,
                 (TemplatingScope.CompileTimeOnlyReturningRuntimeOnly, TemplatingScope.RunTimeOnly) => TemplatingScope.RunTimeOnly,
-                (TemplatingScope.CompileTimeOnlyReturningRuntimeOnly, TemplatingScope.RunTimeOrCompileTime) => TemplatingScope.RunTimeOnly,
-                (_, TemplatingScope.RunTimeOrCompileTime) => typeScope,
-                (TemplatingScope.RunTimeOrCompileTime, _) => combinedScope,
+                (TemplatingScope.CompileTimeOnlyReturningRuntimeOnly, TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) => TemplatingScope.RunTimeOnly,
+                (_, TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) => typeScope,
+                (TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime, _) => combinedScope,
                 (TemplatingScope.RunTimeOnly, TemplatingScope.CompileTimeOnly) => OnConflict(),
                 (TemplatingScope.CompileTimeOnly, TemplatingScope.RunTimeOnly) => OnConflict(),
                 _ => throw new AssertionFailedException( $"Invalid combination: ({typeScope}, {combinedScope})" )
@@ -1000,6 +1027,14 @@ internal sealed class SymbolClassifier : ISymbolClassifier
             symbolsBeingProcessed,
             tracer );
 
+        CombineBaseTypeScope( baseTypeScope, ref combinedScope, baseType.TypeKind == TypeKind.Interface );
+    }
+
+    private static void CombineBaseTypeScope(
+        TemplatingScope? baseTypeScope,
+        ref TemplatingScope? combinedScope,
+        bool baseTypeIsInterface = false )
+    {
         if ( baseTypeScope == TemplatingScope.DynamicTypeConstruction )
         {
             baseTypeScope = TemplatingScope.RunTimeOnly;
@@ -1016,10 +1051,15 @@ internal sealed class SymbolClassifier : ISymbolClassifier
             (TemplatingScope.RunTimeOrCompileTime, TemplatingScope.RunTimeOrCompileTime) => TemplatingScope.RunTimeOrCompileTime,
             (TemplatingScope.CompileTimeOnly, TemplatingScope.CompileTimeOnly) => TemplatingScope.CompileTimeOnly,
 
-            // A RunTimeOrCompileTime type can have interfaces that are CompileTimeOnly and/or RunTimeOnly. 
-            (_, TemplatingScope.RunTimeOrCompileTime) when baseType.TypeKind == TypeKind.Interface => TemplatingScope.RunTimeOrCompileTime,
-            (_, TemplatingScope.RunTimeOrCompileTime) => baseTypeScope.Value,
-            (TemplatingScope.RunTimeOrCompileTime, _) => combinedScope,
+            // If both are RTOCT and one of them is forced, the result is forced.
+            (TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime,
+                TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) => TemplatingScope.ForcedRunTimeOrCompileTime,
+
+            // A RunTimeOrCompileTime type can have interfaces that are CompileTimeOnly or RunTimeOnly.
+            (_, TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) when baseTypeIsInterface => combinedScope,
+
+            (_, TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime) => baseTypeScope.Value,
+            (TemplatingScope.RunTimeOrCompileTime or TemplatingScope.ForcedRunTimeOrCompileTime, _) => combinedScope,
 
             // Conflicts
             (TemplatingScope.Conflict, _) => TemplatingScope.Conflict,
@@ -1029,6 +1069,28 @@ internal sealed class SymbolClassifier : ISymbolClassifier
             (TemplatingScope.CompileTimeOnly, TemplatingScope.RunTimeOnly) => OnConflict(),
             _ => throw new AssertionFailedException( $"Invalid combination: ({baseTypeScope}, {combinedScope})" )
         };
+    }
+
+    private void CombineGenericArgumentScope(
+        ITypeSymbol genericArgument,
+        ref TemplatingScope? combinedScope,
+        ImmutableLinkedList<ISymbol> symbolsBeingProcessed,
+        SymbolClassifierTracer? tracer )
+    {
+        var typeArgumentScope = this.GetTemplatingScopeCore(
+            genericArgument,
+            GetTemplatingScopeOptions.ImplicitRuntimeOrCompileTimeAsNull,
+            symbolsBeingProcessed,
+            tracer );
+
+        if ( combinedScope == TemplatingScope.ForcedRunTimeOrCompileTime && typeArgumentScope is TemplatingScope.CompileTimeOnly or TemplatingScope.RunTimeOnly )
+        {
+            // The combined scope stays forced RTOCT.
+            return;
+        }
+
+        // Otherwise, behaves the same as base types.
+        CombineBaseTypeScope( typeArgumentScope, ref combinedScope );
     }
 
     private bool TryGetWellKnownScope( ISymbol symbol, GetTemplatingScopeOptions options, out TemplatingScope? scope )

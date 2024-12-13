@@ -46,7 +46,7 @@ internal sealed class AspectReferenceOverrideSubstitution : AspectReferenceRenam
                 this.AspectReference.ContainingSemantic.Symbol.ContainingType,
                 targetSymbol.ContainingType ) )
         {
-            if ( this.AspectReference.OriginalSymbol.IsInterfaceMemberImplementation() )
+            if ( this.AspectReference.OriginalSymbol.IsExplicitInterfaceMemberImplementation() )
             {
                 return currentNode.PartialUpdate( ThisExpression(), name: RewriteName( currentNode.Name, this.GetTargetMemberName() ) );
             }
