@@ -3,5 +3,5 @@
         "Killable",
         "Metalama"
     ],
-    "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}${separator}${appName}${separator}[Branch: develop/2025.0]"
+    "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}${separator}${appName}${separator}[Branch: develop/2025.1]"
 }
