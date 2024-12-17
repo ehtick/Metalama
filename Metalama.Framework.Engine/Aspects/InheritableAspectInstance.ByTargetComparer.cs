@@ -33,12 +33,12 @@ public sealed partial class InheritableAspectInstance
                 return false;
             }
 
-            return x.TargetDeclaration.Equals( y.TargetDeclaration );
+            return x.TargetDeclaration.Equals( y.TargetDeclaration, RefComparison.Structural );
         }
 
         public int GetHashCode( InheritableAspectInstance obj )
         {
-            return obj.TargetDeclaration.GetHashCode( RefComparison.Default );
+            return obj.TargetDeclaration.GetHashCode( RefComparison.Structural );
         }
     }
 }
