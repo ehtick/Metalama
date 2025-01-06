@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Framework.GenerateMetaSyntaxRewriter;
 using PostSharp.Engineering.BuildTools;
 using PostSharp.Engineering.BuildTools.Build;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
-using PostSharp.Engineering.BuildTools.Docker;
 using PostSharp.Engineering.BuildTools.Utilities;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -104,39 +104,7 @@ static void OnPrepareCompleted( PrepareCompletedEventArgs arg )
 
     arg.Context.Console.WriteHeading( "Generating code" );
 
-    var generatorDirectory =
-        Path.Combine( arg.Context.RepoDirectory, "Metalama.Framework.GenerateMetaSyntaxRewriter" );
-    var project =
-        new DotNetSolution( Path.Combine(
-            generatorDirectory,
-            "Metalama.Framework.GenerateMetaSyntaxRewriter.csproj" ) );
-
-    var settings = new BuildSettings { BuildConfiguration = BuildConfiguration.Debug };
-    if ( !project.Restore( arg.Context, settings ) )
-    {
-        arg.IsFailed = true;
-        return;
-    }
-
-    if ( !project.Build( arg.Context, settings ) )
-    {
-        arg.IsFailed = true;
-        return;
-    }
-
-    var toolDirectory = Path.Combine( generatorDirectory, "bin", "Debug", "net8.0" );
-    var toolExtension = RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) ? ".exe" : "";
-    var toolPath = Path.Combine( toolDirectory, "Metalama.Framework.GenerateMetaSyntaxRewriter" + toolExtension );
     var srcDirectory = arg.Context.RepoDirectory;
-    var commandLine = srcDirectory;
 
-    if ( arg.Settings.Properties.ContainsKey( "PrepareStubs" ) )
-    {
-        commandLine = $"{commandLine} --stubs";
-    }
-
-    if ( !ToolInvocationHelper.InvokeTool( arg.Context.Console, toolPath, commandLine, toolDirectory ) )
-    {
-        arg.IsFailed = true;
-    }
+    GenerateMetaSyntaxRewriter.Generate( srcDirectory );
 }
