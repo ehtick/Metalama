@@ -1,4 +1,7 @@
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
+
 #pragma warning disable CS8669 // Nullability
+#pragma warning disable IDE0005, IDE0040, SA1013, SA1027, SA1205, SA1210, SA1216, SA1508 // Formatting
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -7,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Metalama.Framework.Engine.CompileTime;
+using Metalama.Framework.Engine.Utilities.Roslyn;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Metalama.Framework.Engine.Utilities.Roslyn;
@@ -1814,6 +1818,20 @@ public static class SyntaxNodePartialUpdateExtensions
 		Option<SyntaxToken> defaultKeyword = default )
 		=> node.Update(
 			defaultKeyword.HasValue ? defaultKeyword.GetValueOrDefault()! : node.DefaultKeyword );
+	public static AllowsConstraintClauseSyntax PartialUpdate(
+		this AllowsConstraintClauseSyntax node,
+		Option<SyntaxToken> allowsKeyword = default,
+		Option<SeparatedSyntaxList<AllowsConstraintSyntax>> constraints = default )
+		=> node.Update(
+			allowsKeyword.HasValue ? allowsKeyword.GetValueOrDefault()! : node.AllowsKeyword,
+			constraints.HasValue ? constraints.GetValueOrDefault()! : node.Constraints );
+	public static RefStructConstraintSyntax PartialUpdate(
+		this RefStructConstraintSyntax node,
+		Option<SyntaxToken> refKeyword = default,
+		Option<SyntaxToken> structKeyword = default )
+		=> node.Update(
+			refKeyword.HasValue ? refKeyword.GetValueOrDefault()! : node.RefKeyword,
+			structKeyword.HasValue ? structKeyword.GetValueOrDefault()! : node.StructKeyword );
 	public static FieldDeclarationSyntax PartialUpdate(
 		this FieldDeclarationSyntax node,
 		Option<SyntaxList<AttributeListSyntax>> attributeLists = default,

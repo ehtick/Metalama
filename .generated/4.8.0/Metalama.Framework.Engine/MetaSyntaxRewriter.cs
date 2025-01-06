@@ -1,4 +1,7 @@
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
+
 #pragma warning disable CS8669 // Nullability
+#pragma warning disable IDE0005, IDE0040, SA1013, SA1027, SA1205, SA1210, SA1216, SA1508 // Formatting
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -7,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Metalama.Framework.Engine.CompileTime;
+using Metalama.Framework.Engine.Utilities.Roslyn;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Metalama.Framework.Engine.Templating;
@@ -14,7 +18,7 @@ namespace Metalama.Framework.Engine.Templating;
 partial class MetaSyntaxRewriter
 {
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIdentifierName( IdentifierNameSyntax node )
+	public override SyntaxNode? VisitIdentifierName( IdentifierNameSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -30,13 +34,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IdentifierName))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitQualifiedName( QualifiedNameSyntax node )
+	public override SyntaxNode? VisitQualifiedName( QualifiedNameSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -52,17 +56,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(QualifiedName))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Left)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DotToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Right)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Left)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DotToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Right)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitGenericName( GenericNameSyntax node )
+	public override SyntaxNode? VisitGenericName( GenericNameSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -78,15 +82,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(GenericName))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TypeArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TypeArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeArgumentList( TypeArgumentListSyntax node )
+	public override SyntaxNode? VisitTypeArgumentList( TypeArgumentListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -102,17 +106,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeArgumentList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arguments)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arguments)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAliasQualifiedName( AliasQualifiedNameSyntax node )
+	public override SyntaxNode? VisitAliasQualifiedName( AliasQualifiedNameSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -128,17 +132,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AliasQualifiedName))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Alias)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Alias)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPredefinedType( PredefinedTypeSyntax node )
+	public override SyntaxNode? VisitPredefinedType( PredefinedTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -154,13 +158,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PredefinedType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArrayType( ArrayTypeSyntax node )
+	public override SyntaxNode? VisitArrayType( ArrayTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -176,15 +180,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ArrayType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ElementType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.RankSpecifiers)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ElementType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.RankSpecifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArrayRankSpecifier( ArrayRankSpecifierSyntax node )
+	public override SyntaxNode? VisitArrayRankSpecifier( ArrayRankSpecifierSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -200,17 +204,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ArrayRankSpecifier))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Sizes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Sizes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPointerType( PointerTypeSyntax node )
+	public override SyntaxNode? VisitPointerType( PointerTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -226,15 +230,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PointerType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ElementType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AsteriskToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ElementType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AsteriskToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerType( FunctionPointerTypeSyntax node )
+	public override SyntaxNode? VisitFunctionPointerType( FunctionPointerTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -250,19 +254,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.DelegateKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AsteriskToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CallingConvention)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.DelegateKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AsteriskToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CallingConvention)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerParameterList( FunctionPointerParameterListSyntax node )
+	public override SyntaxNode? VisitFunctionPointerParameterList( FunctionPointerParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -278,17 +282,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerCallingConvention( FunctionPointerCallingConventionSyntax node )
+	public override SyntaxNode? VisitFunctionPointerCallingConvention( FunctionPointerCallingConventionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -304,15 +308,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerCallingConvention))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ManagedOrUnmanagedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.UnmanagedCallingConventionList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ManagedOrUnmanagedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.UnmanagedCallingConventionList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerUnmanagedCallingConventionList( FunctionPointerUnmanagedCallingConventionListSyntax node )
+	public override SyntaxNode? VisitFunctionPointerUnmanagedCallingConventionList( FunctionPointerUnmanagedCallingConventionListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -328,17 +332,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerUnmanagedCallingConventionList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CallingConventions)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CallingConventions)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerUnmanagedCallingConvention( FunctionPointerUnmanagedCallingConventionSyntax node )
+	public override SyntaxNode? VisitFunctionPointerUnmanagedCallingConvention( FunctionPointerUnmanagedCallingConventionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -354,13 +358,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerUnmanagedCallingConvention))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNullableType( NullableTypeSyntax node )
+	public override SyntaxNode? VisitNullableType( NullableTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -376,15 +380,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NullableType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ElementType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.QuestionToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ElementType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.QuestionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTupleType( TupleTypeSyntax node )
+	public override SyntaxNode? VisitTupleType( TupleTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -400,17 +404,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TupleType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Elements)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Elements)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTupleElement( TupleElementSyntax node )
+	public override SyntaxNode? VisitTupleElement( TupleElementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -426,15 +430,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TupleElement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOmittedTypeArgument( OmittedTypeArgumentSyntax node )
+	public override SyntaxNode? VisitOmittedTypeArgument( OmittedTypeArgumentSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -450,13 +454,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OmittedTypeArgument))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OmittedTypeArgumentToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OmittedTypeArgumentToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRefType( RefTypeSyntax node )
+	public override SyntaxNode? VisitRefType( RefTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -472,17 +476,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RefType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.RefKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReadOnlyKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.RefKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReadOnlyKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitScopedType( ScopedTypeSyntax node )
+	public override SyntaxNode? VisitScopedType( ScopedTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -498,15 +502,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ScopedType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ScopedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ScopedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParenthesizedExpression( ParenthesizedExpressionSyntax node )
+	public override SyntaxNode? VisitParenthesizedExpression( ParenthesizedExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -522,17 +526,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ParenthesizedExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTupleExpression( TupleExpressionSyntax node )
+	public override SyntaxNode? VisitTupleExpression( TupleExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -548,17 +552,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TupleExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arguments)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arguments)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPrefixUnaryExpression( PrefixUnaryExpressionSyntax node )
+	public override SyntaxNode? VisitPrefixUnaryExpression( PrefixUnaryExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -574,17 +578,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PrefixUnaryExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Operand)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Operand)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAwaitExpression( AwaitExpressionSyntax node )
+	public override SyntaxNode? VisitAwaitExpression( AwaitExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -600,15 +604,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AwaitExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AwaitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AwaitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPostfixUnaryExpression( PostfixUnaryExpressionSyntax node )
+	public override SyntaxNode? VisitPostfixUnaryExpression( PostfixUnaryExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -624,17 +628,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PostfixUnaryExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Operand)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Operand)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitMemberAccessExpression( MemberAccessExpressionSyntax node )
+	public override SyntaxNode? VisitMemberAccessExpression( MemberAccessExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -650,19 +654,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(MemberAccessExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConditionalAccessExpression( ConditionalAccessExpressionSyntax node )
+	public override SyntaxNode? VisitConditionalAccessExpression( ConditionalAccessExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -678,17 +682,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConditionalAccessExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhenNotNull)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhenNotNull)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitMemberBindingExpression( MemberBindingExpressionSyntax node )
+	public override SyntaxNode? VisitMemberBindingExpression( MemberBindingExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -704,15 +708,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(MemberBindingExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitElementBindingExpression( ElementBindingExpressionSyntax node )
+	public override SyntaxNode? VisitElementBindingExpression( ElementBindingExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -728,13 +732,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ElementBindingExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRangeExpression( RangeExpressionSyntax node )
+	public override SyntaxNode? VisitRangeExpression( RangeExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -750,17 +754,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RangeExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LeftOperand)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.RightOperand)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LeftOperand)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.RightOperand)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitImplicitElementAccess( ImplicitElementAccessSyntax node )
+	public override SyntaxNode? VisitImplicitElementAccess( ImplicitElementAccessSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -776,13 +780,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ImplicitElementAccess))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBinaryExpression( BinaryExpressionSyntax node )
+	public override SyntaxNode? VisitBinaryExpression( BinaryExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -798,19 +802,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BinaryExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Left)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Right)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Left)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Right)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAssignmentExpression( AssignmentExpressionSyntax node )
+	public override SyntaxNode? VisitAssignmentExpression( AssignmentExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -826,19 +830,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AssignmentExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Left)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Right)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Left)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Right)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConditionalExpression( ConditionalExpressionSyntax node )
+	public override SyntaxNode? VisitConditionalExpression( ConditionalExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -854,21 +858,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConditionalExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.QuestionToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhenTrue)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhenFalse)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.QuestionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhenTrue)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhenFalse)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitThisExpression( ThisExpressionSyntax node )
+	public override SyntaxNode? VisitThisExpression( ThisExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -884,13 +888,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ThisExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Token)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Token)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBaseExpression( BaseExpressionSyntax node )
+	public override SyntaxNode? VisitBaseExpression( BaseExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -906,13 +910,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BaseExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Token)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Token)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLiteralExpression( LiteralExpressionSyntax node )
+	public override SyntaxNode? VisitLiteralExpression( LiteralExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -928,15 +932,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LiteralExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Token)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Token)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitMakeRefExpression( MakeRefExpressionSyntax node )
+	public override SyntaxNode? VisitMakeRefExpression( MakeRefExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -952,19 +956,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(MakeRefExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRefTypeExpression( RefTypeExpressionSyntax node )
+	public override SyntaxNode? VisitRefTypeExpression( RefTypeExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -980,19 +984,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RefTypeExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRefValueExpression( RefValueExpressionSyntax node )
+	public override SyntaxNode? VisitRefValueExpression( RefValueExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1008,23 +1012,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RefValueExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Comma)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Comma)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCheckedExpression( CheckedExpressionSyntax node )
+	public override SyntaxNode? VisitCheckedExpression( CheckedExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1040,21 +1044,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CheckedExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDefaultExpression( DefaultExpressionSyntax node )
+	public override SyntaxNode? VisitDefaultExpression( DefaultExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1070,19 +1074,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DefaultExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeOfExpression( TypeOfExpressionSyntax node )
+	public override SyntaxNode? VisitTypeOfExpression( TypeOfExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1098,19 +1102,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeOfExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSizeOfExpression( SizeOfExpressionSyntax node )
+	public override SyntaxNode? VisitSizeOfExpression( SizeOfExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1126,19 +1130,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SizeOfExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInvocationExpression( InvocationExpressionSyntax node )
+	public override SyntaxNode? VisitInvocationExpression( InvocationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1154,15 +1158,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InvocationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitElementAccessExpression( ElementAccessExpressionSyntax node )
+	public override SyntaxNode? VisitElementAccessExpression( ElementAccessExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1178,15 +1182,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ElementAccessExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArgumentList( ArgumentListSyntax node )
+	public override SyntaxNode? VisitArgumentList( ArgumentListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1202,17 +1206,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ArgumentList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arguments)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arguments)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBracketedArgumentList( BracketedArgumentListSyntax node )
+	public override SyntaxNode? VisitBracketedArgumentList( BracketedArgumentListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1228,17 +1232,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BracketedArgumentList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arguments)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arguments)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArgument( ArgumentSyntax node )
+	public override SyntaxNode? VisitArgument( ArgumentSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1254,17 +1258,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Argument))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NameColon)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.RefKindKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NameColon)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.RefKindKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitExpressionColon( ExpressionColonSyntax node )
+	public override SyntaxNode? VisitExpressionColon( ExpressionColonSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1280,15 +1284,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ExpressionColon))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNameColon( NameColonSyntax node )
+	public override SyntaxNode? VisitNameColon( NameColonSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1304,15 +1308,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NameColon))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDeclarationExpression( DeclarationExpressionSyntax node )
+	public override SyntaxNode? VisitDeclarationExpression( DeclarationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1328,15 +1332,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DeclarationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Designation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Designation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCastExpression( CastExpressionSyntax node )
+	public override SyntaxNode? VisitCastExpression( CastExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1352,19 +1356,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CastExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAnonymousMethodExpression( AnonymousMethodExpressionSyntax node )
+	public override SyntaxNode? VisitAnonymousMethodExpression( AnonymousMethodExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1380,21 +1384,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AnonymousMethodExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DelegateKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DelegateKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSimpleLambdaExpression( SimpleLambdaExpressionSyntax node )
+	public override SyntaxNode? VisitSimpleLambdaExpression( SimpleLambdaExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1410,23 +1414,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SimpleLambdaExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameter)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArrowToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameter)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArrowToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRefExpression( RefExpressionSyntax node )
+	public override SyntaxNode? VisitRefExpression( RefExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1442,15 +1446,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RefExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.RefKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.RefKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParenthesizedLambdaExpression( ParenthesizedLambdaExpressionSyntax node )
+	public override SyntaxNode? VisitParenthesizedLambdaExpression( ParenthesizedLambdaExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1466,25 +1470,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ParenthesizedLambdaExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArrowToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArrowToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInitializerExpression( InitializerExpressionSyntax node )
+	public override SyntaxNode? VisitInitializerExpression( InitializerExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1500,19 +1504,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InitializerExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expressions)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expressions)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitImplicitObjectCreationExpression( ImplicitObjectCreationExpressionSyntax node )
+	public override SyntaxNode? VisitImplicitObjectCreationExpression( ImplicitObjectCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1528,17 +1532,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ImplicitObjectCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitObjectCreationExpression( ObjectCreationExpressionSyntax node )
+	public override SyntaxNode? VisitObjectCreationExpression( ObjectCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1554,19 +1558,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ObjectCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitWithExpression( WithExpressionSyntax node )
+	public override SyntaxNode? VisitWithExpression( WithExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1582,17 +1586,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(WithExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WithKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WithKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAnonymousObjectMemberDeclarator( AnonymousObjectMemberDeclaratorSyntax node )
+	public override SyntaxNode? VisitAnonymousObjectMemberDeclarator( AnonymousObjectMemberDeclaratorSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1608,15 +1612,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AnonymousObjectMemberDeclarator))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NameEquals)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NameEquals)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAnonymousObjectCreationExpression( AnonymousObjectCreationExpressionSyntax node )
+	public override SyntaxNode? VisitAnonymousObjectCreationExpression( AnonymousObjectCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1632,19 +1636,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AnonymousObjectCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArrayCreationExpression( ArrayCreationExpressionSyntax node )
+	public override SyntaxNode? VisitArrayCreationExpression( ArrayCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1660,17 +1664,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ArrayCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitImplicitArrayCreationExpression( ImplicitArrayCreationExpressionSyntax node )
+	public override SyntaxNode? VisitImplicitArrayCreationExpression( ImplicitArrayCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1686,21 +1690,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ImplicitArrayCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Commas)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Commas)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitStackAllocArrayCreationExpression( StackAllocArrayCreationExpressionSyntax node )
+	public override SyntaxNode? VisitStackAllocArrayCreationExpression( StackAllocArrayCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1716,17 +1720,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(StackAllocArrayCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StackAllocKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StackAllocKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitImplicitStackAllocArrayCreationExpression( ImplicitStackAllocArrayCreationExpressionSyntax node )
+	public override SyntaxNode? VisitImplicitStackAllocArrayCreationExpression( ImplicitStackAllocArrayCreationExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1742,19 +1746,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ImplicitStackAllocArrayCreationExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StackAllocKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StackAllocKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCollectionExpression( CollectionExpressionSyntax node )
+	public override SyntaxNode? VisitCollectionExpression( CollectionExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1770,17 +1774,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CollectionExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Elements)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Elements)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitExpressionElement( ExpressionElementSyntax node )
+	public override SyntaxNode? VisitExpressionElement( ExpressionElementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1796,13 +1800,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ExpressionElement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSpreadElement( SpreadElementSyntax node )
+	public override SyntaxNode? VisitSpreadElement( SpreadElementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1818,15 +1822,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SpreadElement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitQueryExpression( QueryExpressionSyntax node )
+	public override SyntaxNode? VisitQueryExpression( QueryExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1842,15 +1846,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(QueryExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.FromClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.FromClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitQueryBody( QueryBodySyntax node )
+	public override SyntaxNode? VisitQueryBody( QueryBodySyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1866,17 +1870,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(QueryBody))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Clauses)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SelectOrGroup)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Continuation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Clauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SelectOrGroup)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Continuation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFromClause( FromClauseSyntax node )
+	public override SyntaxNode? VisitFromClause( FromClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1892,21 +1896,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FromClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.FromKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.InKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.FromKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.InKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLetClause( LetClauseSyntax node )
+	public override SyntaxNode? VisitLetClause( LetClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1922,19 +1926,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LetClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LetKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LetKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitJoinClause( JoinClauseSyntax node )
+	public override SyntaxNode? VisitJoinClause( JoinClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1950,31 +1954,31 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(JoinClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.JoinKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.InKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.InExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OnKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LeftExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.RightExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Into)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.JoinKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.InKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.InExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OnKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LeftExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.RightExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Into)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitJoinIntoClause( JoinIntoClauseSyntax node )
+	public override SyntaxNode? VisitJoinIntoClause( JoinIntoClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -1990,15 +1994,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(JoinIntoClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.IntoKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.IntoKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitWhereClause( WhereClauseSyntax node )
+	public override SyntaxNode? VisitWhereClause( WhereClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2014,15 +2018,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(WhereClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.WhereKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.WhereKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOrderByClause( OrderByClauseSyntax node )
+	public override SyntaxNode? VisitOrderByClause( OrderByClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2038,15 +2042,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OrderByClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OrderByKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Orderings)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OrderByKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Orderings)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOrdering( OrderingSyntax node )
+	public override SyntaxNode? VisitOrdering( OrderingSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2062,17 +2066,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Ordering))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AscendingOrDescendingKeyword)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AscendingOrDescendingKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSelectClause( SelectClauseSyntax node )
+	public override SyntaxNode? VisitSelectClause( SelectClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2088,15 +2092,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SelectClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.SelectKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.SelectKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitGroupClause( GroupClauseSyntax node )
+	public override SyntaxNode? VisitGroupClause( GroupClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2112,19 +2116,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(GroupClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.GroupKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GroupExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ByKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ByExpression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.GroupKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GroupExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ByKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ByExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitQueryContinuation( QueryContinuationSyntax node )
+	public override SyntaxNode? VisitQueryContinuation( QueryContinuationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2140,17 +2144,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(QueryContinuation))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.IntoKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.IntoKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOmittedArraySizeExpression( OmittedArraySizeExpressionSyntax node )
+	public override SyntaxNode? VisitOmittedArraySizeExpression( OmittedArraySizeExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2166,13 +2170,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OmittedArraySizeExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OmittedArraySizeExpressionToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OmittedArraySizeExpressionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterpolatedStringExpression( InterpolatedStringExpressionSyntax node )
+	public override SyntaxNode? VisitInterpolatedStringExpression( InterpolatedStringExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2188,17 +2192,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterpolatedStringExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StringStartToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Contents)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.StringEndToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StringStartToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Contents)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.StringEndToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIsPatternExpression( IsPatternExpressionSyntax node )
+	public override SyntaxNode? VisitIsPatternExpression( IsPatternExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2214,17 +2218,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IsPatternExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitThrowExpression( ThrowExpressionSyntax node )
+	public override SyntaxNode? VisitThrowExpression( ThrowExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2240,15 +2244,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ThrowExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ThrowKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ThrowKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitWhenClause( WhenClauseSyntax node )
+	public override SyntaxNode? VisitWhenClause( WhenClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2264,15 +2268,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(WhenClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.WhenKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.WhenKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDiscardPattern( DiscardPatternSyntax node )
+	public override SyntaxNode? VisitDiscardPattern( DiscardPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2288,13 +2292,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DiscardPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.UnderscoreToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.UnderscoreToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDeclarationPattern( DeclarationPatternSyntax node )
+	public override SyntaxNode? VisitDeclarationPattern( DeclarationPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2310,15 +2314,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DeclarationPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Designation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Designation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitVarPattern( VarPatternSyntax node )
+	public override SyntaxNode? VisitVarPattern( VarPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2334,15 +2338,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(VarPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.VarKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Designation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.VarKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Designation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRecursivePattern( RecursivePatternSyntax node )
+	public override SyntaxNode? VisitRecursivePattern( RecursivePatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2358,19 +2362,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RecursivePattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.PositionalPatternClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.PropertyPatternClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Designation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.PositionalPatternClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.PropertyPatternClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Designation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPositionalPatternClause( PositionalPatternClauseSyntax node )
+	public override SyntaxNode? VisitPositionalPatternClause( PositionalPatternClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2386,17 +2390,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PositionalPatternClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Subpatterns)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Subpatterns)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPropertyPatternClause( PropertyPatternClauseSyntax node )
+	public override SyntaxNode? VisitPropertyPatternClause( PropertyPatternClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2412,17 +2416,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PropertyPatternClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Subpatterns)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Subpatterns)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSubpattern( SubpatternSyntax node )
+	public override SyntaxNode? VisitSubpattern( SubpatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2438,15 +2442,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Subpattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ExpressionColon)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ExpressionColon)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConstantPattern( ConstantPatternSyntax node )
+	public override SyntaxNode? VisitConstantPattern( ConstantPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2462,13 +2466,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConstantPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParenthesizedPattern( ParenthesizedPatternSyntax node )
+	public override SyntaxNode? VisitParenthesizedPattern( ParenthesizedPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2484,17 +2488,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ParenthesizedPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRelationalPattern( RelationalPatternSyntax node )
+	public override SyntaxNode? VisitRelationalPattern( RelationalPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2510,15 +2514,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RelationalPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypePattern( TypePatternSyntax node )
+	public override SyntaxNode? VisitTypePattern( TypePatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2534,13 +2538,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypePattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBinaryPattern( BinaryPatternSyntax node )
+	public override SyntaxNode? VisitBinaryPattern( BinaryPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2556,19 +2560,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BinaryPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Left)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Right)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Left)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Right)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitUnaryPattern( UnaryPatternSyntax node )
+	public override SyntaxNode? VisitUnaryPattern( UnaryPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2584,15 +2588,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UnaryPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitListPattern( ListPatternSyntax node )
+	public override SyntaxNode? VisitListPattern( ListPatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2608,19 +2612,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ListPattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Patterns)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Designation)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Patterns)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Designation)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSlicePattern( SlicePatternSyntax node )
+	public override SyntaxNode? VisitSlicePattern( SlicePatternSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2636,15 +2640,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SlicePattern))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.DotDotToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.DotDotToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterpolatedStringText( InterpolatedStringTextSyntax node )
+	public override SyntaxNode? VisitInterpolatedStringText( InterpolatedStringTextSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2660,13 +2664,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterpolatedStringText))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.TextToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.TextToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterpolation( InterpolationSyntax node )
+	public override SyntaxNode? VisitInterpolation( InterpolationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2682,21 +2686,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Interpolation))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AlignmentClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.FormatClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AlignmentClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.FormatClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterpolationAlignmentClause( InterpolationAlignmentClauseSyntax node )
+	public override SyntaxNode? VisitInterpolationAlignmentClause( InterpolationAlignmentClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2712,15 +2716,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterpolationAlignmentClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.CommaToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Value)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.CommaToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Value)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterpolationFormatClause( InterpolationFormatClauseSyntax node )
+	public override SyntaxNode? VisitInterpolationFormatClause( InterpolationFormatClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2736,15 +2740,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterpolationFormatClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.FormatStringToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.FormatStringToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitGlobalStatement( GlobalStatementSyntax node )
+	public override SyntaxNode? VisitGlobalStatement( GlobalStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2760,17 +2764,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(GlobalStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBlock( BlockSyntax node )
+	public override SyntaxNode? VisitBlock( BlockSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2786,19 +2790,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Block))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statements)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statements)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLocalFunctionStatement( LocalFunctionStatementSyntax node )
+	public override SyntaxNode? VisitLocalFunctionStatement( LocalFunctionStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2814,31 +2818,31 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LocalFunctionStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLocalDeclarationStatement( LocalDeclarationStatementSyntax node )
+	public override SyntaxNode? VisitLocalDeclarationStatement( LocalDeclarationStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2854,23 +2858,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LocalDeclarationStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AwaitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.UsingKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AwaitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.UsingKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitVariableDeclaration( VariableDeclarationSyntax node )
+	public override SyntaxNode? VisitVariableDeclaration( VariableDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2886,15 +2890,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(VariableDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Variables)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Variables)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitVariableDeclarator( VariableDeclaratorSyntax node )
+	public override SyntaxNode? VisitVariableDeclarator( VariableDeclaratorSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2910,17 +2914,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(VariableDeclarator))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEqualsValueClause( EqualsValueClauseSyntax node )
+	public override SyntaxNode? VisitEqualsValueClause( EqualsValueClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2936,15 +2940,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EqualsValueClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Value)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Value)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSingleVariableDesignation( SingleVariableDesignationSyntax node )
+	public override SyntaxNode? VisitSingleVariableDesignation( SingleVariableDesignationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2960,13 +2964,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SingleVariableDesignation))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDiscardDesignation( DiscardDesignationSyntax node )
+	public override SyntaxNode? VisitDiscardDesignation( DiscardDesignationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -2982,13 +2986,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DiscardDesignation))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.UnderscoreToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.UnderscoreToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParenthesizedVariableDesignation( ParenthesizedVariableDesignationSyntax node )
+	public override SyntaxNode? VisitParenthesizedVariableDesignation( ParenthesizedVariableDesignationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3004,17 +3008,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ParenthesizedVariableDesignation))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Variables)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Variables)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitExpressionStatement( ExpressionStatementSyntax node )
+	public override SyntaxNode? VisitExpressionStatement( ExpressionStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3030,17 +3034,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ExpressionStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEmptyStatement( EmptyStatementSyntax node )
+	public override SyntaxNode? VisitEmptyStatement( EmptyStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3056,15 +3060,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EmptyStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLabeledStatement( LabeledStatementSyntax node )
+	public override SyntaxNode? VisitLabeledStatement( LabeledStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3080,19 +3084,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LabeledStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitGotoStatement( GotoStatementSyntax node )
+	public override SyntaxNode? VisitGotoStatement( GotoStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3108,23 +3112,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(GotoStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GotoKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CaseOrDefaultKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GotoKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CaseOrDefaultKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBreakStatement( BreakStatementSyntax node )
+	public override SyntaxNode? VisitBreakStatement( BreakStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3140,17 +3144,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BreakStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BreakKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BreakKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitContinueStatement( ContinueStatementSyntax node )
+	public override SyntaxNode? VisitContinueStatement( ContinueStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3166,17 +3170,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ContinueStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ContinueKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ContinueKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitReturnStatement( ReturnStatementSyntax node )
+	public override SyntaxNode? VisitReturnStatement( ReturnStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3192,19 +3196,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ReturnStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitThrowStatement( ThrowStatementSyntax node )
+	public override SyntaxNode? VisitThrowStatement( ThrowStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3220,19 +3224,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ThrowStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ThrowKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ThrowKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitYieldStatement( YieldStatementSyntax node )
+	public override SyntaxNode? VisitYieldStatement( YieldStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3248,23 +3252,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(YieldStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.YieldKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnOrBreakKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.YieldKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnOrBreakKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitWhileStatement( WhileStatementSyntax node )
+	public override SyntaxNode? VisitWhileStatement( WhileStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3280,23 +3284,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(WhileStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhileKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhileKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDoStatement( DoStatementSyntax node )
+	public override SyntaxNode? VisitDoStatement( DoStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3312,27 +3316,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DoStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DoKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhileKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DoKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhileKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitForStatement( ForStatementSyntax node )
+	public override SyntaxNode? VisitForStatement( ForStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3348,33 +3352,33 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ForStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ForKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.FirstSemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SecondSemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Incrementors)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ForKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.FirstSemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SecondSemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Incrementors)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitForEachStatement( ForEachStatementSyntax node )
+	public override SyntaxNode? VisitForEachStatement( ForEachStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3390,31 +3394,31 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ForEachStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AwaitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ForEachKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.InKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AwaitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ForEachKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.InKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitForEachVariableStatement( ForEachVariableStatementSyntax node )
+	public override SyntaxNode? VisitForEachVariableStatement( ForEachVariableStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3430,29 +3434,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ForEachVariableStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AwaitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ForEachKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Variable)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.InKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AwaitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ForEachKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Variable)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.InKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitUsingStatement( UsingStatementSyntax node )
+	public override SyntaxNode? VisitUsingStatement( UsingStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3468,27 +3472,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UsingStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AwaitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.UsingKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AwaitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.UsingKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFixedStatement( FixedStatementSyntax node )
+	public override SyntaxNode? VisitFixedStatement( FixedStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3504,23 +3508,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FixedStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.FixedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.FixedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCheckedStatement( CheckedStatementSyntax node )
+	public override SyntaxNode? VisitCheckedStatement( CheckedStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3536,19 +3540,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CheckedStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitUnsafeStatement( UnsafeStatementSyntax node )
+	public override SyntaxNode? VisitUnsafeStatement( UnsafeStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3564,17 +3568,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UnsafeStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.UnsafeKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.UnsafeKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLockStatement( LockStatementSyntax node )
+	public override SyntaxNode? VisitLockStatement( LockStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3590,23 +3594,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LockStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LockKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LockKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIfStatement( IfStatementSyntax node )
+	public override SyntaxNode? VisitIfStatement( IfStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3622,25 +3626,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IfStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IfKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Else)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IfKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Else)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitElseClause( ElseClauseSyntax node )
+	public override SyntaxNode? VisitElseClause( ElseClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3656,15 +3660,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ElseClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ElseKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statement)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ElseKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statement)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSwitchStatement( SwitchStatementSyntax node )
+	public override SyntaxNode? VisitSwitchStatement( SwitchStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3680,27 +3684,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SwitchStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SwitchKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Sections)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SwitchKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Sections)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSwitchSection( SwitchSectionSyntax node )
+	public override SyntaxNode? VisitSwitchSection( SwitchSectionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3716,15 +3720,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SwitchSection))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Labels)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Statements)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Labels)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Statements)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCasePatternSwitchLabel( CasePatternSwitchLabelSyntax node )
+	public override SyntaxNode? VisitCasePatternSwitchLabel( CasePatternSwitchLabelSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3740,19 +3744,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CasePatternSwitchLabel))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhenClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhenClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCaseSwitchLabel( CaseSwitchLabelSyntax node )
+	public override SyntaxNode? VisitCaseSwitchLabel( CaseSwitchLabelSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3768,17 +3772,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CaseSwitchLabel))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Value)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Value)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDefaultSwitchLabel( DefaultSwitchLabelSyntax node )
+	public override SyntaxNode? VisitDefaultSwitchLabel( DefaultSwitchLabelSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3794,15 +3798,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DefaultSwitchLabel))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSwitchExpression( SwitchExpressionSyntax node )
+	public override SyntaxNode? VisitSwitchExpression( SwitchExpressionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3818,21 +3822,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SwitchExpression))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.GoverningExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SwitchKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arms)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.GoverningExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SwitchKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arms)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSwitchExpressionArm( SwitchExpressionArmSyntax node )
+	public override SyntaxNode? VisitSwitchExpressionArm( SwitchExpressionArmSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3848,19 +3852,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SwitchExpressionArm))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Pattern)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WhenClause)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsGreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Pattern)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WhenClause)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsGreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTryStatement( TryStatementSyntax node )
+	public override SyntaxNode? VisitTryStatement( TryStatementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3876,21 +3880,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TryStatement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TryKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Catches)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Finally)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TryKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Catches)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Finally)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCatchClause( CatchClauseSyntax node )
+	public override SyntaxNode? VisitCatchClause( CatchClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3906,19 +3910,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CatchClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.CatchKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Filter)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.CatchKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Filter)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCatchDeclaration( CatchDeclarationSyntax node )
+	public override SyntaxNode? VisitCatchDeclaration( CatchDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3934,19 +3938,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CatchDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCatchFilterClause( CatchFilterClauseSyntax node )
+	public override SyntaxNode? VisitCatchFilterClause( CatchFilterClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3962,19 +3966,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CatchFilterClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.WhenKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.FilterExpression)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.WhenKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.FilterExpression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFinallyClause( FinallyClauseSyntax node )
+	public override SyntaxNode? VisitFinallyClause( FinallyClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -3990,15 +3994,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FinallyClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.FinallyKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Block)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.FinallyKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Block)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCompilationUnit( CompilationUnitSyntax node )
+	public override SyntaxNode? VisitCompilationUnit( CompilationUnitSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4014,21 +4018,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CompilationUnit))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Externs)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Usings)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfFileToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Externs)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Usings)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfFileToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitExternAliasDirective( ExternAliasDirectiveSyntax node )
+	public override SyntaxNode? VisitExternAliasDirective( ExternAliasDirectiveSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4044,19 +4048,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ExternAliasDirective))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ExternKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AliasKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ExternKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AliasKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitUsingDirective( UsingDirectiveSyntax node )
+	public override SyntaxNode? VisitUsingDirective( UsingDirectiveSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4076,34 +4080,34 @@ partial class MetaSyntaxRewriter
 			case RoslynApiVersion.V4_0_1:
 			case RoslynApiVersion.V4_4_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UsingDirective))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.GlobalKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.UsingKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.StaticKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Alias)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.GlobalKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.UsingKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.StaticKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Alias)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UsingDirective))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.GlobalKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.UsingKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.StaticKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.UnsafeKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Alias)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.NamespaceOrType)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.GlobalKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.UsingKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.StaticKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.UnsafeKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Alias)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.NamespaceOrType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -4113,7 +4117,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNamespaceDeclaration( NamespaceDeclarationSyntax node )
+	public override SyntaxNode? VisitNamespaceDeclaration( NamespaceDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4129,31 +4133,31 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NamespaceDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.NamespaceKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Externs)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Usings)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.NamespaceKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Externs)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Usings)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFileScopedNamespaceDeclaration( FileScopedNamespaceDeclarationSyntax node )
+	public override SyntaxNode? VisitFileScopedNamespaceDeclaration( FileScopedNamespaceDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4169,27 +4173,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FileScopedNamespaceDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.NamespaceKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Externs)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Usings)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.NamespaceKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Externs)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Usings)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAttributeList( AttributeListSyntax node )
+	public override SyntaxNode? VisitAttributeList( AttributeListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4205,19 +4209,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AttributeList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Target)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Attributes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Target)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Attributes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAttributeTargetSpecifier( AttributeTargetSpecifierSyntax node )
+	public override SyntaxNode? VisitAttributeTargetSpecifier( AttributeTargetSpecifierSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4233,15 +4237,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AttributeTargetSpecifier))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAttribute( AttributeSyntax node )
+	public override SyntaxNode? VisitAttribute( AttributeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4257,15 +4261,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Attribute))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAttributeArgumentList( AttributeArgumentListSyntax node )
+	public override SyntaxNode? VisitAttributeArgumentList( AttributeArgumentListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4281,17 +4285,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AttributeArgumentList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Arguments)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Arguments)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAttributeArgument( AttributeArgumentSyntax node )
+	public override SyntaxNode? VisitAttributeArgument( AttributeArgumentSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4307,17 +4311,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AttributeArgument))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NameEquals)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.NameColon)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NameEquals)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.NameColon)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNameEquals( NameEqualsSyntax node )
+	public override SyntaxNode? VisitNameEquals( NameEqualsSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4333,15 +4337,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NameEquals))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeParameterList( TypeParameterListSyntax node )
+	public override SyntaxNode? VisitTypeParameterList( TypeParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4357,17 +4361,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeParameter( TypeParameterSyntax node )
+	public override SyntaxNode? VisitTypeParameter( TypeParameterSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4383,17 +4387,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeParameter))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.VarianceKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.VarianceKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitClassDeclaration( ClassDeclarationSyntax node )
+	public override SyntaxNode? VisitClassDeclaration( ClassDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4413,54 +4417,54 @@ partial class MetaSyntaxRewriter
 			case RoslynApiVersion.V4_0_1:
 			case RoslynApiVersion.V4_4_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ClassDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ClassDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -4470,7 +4474,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitStructDeclaration( StructDeclarationSyntax node )
+	public override SyntaxNode? VisitStructDeclaration( StructDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4490,54 +4494,54 @@ partial class MetaSyntaxRewriter
 			case RoslynApiVersion.V4_0_1:
 			case RoslynApiVersion.V4_4_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(StructDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(StructDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -4547,7 +4551,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitInterfaceDeclaration( InterfaceDeclarationSyntax node )
+	public override SyntaxNode? VisitInterfaceDeclaration( InterfaceDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4567,54 +4571,54 @@ partial class MetaSyntaxRewriter
 			case RoslynApiVersion.V4_0_1:
 			case RoslynApiVersion.V4_4_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterfaceDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(InterfaceDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -4624,7 +4628,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRecordDeclaration( RecordDeclarationSyntax node )
+	public override SyntaxNode? VisitRecordDeclaration( RecordDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4640,39 +4644,39 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RecordDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ClassOrStructKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ClassOrStructKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEnumDeclaration( EnumDeclarationSyntax node )
+	public override SyntaxNode? VisitEnumDeclaration( EnumDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4688,29 +4692,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EnumDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EnumKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BaseList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Members)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EnumKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BaseList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Members)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDelegateDeclaration( DelegateDeclarationSyntax node )
+	public override SyntaxNode? VisitDelegateDeclaration( DelegateDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4726,29 +4730,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DelegateDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DelegateKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DelegateKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEnumMemberDeclaration( EnumMemberDeclarationSyntax node )
+	public override SyntaxNode? VisitEnumMemberDeclaration( EnumMemberDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4764,19 +4768,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EnumMemberDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsValue)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsValue)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBaseList( BaseListSyntax node )
+	public override SyntaxNode? VisitBaseList( BaseListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4792,15 +4796,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BaseList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Types)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Types)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSimpleBaseType( SimpleBaseTypeSyntax node )
+	public override SyntaxNode? VisitSimpleBaseType( SimpleBaseTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4816,13 +4820,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SimpleBaseType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPrimaryConstructorBaseType( PrimaryConstructorBaseTypeSyntax node )
+	public override SyntaxNode? VisitPrimaryConstructorBaseType( PrimaryConstructorBaseTypeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4838,15 +4842,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PrimaryConstructorBaseType))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeParameterConstraintClause( TypeParameterConstraintClauseSyntax node )
+	public override SyntaxNode? VisitTypeParameterConstraintClause( TypeParameterConstraintClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4862,19 +4866,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeParameterConstraintClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.WhereKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Constraints)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.WhereKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Constraints)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConstructorConstraint( ConstructorConstraintSyntax node )
+	public override SyntaxNode? VisitConstructorConstraint( ConstructorConstraintSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4890,17 +4894,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConstructorConstraint))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.NewKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.NewKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitClassOrStructConstraint( ClassOrStructConstraintSyntax node )
+	public override SyntaxNode? VisitClassOrStructConstraint( ClassOrStructConstraintSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4916,17 +4920,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ClassOrStructConstraint))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ClassOrStructKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.QuestionToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ClassOrStructKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.QuestionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeConstraint( TypeConstraintSyntax node )
+	public override SyntaxNode? VisitTypeConstraint( TypeConstraintSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4942,13 +4946,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeConstraint))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDefaultConstraint( DefaultConstraintSyntax node )
+	public override SyntaxNode? VisitDefaultConstraint( DefaultConstraintSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4964,13 +4968,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DefaultConstraint))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.DefaultKeyword)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.DefaultKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFieldDeclaration( FieldDeclarationSyntax node )
+	public override SyntaxNode? VisitFieldDeclaration( FieldDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -4986,19 +4990,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FieldDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEventFieldDeclaration( EventFieldDeclarationSyntax node )
+	public override SyntaxNode? VisitEventFieldDeclaration( EventFieldDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5014,21 +5018,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EventFieldDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EventKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Declaration)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EventKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Declaration)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitExplicitInterfaceSpecifier( ExplicitInterfaceSpecifierSyntax node )
+	public override SyntaxNode? VisitExplicitInterfaceSpecifier( ExplicitInterfaceSpecifierSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5044,15 +5048,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ExplicitInterfaceSpecifier))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DotToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DotToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitMethodDeclaration( MethodDeclarationSyntax node )
+	public override SyntaxNode? VisitMethodDeclaration( MethodDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5068,33 +5072,33 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(MethodDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TypeParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConstraintClauses)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TypeParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConstraintClauses)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOperatorDeclaration( OperatorDeclarationSyntax node )
+	public override SyntaxNode? VisitOperatorDeclaration( OperatorDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5113,51 +5117,51 @@ partial class MetaSyntaxRewriter
 		{
 			case RoslynApiVersion.V4_0_1:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OperatorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_4_0:
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OperatorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ReturnType)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CheckedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ReturnType)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CheckedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -5167,7 +5171,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConversionOperatorDeclaration( ConversionOperatorDeclarationSyntax node )
+	public override SyntaxNode? VisitConversionOperatorDeclaration( ConversionOperatorDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5186,51 +5190,51 @@ partial class MetaSyntaxRewriter
 		{
 			case RoslynApiVersion.V4_0_1:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConversionOperatorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_4_0:
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConversionOperatorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CheckedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CheckedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -5240,7 +5244,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConstructorDeclaration( ConstructorDeclarationSyntax node )
+	public override SyntaxNode? VisitConstructorDeclaration( ConstructorDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5256,27 +5260,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConstructorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConstructorInitializer( ConstructorInitializerSyntax node )
+	public override SyntaxNode? VisitConstructorInitializer( ConstructorInitializerSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5292,19 +5296,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConstructorInitializer))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ThisOrBaseKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ArgumentList)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ThisOrBaseKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ArgumentList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDestructorDeclaration( DestructorDeclarationSyntax node )
+	public override SyntaxNode? VisitDestructorDeclaration( DestructorDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5320,27 +5324,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DestructorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TildeToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TildeToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPropertyDeclaration( PropertyDeclarationSyntax node )
+	public override SyntaxNode? VisitPropertyDeclaration( PropertyDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5356,29 +5360,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PropertyDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AccessorList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Initializer)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AccessorList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Initializer)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitArrowExpressionClause( ArrowExpressionClauseSyntax node )
+	public override SyntaxNode? VisitArrowExpressionClause( ArrowExpressionClauseSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5394,15 +5398,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ArrowExpressionClause))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ArrowToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Expression)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ArrowToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Expression)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEventDeclaration( EventDeclarationSyntax node )
+	public override SyntaxNode? VisitEventDeclaration( EventDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5418,27 +5422,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EventDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EventKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AccessorList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EventKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AccessorList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIndexerDeclaration( IndexerDeclarationSyntax node )
+	public override SyntaxNode? VisitIndexerDeclaration( IndexerDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5454,29 +5458,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IndexerDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ThisKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ParameterList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AccessorList)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExplicitInterfaceSpecifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ThisKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ParameterList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AccessorList)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAccessorList( AccessorListSyntax node )
+	public override SyntaxNode? VisitAccessorList( AccessorListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5492,17 +5496,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AccessorList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBraceToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Accessors)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBraceToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Accessors)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBraceToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitAccessorDeclaration( AccessorDeclarationSyntax node )
+	public override SyntaxNode? VisitAccessorDeclaration( AccessorDeclarationSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5518,25 +5522,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(AccessorDeclaration))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Keyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Body)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExpressionBody)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SemicolonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Keyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Body)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExpressionBody)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SemicolonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParameterList( ParameterListSyntax node )
+	public override SyntaxNode? VisitParameterList( ParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5552,17 +5556,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBracketedParameterList( BracketedParameterListSyntax node )
+	public override SyntaxNode? VisitBracketedParameterList( BracketedParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5578,17 +5582,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BracketedParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitParameter( ParameterSyntax node )
+	public override SyntaxNode? VisitParameter( ParameterSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5604,21 +5608,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(Parameter))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Default)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Default)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitFunctionPointerParameter( FunctionPointerParameterSyntax node )
+	public override SyntaxNode? VisitFunctionPointerParameter( FunctionPointerParameterSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5634,17 +5638,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(FunctionPointerParameter))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIncompleteMember( IncompleteMemberSyntax node )
+	public override SyntaxNode? VisitIncompleteMember( IncompleteMemberSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5660,17 +5664,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IncompleteMember))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.AttributeLists)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Modifiers)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.AttributeLists)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Modifiers)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitSkippedTokensTrivia( SkippedTokensTriviaSyntax node )
+	public override SyntaxNode? VisitSkippedTokensTrivia( SkippedTokensTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5686,13 +5690,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(SkippedTokensTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Tokens)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Tokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDocumentationCommentTrivia( DocumentationCommentTriviaSyntax node )
+	public override SyntaxNode? VisitDocumentationCommentTrivia( DocumentationCommentTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5708,17 +5712,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DocumentationCommentTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Content)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfComment)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Content)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfComment)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitTypeCref( TypeCrefSyntax node )
+	public override SyntaxNode? VisitTypeCref( TypeCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5734,13 +5738,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(TypeCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitQualifiedCref( QualifiedCrefSyntax node )
+	public override SyntaxNode? VisitQualifiedCref( QualifiedCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5756,17 +5760,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(QualifiedCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Container)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DotToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Member)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Container)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DotToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Member)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNameMemberCref( NameMemberCrefSyntax node )
+	public override SyntaxNode? VisitNameMemberCref( NameMemberCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5782,15 +5786,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NameMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIndexerMemberCref( IndexerMemberCrefSyntax node )
+	public override SyntaxNode? VisitIndexerMemberCref( IndexerMemberCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5806,15 +5810,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IndexerMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.ThisKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.ThisKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitOperatorMemberCref( OperatorMemberCrefSyntax node )
+	public override SyntaxNode? VisitOperatorMemberCref( OperatorMemberCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5833,23 +5837,23 @@ partial class MetaSyntaxRewriter
 		{
 			case RoslynApiVersion.V4_0_1:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OperatorMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_4_0:
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(OperatorMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CheckedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorToken)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CheckedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -5859,7 +5863,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitConversionOperatorMemberCref( ConversionOperatorMemberCrefSyntax node )
+	public override SyntaxNode? VisitConversionOperatorMemberCref( ConversionOperatorMemberCrefSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5878,27 +5882,27 @@ partial class MetaSyntaxRewriter
 		{
 			case RoslynApiVersion.V4_0_1:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConversionOperatorMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_4_0:
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ConversionOperatorMemberCref))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.OperatorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.CheckedKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.ImplicitOrExplicitKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.OperatorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.CheckedKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -5908,7 +5912,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCrefParameterList( CrefParameterListSyntax node )
+	public override SyntaxNode? VisitCrefParameterList( CrefParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5924,17 +5928,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CrefParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCrefBracketedParameterList( CrefBracketedParameterListSyntax node )
+	public override SyntaxNode? VisitCrefBracketedParameterList( CrefBracketedParameterListSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5950,17 +5954,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CrefBracketedParameterList))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenBracketToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Parameters)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseBracketToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Parameters)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseBracketToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitCrefParameter( CrefParameterSyntax node )
+	public override SyntaxNode? VisitCrefParameter( CrefParameterSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -5980,18 +5984,18 @@ partial class MetaSyntaxRewriter
 			case RoslynApiVersion.V4_0_1:
 			case RoslynApiVersion.V4_4_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CrefParameter))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.RefKindKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.RefKindKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			case RoslynApiVersion.V4_8_0:
 				result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(CrefParameter))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-					Argument(this.Transform(node.RefKindKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.ReadOnlyKeyword)).WithLeadingTrivia(this.GetIndentation()),
-					Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-					Argument(this.Transform(node.Type)).WithLeadingTrivia(this.GetIndentation()),
+					Argument(this.Transform(node.RefKindKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.ReadOnlyKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+					Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+					Argument(this.Transform(node.Type)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 				})));
 				break;
 			default:
@@ -6001,7 +6005,7 @@ partial class MetaSyntaxRewriter
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlElement( XmlElementSyntax node )
+	public override SyntaxNode? VisitXmlElement( XmlElementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6017,17 +6021,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlElement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StartTag)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Content)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndTag)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StartTag)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Content)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndTag)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlElementStartTag( XmlElementStartTagSyntax node )
+	public override SyntaxNode? VisitXmlElementStartTag( XmlElementStartTagSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6043,19 +6047,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlElementStartTag))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Attributes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Attributes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlElementEndTag( XmlElementEndTagSyntax node )
+	public override SyntaxNode? VisitXmlElementEndTag( XmlElementEndTagSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6071,17 +6075,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlElementEndTag))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanSlashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.GreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanSlashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.GreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlEmptyElement( XmlEmptyElementSyntax node )
+	public override SyntaxNode? VisitXmlEmptyElement( XmlEmptyElementSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6097,19 +6101,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlEmptyElement))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Attributes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SlashGreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Attributes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SlashGreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlName( XmlNameSyntax node )
+	public override SyntaxNode? VisitXmlName( XmlNameSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6125,15 +6129,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlName))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Prefix)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LocalName)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Prefix)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LocalName)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlPrefix( XmlPrefixSyntax node )
+	public override SyntaxNode? VisitXmlPrefix( XmlPrefixSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6149,15 +6153,15 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlPrefix))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Prefix)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ColonToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Prefix)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ColonToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlTextAttribute( XmlTextAttributeSyntax node )
+	public override SyntaxNode? VisitXmlTextAttribute( XmlTextAttributeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6173,21 +6177,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlTextAttribute))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.StartQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TextTokens)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.StartQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TextTokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlCrefAttribute( XmlCrefAttributeSyntax node )
+	public override SyntaxNode? VisitXmlCrefAttribute( XmlCrefAttributeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6203,21 +6207,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlCrefAttribute))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.StartQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Cref)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.StartQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Cref)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlNameAttribute( XmlNameAttributeSyntax node )
+	public override SyntaxNode? VisitXmlNameAttribute( XmlNameAttributeSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6233,21 +6237,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlNameAttribute))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EqualsToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.StartQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndQuoteToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EqualsToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.StartQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndQuoteToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlText( XmlTextSyntax node )
+	public override SyntaxNode? VisitXmlText( XmlTextSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6263,13 +6267,13 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlText))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.TextTokens)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.TextTokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlCDataSection( XmlCDataSectionSyntax node )
+	public override SyntaxNode? VisitXmlCDataSection( XmlCDataSectionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6285,17 +6289,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlCDataSection))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StartCDataToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TextTokens)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndCDataToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StartCDataToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TextTokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndCDataToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlProcessingInstruction( XmlProcessingInstructionSyntax node )
+	public override SyntaxNode? VisitXmlProcessingInstruction( XmlProcessingInstructionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6311,19 +6315,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlProcessingInstruction))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.StartProcessingInstructionToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TextTokens)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndProcessingInstructionToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.StartProcessingInstructionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TextTokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndProcessingInstructionToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitXmlComment( XmlCommentSyntax node )
+	public override SyntaxNode? VisitXmlComment( XmlCommentSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6339,17 +6343,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(XmlComment))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.LessThanExclamationMinusMinusToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TextTokens)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.MinusMinusGreaterThanToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.LessThanExclamationMinusMinusToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TextTokens)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.MinusMinusGreaterThanToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitIfDirectiveTrivia( IfDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitIfDirectiveTrivia( IfDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6365,25 +6369,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(IfDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IfKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BranchTaken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConditionValue)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IfKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BranchTaken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConditionValue)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitElifDirectiveTrivia( ElifDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitElifDirectiveTrivia( ElifDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6399,25 +6403,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ElifDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ElifKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Condition)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BranchTaken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ConditionValue)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ElifKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Condition)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BranchTaken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ConditionValue)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitElseDirectiveTrivia( ElseDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitElseDirectiveTrivia( ElseDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6433,21 +6437,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ElseDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ElseKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.BranchTaken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ElseKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.BranchTaken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEndIfDirectiveTrivia( EndIfDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitEndIfDirectiveTrivia( EndIfDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6463,19 +6467,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EndIfDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndIfKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndIfKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitRegionDirectiveTrivia( RegionDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitRegionDirectiveTrivia( RegionDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6491,19 +6495,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(RegionDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.RegionKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.RegionKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitEndRegionDirectiveTrivia( EndRegionDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitEndRegionDirectiveTrivia( EndRegionDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6519,19 +6523,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(EndRegionDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndRegionKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndRegionKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitErrorDirectiveTrivia( ErrorDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitErrorDirectiveTrivia( ErrorDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6547,19 +6551,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ErrorDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ErrorKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ErrorKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitWarningDirectiveTrivia( WarningDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitWarningDirectiveTrivia( WarningDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6575,19 +6579,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(WarningDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WarningKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WarningKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitBadDirectiveTrivia( BadDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitBadDirectiveTrivia( BadDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6603,19 +6607,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(BadDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Identifier)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Identifier)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitDefineDirectiveTrivia( DefineDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitDefineDirectiveTrivia( DefineDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6631,21 +6635,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(DefineDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DefineKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DefineKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitUndefDirectiveTrivia( UndefDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitUndefDirectiveTrivia( UndefDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6661,21 +6665,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(UndefDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.UndefKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Name)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.UndefKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Name)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLineDirectiveTrivia( LineDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitLineDirectiveTrivia( LineDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6691,23 +6695,23 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LineDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LineKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Line)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.File)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LineKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Line)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.File)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLineDirectivePosition( LineDirectivePositionSyntax node )
+	public override SyntaxNode? VisitLineDirectivePosition( LineDirectivePositionSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6723,21 +6727,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LineDirectivePosition))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.OpenParenToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Line)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CommaToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Character)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CloseParenToken)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.OpenParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Line)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CommaToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Character)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CloseParenToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLineSpanDirectiveTrivia( LineSpanDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitLineSpanDirectiveTrivia( LineSpanDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6753,29 +6757,29 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LineSpanDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LineKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Start)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.MinusToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.End)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.CharacterOffset)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.File)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LineKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Start)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.MinusToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.End)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.CharacterOffset)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.File)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPragmaWarningDirectiveTrivia( PragmaWarningDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitPragmaWarningDirectiveTrivia( PragmaWarningDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6791,25 +6795,25 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PragmaWarningDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.PragmaKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.WarningKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.DisableOrRestoreKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ErrorCodes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.PragmaKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.WarningKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.DisableOrRestoreKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ErrorCodes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitPragmaChecksumDirectiveTrivia( PragmaChecksumDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitPragmaChecksumDirectiveTrivia( PragmaChecksumDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6825,27 +6829,27 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(PragmaChecksumDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.PragmaKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ChecksumKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.File)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Guid)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.Bytes)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.PragmaKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ChecksumKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.File)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Guid)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.Bytes)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitReferenceDirectiveTrivia( ReferenceDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitReferenceDirectiveTrivia( ReferenceDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6861,21 +6865,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ReferenceDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ReferenceKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.File)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ReferenceKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.File)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitLoadDirectiveTrivia( LoadDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitLoadDirectiveTrivia( LoadDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6891,21 +6895,21 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(LoadDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.LoadKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.File)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.LoadKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.File)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitShebangDirectiveTrivia( ShebangDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitShebangDirectiveTrivia( ShebangDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6921,19 +6925,19 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(ShebangDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.ExclamationToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.ExclamationToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
 	}
 	[ExcludeFromCodeCoverage]
-	public override SyntaxNode VisitNullableDirectiveTrivia( NullableDirectiveTriviaSyntax node )
+	public override SyntaxNode? VisitNullableDirectiveTrivia( NullableDirectiveTriviaSyntax node )
 	{
 		switch ( this.GetTransformationKind( node ) )
 		{
@@ -6949,17 +6953,17 @@ partial class MetaSyntaxRewriter
 		this.Indent();
 		ExpressionSyntax result;
 		result = InvocationExpression(this.MetaSyntaxFactory.SyntaxFactoryMethod(nameof(NullableDirectiveTrivia))).WithArgumentList(ArgumentList(SeparatedList<ArgumentSyntax>(new SyntaxNodeOrToken[]{
-			Argument(this.Transform(node.HashToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.NullableKeyword)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.SettingToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.TargetToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.EndOfDirectiveToken)).WithLeadingTrivia(this.GetIndentation()),
-			Token(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak()),
-			Argument(this.Transform(node.IsActive)).WithLeadingTrivia(this.GetIndentation()),
+			Argument(this.Transform(node.HashToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.NullableKeyword)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.SettingToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.TargetToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.EndOfDirectiveToken)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
+			Token(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions),
+			Argument(this.Transform(node.IsActive)).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions),
 		})));
 		this.Unindent();
 		return result;
@@ -7134,8 +7138,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax OmittedTypeArgument()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "OmittedTypeArgument" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "OmittedTypeArgument" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax RefType(ExpressionSyntax refKeyword, ExpressionSyntax readOnlyKeyword, ExpressionSyntax type)
@@ -7346,8 +7349,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax ThisExpression()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "ThisExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "ThisExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax BaseExpression(ExpressionSyntax token)
@@ -7356,8 +7358,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax BaseExpression()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "BaseExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "BaseExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax LiteralExpression(ExpressionSyntax kind, ExpressionSyntax token)
@@ -7931,8 +7932,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax OmittedArraySizeExpression()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "OmittedArraySizeExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "OmittedArraySizeExpression" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax InterpolatedStringExpression(ExpressionSyntax stringStartToken, ExpressionSyntax contents, ExpressionSyntax stringEndToken)
@@ -7983,8 +7983,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax DiscardPattern()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DiscardPattern" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DiscardPattern" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax DeclarationPattern(ExpressionSyntax type, ExpressionSyntax designation)
@@ -8129,8 +8128,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax InterpolatedStringText()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "InterpolatedStringText" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "InterpolatedStringText" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax Interpolation(ExpressionSyntax openBraceToken, ExpressionSyntax expression, ExpressionSyntax alignmentClause, ExpressionSyntax formatClause, ExpressionSyntax closeBraceToken)
@@ -8266,8 +8264,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax DiscardDesignation()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DiscardDesignation" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DiscardDesignation" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax ParenthesizedVariableDesignation(ExpressionSyntax openParenToken, ExpressionSyntax variables, ExpressionSyntax closeParenToken)
@@ -9184,8 +9181,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax ConstructorConstraint()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "ConstructorConstraint" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "ConstructorConstraint" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax ClassOrStructConstraint(ExpressionSyntax kind, ExpressionSyntax classOrStructKeyword, ExpressionSyntax questionToken)
@@ -9213,8 +9209,7 @@ partial class MetaSyntaxRewriter
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax DefaultConstraint()
-			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DefaultConstraint" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{
-})));
+			=> SyntaxFactory.InvocationExpression( this.SyntaxFactoryMethod( "DefaultConstraint" ), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()));
 
 		[ExcludeFromCodeCoverage]
 		public InvocationExpressionSyntax FieldDeclaration(ExpressionSyntax attributeLists, ExpressionSyntax modifiers, ExpressionSyntax declaration, ExpressionSyntax semicolonToken)

@@ -49,7 +49,7 @@ internal sealed class Generator
 
         // Generate MetaSyntaxFactoryImpl.
         this.GenerateMetaSyntaxFactory( writer );
-        writer.WriteLine( "}" );
+        writer.Write( "}" );
     }
 
     public void GenerateRoslynApiVersionEnum( string path, string[] deprecatedVersionNames, SyntaxDocument[] versions )
@@ -85,7 +85,7 @@ internal sealed class Generator
         writer.WriteLine( $"\tLowest = {versions[0].Version.EnumValue}," );
         writer.WriteLine( $"\tHighest = {versions[^1].Version.EnumValue}" );
 
-        writer.WriteLine( "}" );
+        writer.Write( "}" );
     }
 
     public void GenerateVersionChecker( string path )
@@ -129,7 +129,7 @@ internal sealed class Generator
                 }
                 else
                 {
-                    writer.WriteLine( $"\t\tswitch( node.{field.Name}.Kind() )" );
+                    writer.WriteLine( $"\t\tswitch ( node.{field.Name}.Kind() )" );
                     writer.WriteLine( "\t\t{" );
 
                     foreach ( var k in GetVersionSpecificKinds( field ) )
@@ -146,7 +146,7 @@ internal sealed class Generator
             writer.WriteLine( "\t}" );
         }
 
-        writer.WriteLine( "}" );
+        writer.Write( "}" );
 
         static bool IsVersionSpecificType( Node t ) => t.MinimalRoslynVersion!.Index > 0;
 
@@ -166,7 +166,10 @@ internal sealed class Generator
 
     private static void WriteUsings( StreamWriter writer )
     {
+        writer.WriteLine( "// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details." );
+        writer.WriteLine();
         writer.WriteLine( "#pragma warning disable CS8669 // Nullability" );
+        writer.WriteLine( "#pragma warning disable IDE0005, IDE0040, SA1013, SA1027, SA1205, SA1210, SA1216, SA1508 // Formatting" );
         writer.WriteLine( "using System;" );
         writer.WriteLine( "using System.Linq;" );
         writer.WriteLine( "using System.Collections.Generic;" );
@@ -175,6 +178,7 @@ internal sealed class Generator
         writer.WriteLine( "using Microsoft.CodeAnalysis.CSharp;" );
         writer.WriteLine( "using Microsoft.CodeAnalysis.CSharp.Syntax;" );
         writer.WriteLine( "using Metalama.Framework.Engine.CompileTime;" );
+        writer.WriteLine( "using Metalama.Framework.Engine.Utilities.Roslyn;" );
         writer.WriteLine( "using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;" );
     }
 
@@ -389,7 +393,7 @@ internal sealed class Generator
 
             // Generate the Visit method.
             writer.WriteLine( $"\t[ExcludeFromCodeCoverage]" );
-            writer.WriteLine( $"\tpublic override SyntaxNode Visit{RemoveSuffix( node.Name, "Syntax" )}( {nodeTypeName} node )" );
+            writer.WriteLine( $"\tpublic override SyntaxNode? Visit{RemoveSuffix( node.Name, "Syntax" )}( {nodeTypeName} node )" );
             writer.WriteLine( "\t{" );
             writer.WriteLine( "\t\tswitch ( this.GetTransformationKind( node ) )" );
             writer.WriteLine( "\t\t{" );
@@ -478,7 +482,7 @@ internal sealed class Generator
 
                     if ( hasKindParameter )
                     {
-                        writer.WriteLine( $"{indentation}\tArgument(this.Transform(node.Kind())).WithLeadingTrivia(this.GetIndentation())," );
+                        writer.WriteLine( $"{indentation}\tArgument(this.Transform(node.Kind())).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions)," );
                         appendComma = true;
                     }
 
@@ -486,14 +490,14 @@ internal sealed class Generator
                     {
                         if ( appendComma )
                         {
-                            writer.WriteLine( $"{indentation}\tToken(SyntaxKind.CommaToken).WithTrailingTrivia(GetLineBreak())," );
+                            writer.WriteLine( $"{indentation}\tToken(SyntaxKind.CommaToken).WithOptionalTrailingTrivia(GetLineBreak(), this._generationOptions)," );
                         }
                         else
                         {
                             appendComma = true;
                         }
 
-                        writer.WriteLine( $"{indentation}\tArgument(this.Transform(node.{field.Name})).WithLeadingTrivia(this.GetIndentation())," );
+                        writer.WriteLine( $"{indentation}\tArgument(this.Transform(node.{field.Name})).WithOptionalLeadingTrivia(this.GetIndentation(), this._generationOptions)," );
                     }
 
                     writer.WriteLine( $"{indentation}}})));" );
@@ -534,33 +538,40 @@ internal sealed class Generator
 
                 var factoryMethod = $"this.SyntaxFactoryMethod( \"{RemoveSuffix( node.Name, "Syntax" )}\" )";
 
-                writer.WriteLine(
-                    $"\t\t\t=> SyntaxFactory.InvocationExpression( {factoryMethod}, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>( new ArgumentSyntax[]{{" );
+                writer.Write(
+                    $"\t\t\t=> SyntaxFactory.InvocationExpression( {factoryMethod}, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(" );
 
-                var appendComma = false;
-
-                if ( hasKindParameter )
+                if ( hasKindParameter || fields.Any() )
                 {
-                    writer.WriteLine();
-                    writer.Write( $"\t\t\t\t\tSyntaxFactory.Argument( kind )" );
-                    appendComma = true;
-                }
+                    writer.WriteLine( " new ArgumentSyntax[]{" );
 
-                foreach ( var field in fields )
-                {
-                    if ( appendComma )
+                    var appendComma = false;
+
+                    if ( hasKindParameter )
                     {
-                        writer.WriteLine( ", " );
-                    }
-                    else
-                    {
+                        writer.WriteLine();
+                        writer.Write( $"\t\t\t\t\tSyntaxFactory.Argument( kind )" );
                         appendComma = true;
                     }
 
-                    writer.Write( $"\t\t\t\t\tSyntaxFactory.Argument( {CamelCase( field.Name )} )" );
+                    foreach ( var field in fields )
+                    {
+                        if ( appendComma )
+                        {
+                            writer.WriteLine( ", " );
+                        }
+                        else
+                        {
+                            appendComma = true;
+                        }
+
+                        writer.Write( $"\t\t\t\t\tSyntaxFactory.Argument( {CamelCase( field.Name )} )" );
+                    }
+
+                    writer.Write( "}" );
                 }
 
-                writer.Write( "}))" );
+                writer.Write( "))" );
 
                 writer.WriteLine( ");" );
                 writer.WriteLine();
@@ -683,7 +694,7 @@ internal sealed class Generator
         }
 
         writer.WriteLine( "\t}" ); // End of class
-        writer.WriteLine( "}" );   // End of namespace
+        writer.Write( "}" );   // End of namespace
     }
 
     private static bool IgnoreFieldContentInRunTimeCode( string fieldType )
@@ -774,6 +785,6 @@ internal sealed class Generator
             }
         }
 
-        writer.WriteLine( "}" );
+        writer.Write( "}" );
     }
 }

@@ -30,19 +30,20 @@ internal partial class MetaSyntaxRewriter : SafeSyntaxRewriter
 {
     private readonly Stack<string> _indentTriviaStack = new();
     private readonly IndentRewriter _indentRewriter;
+    private readonly SyntaxGenerationOptions _generationOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetaSyntaxRewriter"/> class.
     /// </summary>
     /// <param name="compileTimeCompilation">The <see cref="Compilation"/> used to create the compile-time assembly,
     /// possibly with no source code, but with metadata references. Used to resolve symbols in the compile-time assembly.</param>
-    /// <param name="targetApiVersion"></param>
     public MetaSyntaxRewriter( CompilationContext compileTimeCompilation, RoslynApiVersion targetApiVersion )
     {
         this.TargetApiVersion = targetApiVersion;
         this._indentTriviaStack.Push( "" );
         this._indentRewriter = new IndentRewriter( this );
         this.MetaSyntaxFactory = new MetaSyntaxFactoryImpl( compileTimeCompilation );
+        this._generationOptions = this.MetaSyntaxFactory.SyntaxGenerationContext.Options;
     }
 
     protected MetaSyntaxFactoryImpl MetaSyntaxFactory { get; }
@@ -53,8 +54,6 @@ internal partial class MetaSyntaxRewriter : SafeSyntaxRewriter
     /// <summary>
     /// Determines how a given <see cref="SyntaxNode"/> must be transformed.
     /// </summary>
-    /// <param name="node"></param>
-    /// <returns></returns>
     protected virtual TransformationKind GetTransformationKind( SyntaxNode node ) => TransformationKind.Transform;
 
     protected void Indent( int level = 1 )
@@ -74,19 +73,21 @@ internal partial class MetaSyntaxRewriter : SafeSyntaxRewriter
         }
     }
 
-    protected SyntaxTrivia[] GetIndentation( bool lineFeed = true )
+    protected SyntaxTriviaList GetIndentation( bool lineFeed = true )
         => lineFeed
-            ? [this.MetaSyntaxFactory.SyntaxGenerationContext.ElasticEndOfLineTrivia, Whitespace( this._indentTriviaStack.Peek() )]
-            : [Whitespace( this._indentTriviaStack.Peek() )];
+#if ROSLYN_4_12_0_OR_GREATER
+            // Using the new Create(ReadOnlySpan) avoids array allocation.
+            ? SyntaxTriviaList.Create([this.MetaSyntaxFactory.SyntaxGenerationContext.ElasticEndOfLineTrivia, Whitespace( this._indentTriviaStack.Peek() )])
+#else
+            ? new SyntaxTriviaList(this.MetaSyntaxFactory.SyntaxGenerationContext.ElasticEndOfLineTrivia, Whitespace( this._indentTriviaStack.Peek() ))
+#endif
+            : SyntaxTriviaList.Create(Whitespace( this._indentTriviaStack.Peek() ));
 
-    protected static SyntaxTrivia[] GetLineBreak() => [];
+    protected static SyntaxTriviaList GetLineBreak() => SyntaxTriviaList.Empty;
 
     /// <summary>
     /// Adds indentation to a <see cref="SyntaxNode"/> and all its children.
     /// </summary>
-    /// <param name="node"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
     protected T DeepIndent<T>( T node )
         where T : SyntaxNode
     {

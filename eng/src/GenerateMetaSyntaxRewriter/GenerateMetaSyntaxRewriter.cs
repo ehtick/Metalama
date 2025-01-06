@@ -43,7 +43,7 @@ internal static class GenerateMetaSyntaxRewriter
             generator.GenerateVersionChecker( Path.Combine( $"Metalama.Framework.Engine", "RoslynVersionSyntaxVerifier.cs" ) );
             generator.GenerateHasher( Path.Combine( $"Metalama.Framework.DesignTime", "RunTimeCodeHasher.cs" ), "RunTimeCodeHasher", false );
             generator.GenerateHasher( Path.Combine( $"Metalama.Framework.DesignTime", "CompileTimeCodeHasher.cs" ), "CompileTimeCodeHasher", true );
-            generator.GeneratePartialUpdate( Path.Combine( $"Metalama.Framework.Engine", "SyntaxNodePartialUpdate.cs" ) );
+            generator.GeneratePartialUpdate( Path.Combine( $"Metalama.Framework.Engine", "SyntaxNodePartialUpdateExtensions.cs" ) );
         }
     }
 }
