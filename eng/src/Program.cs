@@ -65,8 +65,7 @@ var product = new Product( MetalamaDependencies.Metalama )
         MetalamaDependencies.MetalamaCompiler.ToDependency(
             new ConfigurationSpecific<BuildConfiguration>(
                 BuildConfiguration.Release, BuildConfiguration.Release, BuildConfiguration.Public
-            ) ),
-        MetalamaDependencies.MetalamaFrameworkRunTime.ToDependency()
+            ) )
     ],
     ExportedProperties =
     {

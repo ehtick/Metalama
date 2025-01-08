@@ -44,7 +44,6 @@ Referencing this package replaces the compiler with `Metalama.Compiler`, a shall
 | [Metalama.Framework](https://www.nuget.org/packages/Metalama.Framework)                                             | The principal package. |
 | [Metalama.Framework.Introspection](https://www.nuget.org/packages/Metalama.Framework.Introspection)                 | Provides introspection of Metalama aspect classes, instances, and diagnostics. |
 | [Metalama.Framework.Redist](https://www.nuget.org/packages/Metalama.Framework.Redist)                               | Redistributable components for `Metalama.Framework`. Should be installed as a dependency. |
-| [Metalama.Framework.RunTime](https://www.nuget.org/packages/Metalama.Framework.RunTime)                             | Run-time components for `Metalama.Framework`. Usually installed as a dependency. |
 | [Metalama.Framework.Sdk](https://www.nuget.org/packages/Metalama.Framework.Sdk)                                     | A tool for custom source code modifying extensions using the Roslyn API. |
 | [Metalama.Framework.Workspaces](https://www.nuget.org/packages/Metalama.Framework.Workspaces)                       | Allows loading solutions and projects, executing Metalama, and introspection of compilation results. |
 | [Metalama.Migration](https://www.nuget.org/packages/Metalama.Migration)                                             | Annotated PostSharp API documenting its Metalama equivalent. |

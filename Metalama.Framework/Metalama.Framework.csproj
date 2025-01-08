@@ -44,7 +44,6 @@
 
         <!-- We are stuck with a low version of System.Collections.Immutable because our code needs to run with Roslyn 4.0. -->
         <PackageReference Include="System.Collections.Immutable" />
-        <PackageReference Include="Metalama.Framework.RunTime" />
     </ItemGroup>
 
     <!-- Packaging -->

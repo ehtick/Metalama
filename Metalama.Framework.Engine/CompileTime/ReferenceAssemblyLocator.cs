@@ -388,7 +388,6 @@ internal sealed class ReferenceAssemblyLocator
                    </PropertyGroup>
                    <ItemGroup>
                      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="{RoslynApiVersion.Current.ToNuGetVersionString()}" />
-                     <PackageReference Include="Metalama.Framework.RunTime" Version="{AssemblyMetadataReader.GetInstance( typeof(ReferenceAssemblyLocator).Assembly ).GetPackageVersion( "Metalama.Framework.RunTime" )}" />
                      {additionalPackageReferences}
                    </ItemGroup>
                    <Target Name="WriteAssembliesList" AfterTargets="Build" Condition="'$(TargetFramework)'!=''">

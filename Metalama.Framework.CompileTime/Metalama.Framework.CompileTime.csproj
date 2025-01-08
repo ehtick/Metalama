@@ -28,7 +28,6 @@
              but we need the support in the IDE -->
 
         <PackageReference Include="System.Collections.Immutable" />
-        <PackageReference Include="Metalama.Framework.RunTime" />
         <PackageReference Include="Microsoft.Bcl.HashCode" Condition="'$(TargetFramework)'=='netstandard2.0'" />
 
         <!-- The following references change 'dynamic' into 'object' -->
