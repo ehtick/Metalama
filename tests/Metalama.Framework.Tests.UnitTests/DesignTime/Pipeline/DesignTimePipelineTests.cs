@@ -64,8 +64,7 @@ public sealed class DesignTimePipelineTests : FrameworkBaseTestClass
                     MetadataReference.CreateFromFile( typeof(Console).Assembly.Location ),
                     MetadataReference.CreateFromFile( typeof(DynamicAttribute).Assembly.Location ),
                     MetadataReference.CreateFromFile( typeof(Enumerable).Assembly.Location ),
-                    MetadataReference.CreateFromFile( typeof(CompileTimeAttribute).Assembly.Location ),
-                    MetadataReference.CreateFromFile( typeof(FieldOrPropertyInfo).Assembly.Location ) )
+                    MetadataReference.CreateFromFile( typeof(CompileTimeAttribute).Assembly.Location ) )
                 .AddReferences( additionalReferences ?? Enumerable.Empty<MetadataReference>() );
         }
 

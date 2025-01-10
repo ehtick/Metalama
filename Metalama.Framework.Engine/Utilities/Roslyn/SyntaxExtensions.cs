@@ -277,6 +277,16 @@ public static class SyntaxExtensions
         return node.WithTrailingTrivia( trailingTrivia );
     }
 
+    internal static SyntaxToken WithOptionalTrailingTrivia( this SyntaxToken token, SyntaxTriviaList trailingTrivia, SyntaxGenerationOptions options )
+    {
+        if ( !options.TriviaMatters && !trailingTrivia.ContainsDirectives() )
+        {
+            return token;
+        }
+
+        return token.WithTrailingTrivia( trailingTrivia );
+    }
+
     internal static TNode WithRequiredTrailingTrivia<TNode>( this TNode node, SyntaxTriviaList trailingTrivia )
         where TNode : SyntaxNode
         => node.WithTrailingTrivia( trailingTrivia );
