@@ -1070,22 +1070,10 @@ internal sealed partial class DesignTimeAspectPipeline : BaseDesignTimeAspectPip
             if ( this.Logger.Warning != null )
             {
                 var callStack = new StackTrace();
-                var isDisposed = false;
-                lockDisposeAction = () => isDisposed = true;
+                var isDisposed = new TaskCompletionSource<bool>();
+                lockDisposeAction = () => isDisposed.SetResult( true );
 
-                _ = Task.Delay( TimeSpan.FromSeconds( 10 ), cancellationToken )
-                    .ContinueWith(
-                        _ =>
-                        {
-                            if ( !isDisposed )
-                            {
-                                this.Logger.Warning?.Log( $"The following call stack has been holding the lock for '{this.ProjectKey}' for a long time:" );
-                                this.Logger.Warning?.Log( callStack.ToString() );
-                            }
-                        },
-                        cancellationToken,
-                        TaskContinuationOptions.None,
-                        TaskScheduler.Current );
+                _ = WarnIfNotDisposedAsync( new WeakReference<DesignTimeAspectPipeline>( this ), isDisposed.Task, callStack );
             }
 #endif
         }
@@ -1095,6 +1083,19 @@ internal sealed partial class DesignTimeAspectPipeline : BaseDesignTimeAspectPip
         }
 
         return new Lock( this, acquired, lockDisposeAction, executionContext );
+    }
+
+    private static async Task WarnIfNotDisposedAsync( WeakReference<DesignTimeAspectPipeline> pipelineRef, Task disposedTask, StackTrace stackTrace )
+    {
+#pragma warning disable VSTHRD003
+        await Task.WhenAny( Task.Delay( TimeSpan.FromSeconds( 1 ) ), disposedTask );
+#pragma warning restore VSTHRD003
+
+        if ( !disposedTask.IsCompleted && pipelineRef.TryGetTarget( out var pipeline ) )
+        {
+            pipeline.Logger.Warning?.Log( $"The following call stack has been holding the lock for '{pipeline.ProjectKey}' for a long time:" );
+            pipeline.Logger.Warning?.Log( stackTrace.ToString() );
+        }
     }
 
     private readonly struct Lock : IDisposable
