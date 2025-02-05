@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <RepoDirectory>$(MSBuildThisFileDirectory)</RepoDirectory>
+        <RepoDirectory>$(MSBuildThisFileDirectory)/..</RepoDirectory>
         <RepoKind>GitHub</RepoKind>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
 
@@ -17,9 +17,9 @@
         <LangMaxVersion>latest</LangMaxVersion>
     </PropertyGroup>
 
-    <Import Project="eng/Versions.props"/>
-    <Import Project="eng/StrongName.props"/>
-    <Import Project="eng/Packaging.props"/>
+    <Import Project="../eng/Versions.props"/>
+    <Import Project="../eng/StrongName.props"/>
+    <Import Project="../eng/Packaging.props"/>
 
     <!-- We don't want nullability warnings in the Release build since the inlining AssertNotNull creates issues to analyzers -->
     <PropertyGroup Condition="'$(Configuration)'=='Release' OR ( '$(TargetFramework)'!='net6.0' AND '$(TargetFramework)'!='net7.0' )">

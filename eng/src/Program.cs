@@ -8,15 +8,13 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
 using PostSharp.Engineering.BuildTools.Utilities;
-using System.IO;
-using System.Runtime.InteropServices;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2025_1;
 
 var product = new Product( MetalamaDependencies.Metalama )
 {
     Solutions =
     [
-        new DotNetSolution( "Metalama.sln" )
+        new DotNetSolution( "Metalama.Framework\\Metalama.sln" )
         {
             SolutionFilterPathForInspectCode = "Metalama.LatestRoslyn.slnf",
             SupportsTestCoverage = true,
@@ -38,15 +36,15 @@ var product = new Product( MetalamaDependencies.Metalama )
                 "**\\*.props", "**\\*.targets", "**\\*.csproj", "**\\*.md", "**\\*.xml", "**\\*.config"
             ]
         },
-        new DotNetSolution( "Metalama.LatestRoslyn.slnf" )
+        new DotNetSolution( "Metalama.Framework\\Metalama.LatestRoslyn.slnf" )
         {
             SupportsTestCoverage = false, CanFormatCode = false, IsTestOnly = true
         },
-        new DotNetSolution( "Tests\\Metalama.Framework.TestApp\\Metalama.Framework.TestApp.sln" )
+        new DotNetSolution( "Metalama.Framework\\Tests\\Metalama.Framework.TestApp\\Metalama.Framework.TestApp.sln" )
         {
             IsTestOnly = true, TestMethod = BuildMethod.Build
         },
-        new ManyDotNetSolutions( "Tests\\Standalone" ) { IsTestOnly = true }
+        new ManyDotNetSolutions( "Metalama.Framework\\Tests\\Standalone" ) { IsTestOnly = true }
     ],
     PublicArtifacts = Pattern.Create(
         "Metalama.Framework.$(PackageVersion).nupkg",
@@ -72,7 +70,7 @@ var product = new Product( MetalamaDependencies.Metalama )
     ],
     ExportedProperties =
     {
-        { "Directory.Packages.props", ["RoslynApiMaxVersion", "RoslynMaxVersion"] }, { "Directory.Build.props", ["LangMaxVersion"] }
+        { "Metalama.Framework\\Directory.Packages.props", ["RoslynApiMaxVersion", "RoslynMaxVersion"] }, { "Metalama.Framework\\Directory.Build.props", ["LangMaxVersion"] }
     },
     Configurations = Product.DefaultConfigurations
         .WithValue(
@@ -106,7 +104,7 @@ static void OnPrepareCompleted( PrepareCompletedEventArgs arg )
 
     arg.Context.Console.WriteHeading( "Generating code" );
 
-    var srcDirectory = arg.Context.RepoDirectory;
+    var srcDirectory = $"{arg.Context.RepoDirectory}\\Metalama.Framework";
 
     GenerateMetaSyntaxRewriter.Generate( srcDirectory );
 }
