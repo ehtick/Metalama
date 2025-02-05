@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <RepoDirectory>$(MSBuildThisFileDirectory)/..</RepoDirectory>
+        <RepoDirectory>$(MSBuildThisFileDirectory)../</RepoDirectory>
         <RepoKind>GitHub</RepoKind>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
 

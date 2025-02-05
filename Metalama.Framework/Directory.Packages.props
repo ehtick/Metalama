@@ -30,9 +30,9 @@
     <PackageVersion Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageVersion Include="K4os.Hash.xxHash" Version="1.0.8" />
     <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
-    <PackageVersion Include="Metalama.Backstage" Version="$(MetalamaBackstageVersion)" />
-    <PackageVersion Include="Metalama.Backstage.Commands" Version="$(MetalamaBackstageVersion)" />
-    <PackageVersion Include="Metalama.Backstage.Tools" Version="$(MetalamaBackstageVersion)" />
+    <PackageVersion Include="Metalama.Backstage" Version="$(MetalamaVersion)" />
+    <PackageVersion Include="Metalama.Backstage.Commands" Version="$(MetalamaVersion)" />
+    <PackageVersion Include="Metalama.Backstage.Tools" Version="$(MetalamaVersion)" />
     <PackageVersion Include="Metalama.Compiler" Version="$(MetalamaCompilerVersion)" />
     <PackageVersion Include="Metalama.Compiler.Sdk" Version="$(MetalamaCompilerVersion)" />
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="1.1.1" />

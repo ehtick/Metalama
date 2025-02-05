@@ -14,6 +14,7 @@ var product = new Product( MetalamaDependencies.Metalama )
 {
     Solutions =
     [
+        new DotNetSolution( "Metalama.Backstage\\Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true },
         new DotNetSolution( "Metalama.Framework\\Metalama.sln" )
         {
             SolutionFilterPathForInspectCode = "Metalama.LatestRoslyn.slnf",
@@ -47,6 +48,11 @@ var product = new Product( MetalamaDependencies.Metalama )
         new ManyDotNetSolutions( "Metalama.Framework\\Tests\\Standalone" ) { IsTestOnly = true }
     ],
     PublicArtifacts = Pattern.Create(
+        "Metalama.Backstage.$(PackageVersion).nupkg",
+        "Metalama.Backstage.Commands.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
+        "Metalama.Backstage.Testing.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
+        "Metalama.Backstage.Tools.$(PackageVersion).nupkg", // Required by Metalama.Testing.AspectTesting via Metalama.Framework.Engine.
+
         "Metalama.Framework.$(PackageVersion).nupkg",
         "Metalama.Testing.UnitTesting.$(PackageVersion).nupkg",
         "Metalama.Testing.AspectTesting.$(PackageVersion).nupkg",
@@ -62,7 +68,6 @@ var product = new Product( MetalamaDependencies.Metalama )
     ParametrizedDependencies =
     [
         DevelopmentDependencies.PostSharpEngineering.ToDependency(),
-        MetalamaDependencies.MetalamaBackstage.ToDependency(),
         MetalamaDependencies.MetalamaCompiler.ToDependency(
             new ConfigurationSpecific<BuildConfiguration>(
                 BuildConfiguration.Release, BuildConfiguration.Release, BuildConfiguration.Public
