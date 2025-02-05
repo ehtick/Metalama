@@ -61,7 +61,6 @@ var product = new Product( MetalamaDependencies.Metalama )
     ParametrizedDependencies =
     [
         DevelopmentDependencies.PostSharpEngineering.ToDependency(),
-        MetalamaDependencies.MetalamaBackstage.ToDependency(),
         MetalamaDependencies.MetalamaCompiler.ToDependency(
             new ConfigurationSpecific<BuildConfiguration>(
                 BuildConfiguration.Release, BuildConfiguration.Release, BuildConfiguration.Public
