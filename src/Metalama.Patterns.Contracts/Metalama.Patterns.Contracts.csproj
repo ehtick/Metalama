@@ -20,7 +20,6 @@
 
     <ItemGroup>
         <PackageReference Include="Metalama.Framework" />
-        <PackageReference Include="Metalama.Extensions.CodeFixes" />
 		<PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
 		<InternalsVisibleTo Include="Metalama.Patterns.Contracts.UnitTests" />
     </ItemGroup>
