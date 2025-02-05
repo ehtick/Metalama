@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>library</OutputType>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <RootNamespace>PostSharp</RootNamespace>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <NoWarn>CS1591;CS0659;CS0660;CS0661;CS0618</NoWarn>
+        <MetalamaCompilerTransformerOrder>Metalama.Framework.CompilerExtensions.MetalamaSourceTransformer,Metalama.Migration.Transformer.Transformer</MetalamaCompilerTransformerOrder>
+        <MetalamaEmitCompilerTransformedFiles>True</MetalamaEmitCompilerTransformedFiles>
+        <PackageDescription>A package containing annotated PostSharp API, documenting its Metalama equivalent.</PackageDescription>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="Metalama.Framework.Redist" />
+        <PackageReference Include="Metalama.Extensions.Multicast" />
+        <PackageReference Include="Metalama.Extensions.Architecture" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Metalama.Migration.Transformer/Metalama.Migration.Transformer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+</Project>
