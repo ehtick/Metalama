@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Extensions.Validation;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
+using Metalama.Framework.Diagnostics;
 using Metalama.Framework.Options;
 using Metalama.Framework.Project;
 using Metalama.Patterns.Immutability.Configuration;
@@ -42,7 +42,7 @@ public class ImmutableAttribute : TypeAspect, IHierarchicalOptionsProvider
                 }
                 else
                 {
-                    AddValidator( field );
+                    CheckDeepImmutability( field );
                 }
             }
         }
@@ -63,29 +63,21 @@ public class ImmutableAttribute : TypeAspect, IHierarchicalOptionsProvider
                         continue;
 
                     default:
-                        AddValidator( property );
+                        CheckDeepImmutability( property );
 
                         break;
                 }
             }
         }
 
-        void AddValidator( IFieldOrProperty field )
+        void CheckDeepImmutability( IFieldOrProperty field )
         {
             if ( this._kind == ImmutabilityKind.Deep && !MetalamaExecutionContext.Current.ExecutionScenario.IsDesignTime )
             {
-                builder.Outbound.Select( c => field.ForCompilation( c.Compilation ) ).Validate( ValidateDeepImmutability );
+                builder.Outbound.Select( c => field.ForCompilation( c.Compilation ) )
+                    .Where( field => field.Type.GetImmutabilityKind() != ImmutabilityKind.Deep )
+                    .ReportDiagnostic( field => ImmutabilityDiagnostics.FieldOrPropertyMustBeOfDeeplyImmutableType.WithArguments( (field, field.DeclarationKind) ) );
             }
-        }
-    }
-
-    private static void ValidateDeepImmutability( DeclarationValidationContext context )
-    {
-        var field = (IFieldOrProperty) context.Declaration;
-
-        if ( field.Type.GetImmutabilityKind() != ImmutabilityKind.Deep )
-        {
-            context.Diagnostics.Report( ImmutabilityDiagnostics.FieldOrPropertyMustBeOfDeeplyImmutableType.WithArguments( (field, field.DeclarationKind) ) );
         }
     }
 }
