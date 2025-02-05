@@ -45,7 +45,12 @@ var product = new Product( MetalamaDependencies.Metalama )
         {
             IsTestOnly = true, TestMethod = BuildMethod.Build
         },
-        new ManyDotNetSolutions( "Metalama.Framework\\Tests\\Standalone" ) { IsTestOnly = true }
+        new ManyDotNetSolutions( "Metalama.Framework\\Tests\\Standalone" ) { IsTestOnly = true },
+        new DotNetSolution( "Metalama.Extensions\\Metalama.Extensions.sln" ) 
+        { 
+            CanFormatCode = true,
+            FormatExclusions = ["src\\tests\\*AspectTests\\**\\*"],
+        }
     ],
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
@@ -62,7 +67,12 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Metalama.Framework.CompileTimeContracts.$(PackageVersion).nupkg",
         "Metalama.Framework.Introspection.$(PackageVersion).nupkg",
         "Metalama.Framework.Workspaces.$(PackageVersion).nupkg",
-        "Metalama.Tool.$(PackageVersion).nupkg" ),
+        "Metalama.Tool.$(PackageVersion).nupkg",
+
+        "Metalama.Extensions.DependencyInjection.$(PackageVersion).nupkg",
+        "Metalama.Extensions.DependencyInjection.ServiceLocator.$(PackageVersion).nupkg",
+        "Metalama.Extensions.Multicast.$(PackageVersion).nupkg",
+        "Metalama.Extensions.Metrics.$(PackageVersion).nupkg" ),
     PrivateArtifacts = Pattern.Create(
         "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg" ),
     ParametrizedDependencies =

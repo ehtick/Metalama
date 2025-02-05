@@ -8,8 +8,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Metalama.Extensions.DependencyInjection.ServiceLocator" VersionOverride="$(MetalamaExtensionsVersion)" />
-    <PackageReference Include="Metalama.Extensions.Metrics" VersionOverride="$(MetalamaExtensionsVersion)" />
+    <PackageReference Include="Metalama.Extensions.DependencyInjection.ServiceLocator" VersionOverride="$(MetalamaVersion)" />
+    <PackageReference Include="Metalama.Extensions.Metrics" VersionOverride="$(MetalamaVersion)" />
   </ItemGroup>
 
 </Project>
