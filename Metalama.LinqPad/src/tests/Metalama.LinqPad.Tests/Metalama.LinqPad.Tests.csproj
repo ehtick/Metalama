@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="..\..\..\eng\Coverage.props" />
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>Metalama.LinqPad.Tests</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="LINQPad.Runtime" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+        <ProjectReference Include="..\..\Metalama.LinqPad\Metalama.LinqPad.csproj" />
+        <PackageReference Include="Metalama.Compiler.Sdk" />
+        <PackageReference Include="Metalama.Testing.UnitTesting" />
+        <PackageReference Update="coverlet.collector">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Update="coverlet.msbuild">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <!-- Must include explicitly because the package has content. -->
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+    </ItemGroup>
+
+</Project>
