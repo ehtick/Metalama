@@ -8,15 +8,14 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
 using PostSharp.Engineering.BuildTools.Utilities;
-using System.IO;
-using System.Runtime.InteropServices;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2025_1;
 
 var product = new Product( MetalamaDependencies.Metalama )
 {
     Solutions =
     [
-        new DotNetSolution( "Metalama.sln" )
+        new DotNetSolution( "Metalama.Backstage\\Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true },
+        new DotNetSolution( "Metalama.Framework\\Metalama.sln" )
         {
             SolutionFilterPathForInspectCode = "Metalama.LatestRoslyn.slnf",
             SupportsTestCoverage = true,
@@ -31,23 +30,41 @@ var product = new Product( MetalamaDependencies.Metalama )
                 "Tests\\Metalama.Framework.Tests.AspectTests\\Tests\\**\\*",
                 "Tests\\Metalama.Framework.Tests.LinkerTests\\Tests\\**\\*",
                 "Tests\\Metalama.Framework.Tests.TemplateTests\\Tests\\**\\*",
-
+                "Tests\\Metalama.Extensions.*.AspectTests\\**\\*",
+                "**\\*.g.cs",
 
                 // XML formatting seems to be conflicting.
                 "**\\*.props", "**\\*.targets", "**\\*.csproj", "**\\*.md", "**\\*.xml", "**\\*.config"
             ]
         },
-        new DotNetSolution( "Metalama.LatestRoslyn.slnf" )
+        new DotNetSolution( "Metalama.Framework\\Metalama.LatestRoslyn.slnf" )
         {
             SupportsTestCoverage = false, CanFormatCode = false, IsTestOnly = true
         },
-        new DotNetSolution( "Tests\\Metalama.Framework.TestApp\\Metalama.Framework.TestApp.sln" )
+        new DotNetSolution( "Metalama.Framework\\Tests\\Metalama.Framework.TestApp\\Metalama.Framework.TestApp.sln" )
         {
             IsTestOnly = true, TestMethod = BuildMethod.Build
         },
-        new ManyDotNetSolutions( "Tests\\Standalone" ) { IsTestOnly = true }
+        new ManyDotNetSolutions( "Metalama.Framework\\Tests\\Standalone" ) { IsTestOnly = true },
+        new DotNetSolution( "Metalama.Extensions\\Metalama.Extensions.sln" ) 
+        { 
+            CanFormatCode = true,
+            FormatExclusions = ["src\\tests\\*AspectTests\\**\\*"],
+        },
+        new DotNetSolution( "Metalama.Migration\\src\\Metalama.Migration.sln" ) { CanFormatCode = true },
+        new DotNetSolution( "Metalama.LinqPad\\Metalama.LinqPad.sln" ) { CanFormatCode = true },
+        new DotNetSolution( "Metalama.Patterns\\Metalama.Patterns.sln" )
+        { 
+            CanFormatCode = true,
+            FormatExclusions = ["src\\tests\\*AspectTests\\**\\*"]
+        }
     ],
     PublicArtifacts = Pattern.Create(
+        "Metalama.Backstage.$(PackageVersion).nupkg",
+        "Metalama.Backstage.Commands.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
+        "Metalama.Backstage.Testing.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
+        "Metalama.Backstage.Tools.$(PackageVersion).nupkg", // Required by Metalama.Testing.AspectTesting via Metalama.Framework.Engine.
+
         "Metalama.Framework.$(PackageVersion).nupkg",
         "Metalama.Testing.UnitTesting.$(PackageVersion).nupkg",
         "Metalama.Testing.AspectTesting.$(PackageVersion).nupkg",
@@ -57,7 +74,31 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Metalama.Framework.CompileTimeContracts.$(PackageVersion).nupkg",
         "Metalama.Framework.Introspection.$(PackageVersion).nupkg",
         "Metalama.Framework.Workspaces.$(PackageVersion).nupkg",
-        "Metalama.Tool.$(PackageVersion).nupkg" ),
+        "Metalama.Tool.$(PackageVersion).nupkg",
+
+        "Metalama.Extensions.DependencyInjection.$(PackageVersion).nupkg",
+        "Metalama.Extensions.DependencyInjection.ServiceLocator.$(PackageVersion).nupkg",
+        "Metalama.Extensions.Multicast.$(PackageVersion).nupkg",
+        "Metalama.Extensions.Metrics.$(PackageVersion).nupkg",
+        
+        "Metalama.Migration.$(PackageVersion).nupkg",
+        
+        "Metalama.LinqPad.$(PackageVersion).nupkg",
+
+        "Metalama.Patterns.Caching.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Aspects.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backend.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backends.Azure.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backends.Redis.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Contracts.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Memoization.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Immutability.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Observability.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Wpf.$(PackageVersion).nupkg",
+        "Flashtrace.$(PackageVersion).nupkg",
+        "Flashtrace.Formatters.$(PackageVersion).nupkg" ),
+    PrivateArtifacts = Pattern.Create(
+        "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg" ),
     ParametrizedDependencies =
     [
         DevelopmentDependencies.PostSharpEngineering.ToDependency(),
@@ -68,7 +109,7 @@ var product = new Product( MetalamaDependencies.Metalama )
     ],
     ExportedProperties =
     {
-        { "Directory.Packages.props", ["RoslynApiMaxVersion", "RoslynMaxVersion"] }, { "Directory.Build.props", ["LangMaxVersion"] }
+        { "Metalama.Framework\\Directory.Packages.props", ["RoslynApiMaxVersion", "RoslynMaxVersion"] }, { "Metalama.Framework\\Directory.Build.props", ["LangMaxVersion"] }
     },
     Configurations = Product.DefaultConfigurations
         .WithValue(
@@ -102,7 +143,7 @@ static void OnPrepareCompleted( PrepareCompletedEventArgs arg )
 
     arg.Context.Console.WriteHeading( "Generating code" );
 
-    var srcDirectory = arg.Context.RepoDirectory;
+    var srcDirectory = $"{arg.Context.RepoDirectory}\\Metalama.Framework";
 
     GenerateMetaSyntaxRewriter.Generate( srcDirectory );
 }

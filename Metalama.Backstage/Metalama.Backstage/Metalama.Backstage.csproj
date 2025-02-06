@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netframework4.7.2;net6.0;netstandard2.0</TargetFrameworks>
+		<!-- Packaging -->
+		<PackageDescription>A Metalama package providing licensing, telemetry and other configuration settings for projects using Metalama.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="K4os.Hash.xxHash" />
+        <PackageReference Include="System.Collections.Immutable" />
+        <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
+        <PackageReference Include="JetBrains.Profiler.SelfApi" Condition="'$(TargetFramework)'!='netstandard2.0'" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" />
+        <PackageReference Include="Newtonsoft.Json" VersionOverride="$(NewtonsoftJsonMinVersion)" NoWarn="NU1903" />
+        <PackageReference Include="System.IO.Packaging" />
+        <PackageReference Include="System.DirectoryServices" />
+        <PackageReference Include="Microsoft.Win32.Registry" Condition="'$(TargetFramework)'=='netstandard2.0'" />
+        <PackageReference Include="System.Threading.AccessControl" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Metalama.Backstage</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Telemetry\public.key" />
+        <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" LogicalName="Metalama.Backstage.Telemetry.public.key" />
+    </ItemGroup>
+    
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Testing" />
+    </ItemGroup>
+
+    <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
+
+</Project>
