@@ -52,7 +52,12 @@ var product = new Product( MetalamaDependencies.Metalama )
             FormatExclusions = ["src\\tests\\*AspectTests\\**\\*"],
         },
         new DotNetSolution( "Metalama.Migration\\src\\Metalama.Migration.sln" ) { CanFormatCode = true },
-        new DotNetSolution( "Metalama.LinqPad\\Metalama.LinqPad.sln" ) { CanFormatCode = true }
+        new DotNetSolution( "Metalama.LinqPad\\Metalama.LinqPad.sln" ) { CanFormatCode = true },
+        new DotNetSolution( "Metalama.Patterns\\Metalama.Patterns.sln" )
+        { 
+            CanFormatCode = true,
+            FormatExclusions = ["src\\tests\\*AspectTests\\**\\*"]
+        }
     ],
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
@@ -78,7 +83,20 @@ var product = new Product( MetalamaDependencies.Metalama )
         
         "Metalama.Migration.$(PackageVersion).nupkg",
         
-        "Metalama.LinqPad.$(PackageVersion).nupkg" ),
+        "Metalama.LinqPad.$(PackageVersion).nupkg",
+
+        "Metalama.Patterns.Caching.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Aspects.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backend.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backends.Azure.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Caching.Backends.Redis.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Contracts.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Memoization.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Immutability.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Observability.$(PackageVersion).nupkg",
+        "Metalama.Patterns.Wpf.$(PackageVersion).nupkg",
+        "Flashtrace.$(PackageVersion).nupkg",
+        "Flashtrace.Formatters.$(PackageVersion).nupkg" ),
     PrivateArtifacts = Pattern.Create(
         "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg" ),
     ParametrizedDependencies =
