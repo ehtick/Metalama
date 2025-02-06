@@ -1,3 +1,0 @@
-﻿namespace ProjectWithMetalama20251;
-
-public class SomeReferencedClass;
