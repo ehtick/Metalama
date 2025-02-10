@@ -11,6 +11,7 @@ using Metalama.Framework.Engine.AspectWeavers;
 using Metalama.Framework.Engine.Options;
 using Metalama.Framework.Engine.Services;
 using Metalama.Framework.Engine.Utilities;
+using Metalama.Framework.Engine.Utilities.Roslyn;
 using Metalama.Framework.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -18,6 +19,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -308,21 +310,25 @@ internal sealed class CompileTimeAssemblyLocator
     /// <summary>
     /// Determines if a symbol (typically one from the run-time compilation) exists in compile-time references.
     /// </summary>
-    internal bool? IsSymbolAvailable( ISymbol symbol )
+    internal bool? IsSymbolAvailable( ISymbol symbol ) => this.TryGetAvailableSymbol( symbol, out _ );
+
+    private bool? TryGetAvailableSymbol( ISymbol symbol, out ISymbol? availableSymbol )
     {
         symbol = symbol.OriginalDefinition;
 
         switch ( symbol )
         {
             case IMethodSymbol { ReducedFrom: { } reducedFrom }:
-                return this.IsSymbolAvailable( reducedFrom );
+                return this.TryGetAvailableSymbol( reducedFrom, out availableSymbol );
 
             case IMethodSymbol { MethodKind: MethodKind.BuiltinOperator }:
                 // For some reason, DocumentationId mapping does not work for operators.
+                availableSymbol = null;
                 return null;
 
             case IMethodSymbol method when HasInterpolatedStringHandlerParameter( method ):
                 // InterpolatedStringHandlers have been added in a backward-compatible way.
+                availableSymbol = null;
                 return null;
 
             default:
@@ -332,12 +338,35 @@ internal sealed class CompileTimeAssemblyLocator
 
                     if ( symbolId == null )
                     {
+                        availableSymbol = null;
                         return false;
                     }
 
                     var compileTimeSymbol = DocumentationCommentId.GetFirstSymbolForDeclarationId( symbolId, this._referenceCompilation );
 
-                    return compileTimeSymbol != null;
+                    if ( compileTimeSymbol == null )
+                    {
+                        // We didn't find the exact symbol, but there could still be a more general overload.
+                        // So do overload resolution based on the parameter types of the run-time overload.
+
+                        if ( symbol is (IMethodSymbol or IPropertySymbol { IsIndexer: true }) and { ContainingType: { } containingType } )
+                        {
+                            if ( this.TryGetAvailableSymbol( containingType, out var compileTimeContainingType ) != true )
+                            {
+                                availableSymbol = null;
+                                return false;
+                            }
+
+                            var compilation = CompilationContextFactory.GetCompilationContext( this._referenceCompilation );
+
+                            var compileTimeMembers = SymbolSignatureMatcher.GetMembersOfCompatibleSignature( (INamedTypeSymbol) compileTimeContainingType!, compilation, symbol );
+
+                            compileTimeSymbol = compileTimeMembers.FirstOrDefault();
+                        }
+                    }
+
+                    availableSymbol = compileTimeSymbol;
+                    return availableSymbol != null;
                 }
         }
 
