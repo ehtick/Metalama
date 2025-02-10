@@ -20,23 +20,25 @@ internal static class SymbolSignatureMatcher
     /// </summary>
     public static IEnumerable<TSymbol> GetMembersOfCompatibleSignature<TSymbol>(
         this INamedTypeSymbol containingType,
-        CompilationContext compilation,
-        TSymbol compatibleSymbol )
+        CompilationContext containingTypeCompilation,
+        TSymbol compatibleSymbol,
+        CompilationContext compatibleSymbolCompilation )
         where TSymbol : ISymbol
     {
-        return containingType.GetMembersOfCompatibleSignature<TSymbol, (ImmutableArray<IParameterSymbol> Parameters, CompilationContext Compilation)>(
-            compilation,
-            (compatibleSymbol.GetParameters(), compilation),
+        return containingType.GetMembersOfCompatibleSignature<TSymbol, ImmutableArray<IParameterSymbol>>(
+            containingTypeCompilation,
+            compatibleSymbol.GetParameters(),
             compatibleSymbol.Name,
             compatibleSymbol.GetParameters().Length,
             GetParameter,
+            compatibleSymbolCompilation,
             compatibleSymbol.IsStatic );
 
-        static (ITypeSymbol? Type, RefKind? RefKind) GetParameter( (ImmutableArray<IParameterSymbol> Parameters, CompilationContext Compilation) context, int index )
+        static (ITypeSymbol? Type, RefKind? RefKind) GetParameter( ImmutableArray<IParameterSymbol> parameters, int index )
         {
-            var parameter = context.Parameters[index];
+            var parameter = parameters[index];
 
-            return (context.Compilation.SymbolTranslator.Translate( parameter.Type ), parameter.RefKind);
+            return (parameter.Type, parameter.RefKind);
         }
     }
 
@@ -49,22 +51,24 @@ internal static class SymbolSignatureMatcher
     /// <returns>Enumeration of methods matching specified constraints.</returns>
     public static IEnumerable<IMethodSymbol> GetMethodsOfCompatibleSignature(
         this INamedTypeSymbol containingType,
-        CompilationContext compilation,
+        CompilationContext containingTypeCompilation,
         string name,
         IReadOnlyList<ITypeSymbol?>? argumentTypes,
+        CompilationContext argumentTypesCompilation,
         bool? isStatic = false )
     {
-        return containingType.GetMembersOfCompatibleSignature<IMethodSymbol, (IReadOnlyList<ITypeSymbol?>? ArgumentTypes, CompilationContext Compilation)>(
-            compilation,
-            (argumentTypes, compilation),
+        return containingType.GetMembersOfCompatibleSignature<IMethodSymbol, IReadOnlyList<ITypeSymbol?>?>(
+            containingTypeCompilation,
+            argumentTypes,
             name,
             argumentTypes?.Count,
             GetParameter,
+            argumentTypesCompilation,
             isStatic );
 
-        static (ITypeSymbol? Type, RefKind? RefKind) GetParameter( (IReadOnlyList<ITypeSymbol?>? ArgumentTypes, CompilationContext Compilation) context, int index )
-            => context.ArgumentTypes?[index] != null
-                ? (context.Compilation.SymbolTranslator.Translate( context.ArgumentTypes[index]! ), null)
+        static (ITypeSymbol? Type, RefKind? RefKind) GetParameter( IReadOnlyList<ITypeSymbol?>? argumentTypes, int index )
+            => argumentTypes?[index] != null
+                ? (argumentTypes[index]!, null)
                 : (null, null);
     }
 
@@ -81,18 +85,19 @@ internal static class SymbolSignatureMatcher
     /// <returns>Enumeration of all members matching all conditions.</returns>
     private static IEnumerable<TMember> GetMembersOfCompatibleSignature<TMember, TPayload>(
         this INamedTypeSymbol containingType,
-        CompilationContext compilation,
+        CompilationContext containingTypeCompilation,
         TPayload payload,
         string? name,
         int? argumentCount,
         Func<TPayload, int, (ITypeSymbol? Type, RefKind? RefKind)> argumentGetter,
+        CompilationContext argumentTypesCompilation,
         bool? isStatic )
         where TMember : ISymbol
     {
         return GetMembersOfSignature<TMember, (TPayload InnerPayload, Func<TPayload, int, (ITypeSymbol? Type, RefKind? RefKind)> ArgumentGetter, CompilationContext Compilation)>(
             containingType,
-            compilation,
-            (payload, argumentGetter, compilation),
+            containingTypeCompilation,
+            (payload, argumentGetter, argumentTypesCompilation),
             name,
             argumentCount,
             IsMatchingParameter,
@@ -100,15 +105,18 @@ internal static class SymbolSignatureMatcher
             true );
 
         static bool IsMatchingParameter(
-            (TPayload InnerPayload, Func<TPayload, int, (ITypeSymbol? Type, RefKind? RefKind)> ArgumentGetter, CompilationContext Compilation) payload,
+            (TPayload InnerPayload, Func<TPayload, int, (ITypeSymbol? Type, RefKind? RefKind)> ArgumentGetter, CompilationContext ArgumentCompilation) payload,
             int parameterIndex,
             ITypeSymbol expectedType,
             RefKind expectedRefKind )
         {
             var parameterInfo = payload.ArgumentGetter.Invoke( payload.InnerPayload, parameterIndex );
 
+            var translatedExpectedType = payload.ArgumentCompilation.SymbolTranslator.Translate( expectedType );
+
             var parameterMatches =
-                (parameterInfo.Type == null || payload.Compilation.SymbolComparer.IsConvertibleTo( parameterInfo.Type, expectedType ))
+                (parameterInfo.Type == null ||
+                    (translatedExpectedType != null && payload.ArgumentCompilation.SymbolComparer.IsConvertibleTo( parameterInfo.Type, translatedExpectedType )))
                 && (parameterInfo.RefKind == null || expectedRefKind == parameterInfo.RefKind);
 
             if ( !parameterMatches )
@@ -283,9 +291,10 @@ internal static class SymbolSignatureMatcher
         // This is based on https://github.com/dotnet/csharpstandard/blob/draft-v9/standard/statements.md#1395-the-foreach-statement,
         // but see https://github.com/dotnet/csharpstandard/issues/1188 (we follow the compiler, not the spec, where the two disagree).
 
-        var getEnumeratorMethods = collectionType.GetMethodsOfCompatibleSignature( compilation, nameof(IEnumerable.GetEnumerator), argumentTypes: [], isStatic: false )
-            .Where( m => m.DeclaredAccessibility == Accessibility.Public )
-            .ToArray();
+        var getEnumeratorMethods =
+            collectionType.GetMethodsOfCompatibleSignature( compilation, nameof(IEnumerable.GetEnumerator), argumentTypes: [], compilation, isStatic: false )
+                .Where( m => m.DeclaredAccessibility == Accessibility.Public )
+                .ToArray();
 
         if ( getEnumeratorMethods is [var getEnumeratorMethod] )
         {

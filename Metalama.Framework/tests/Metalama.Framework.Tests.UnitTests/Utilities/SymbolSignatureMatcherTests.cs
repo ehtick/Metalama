@@ -43,13 +43,15 @@ public class SymbolSignatureMatcherTests : UnitTestClass
             .OfType<IMethodSymbol>()
             .Single( m => !m.Parameters[0].IsParams );
 
-        var foundOverloads = 
-            SymbolSignatureMatcher.GetMembersOfCompatibleSignature( oldType, CompilationContextFactory.GetCompilationContext( oldCompilation ), newOverload );
+        var foundOverloads = SymbolSignatureMatcher.GetMembersOfCompatibleSignature( 
+            oldType,
+            CompilationContextFactory.GetCompilationContext( oldCompilation ),
+            newOverload,
+            CompilationContextFactory.GetCompilationContext( newCompilation ) );
 
         Assert.Same( oldOverload, Assert.Single( foundOverloads ) );
     }
 
-#if NET6_0_OR_GREATER
     [Fact]
     public void InterpolatedStringHandlerOverloadAdded()
     {
@@ -63,12 +65,25 @@ public class SymbolSignatureMatcherTests : UnitTestClass
             """;
 
         const string newCode = """
+            using System;
+            using System.Runtime.CompilerServices;
             using System.Text;
 
             class MyStringBuilder
             {
                 public void Append(string? value) { }
-                public void Append(ref StringBuilder.AppendInterpolatedStringHandler handler) { }
+                public void Append(ref AppendInterpolatedStringHandler handler) { }
+
+                [InterpolatedStringHandler]
+                public struct AppendInterpolatedStringHandler
+                {
+                    public AppendInterpolatedStringHandler(int literalLength, int formattedCount) { }
+                }
+            }
+
+            namespace System.Runtime.CompilerServices
+            {
+                public sealed class InterpolatedStringHandlerAttribute : Attribute;
             }
             """;
 
@@ -84,10 +99,12 @@ public class SymbolSignatureMatcherTests : UnitTestClass
             .OfType<IMethodSymbol>()
             .Single( m => m.Parameters[0].RefKind == RefKind.Ref );
 
-        var foundOverloads =
-            SymbolSignatureMatcher.GetMembersOfCompatibleSignature( oldType, CompilationContextFactory.GetCompilationContext( oldCompilation ), newOverload );
+        var foundOverloads = SymbolSignatureMatcher.GetMembersOfCompatibleSignature(
+            oldType,
+            CompilationContextFactory.GetCompilationContext( oldCompilation ),
+            newOverload,
+            CompilationContextFactory.GetCompilationContext( newCompilation ) );
 
         Assert.Same( oldOverload, Assert.Single( foundOverloads ) );
     }
-#endif
 }

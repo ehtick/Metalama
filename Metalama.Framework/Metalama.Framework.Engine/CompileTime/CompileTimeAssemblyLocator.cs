@@ -313,16 +313,16 @@ internal sealed class CompileTimeAssemblyLocator
     /// <summary>
     /// Determines if a symbol (typically one from the run-time compilation) exists in compile-time references.
     /// </summary>
-    internal bool? IsSymbolAvailable( ISymbol symbol ) => this.TryGetAvailableSymbol( symbol, out _ );
+    internal bool? IsSymbolAvailable( ISymbol symbol, CompilationContext compilation ) => this.TryGetAvailableSymbol( symbol, compilation, out _ );
 
-    private bool? TryGetAvailableSymbol( ISymbol symbol, out ISymbol? availableSymbol )
+    private bool? TryGetAvailableSymbol( ISymbol symbol, CompilationContext compilation, out ISymbol? availableSymbol )
     {
         symbol = symbol.OriginalDefinition;
 
         switch ( symbol )
         {
             case IMethodSymbol { ReducedFrom: { } reducedFrom }:
-                return this.TryGetAvailableSymbol( reducedFrom, out availableSymbol );
+                return this.TryGetAvailableSymbol( reducedFrom, compilation, out availableSymbol );
 
             case IMethodSymbol { MethodKind: MethodKind.BuiltinOperator }:
                 // For some reason, DocumentationId mapping does not work for operators.
@@ -349,13 +349,13 @@ internal sealed class CompileTimeAssemblyLocator
 
                         if ( symbol is (IMethodSymbol or IPropertySymbol { IsIndexer: true }) and { ContainingType: { } containingType } )
                         {
-                            if ( this.TryGetAvailableSymbol( containingType, out var compileTimeContainingType ) != true )
+                            if ( this.TryGetAvailableSymbol( containingType, compilation, out var compileTimeContainingType ) != true )
                             {
                                 availableSymbol = null;
                                 return false;
                             }
 
-                            var compileTimeMembers = SymbolSignatureMatcher.GetMembersOfCompatibleSignature( (INamedTypeSymbol) compileTimeContainingType!, this._referenceCompilationContext, symbol );
+                            var compileTimeMembers = SymbolSignatureMatcher.GetMembersOfCompatibleSignature( (INamedTypeSymbol) compileTimeContainingType!, this._referenceCompilationContext, symbol, compilation );
 
                             compileTimeSymbol = compileTimeMembers.FirstOrDefault();
                         }
