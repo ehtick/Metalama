@@ -120,7 +120,7 @@ public sealed class PipelineCancellationTests : UnitTestClass
 
         analysisProcessEndpoint.Start();
 
-        var testCancellationTokenSourceFactory = new TestCancellationTokenSourceFactory( cancelOnCancellationPointIndex );
+        var testCancellationTokenSourceFactory = new TestCancellationTokenSourceFactory( cancelOnCancellationPointIndex, testContext.CancellationToken );
         var cancellationTokenSource = testCancellationTokenSourceFactory.Create();
 
         var pipelineFactory = new TestDesignTimeAspectPipelineFactory( testContext );
@@ -142,6 +142,9 @@ public sealed class PipelineCancellationTests : UnitTestClass
             userProcessServiceProvider,
             testContext.ProjectOptions,
             projectKey );
+
+        // If the user process endpoint is not yet initialized, it might miss the event.
+        await userProcessServiceHubEndpoint.WaitUntilInitializedAsync();
 
         bool wasCancellationRequested;
 
@@ -300,7 +303,7 @@ public sealed class PipelineCancellationTests : UnitTestClass
 
             var compilation = testContext.CreateCSharpCompilation( code );
 
-            var testCancellationTokenSourceFactory = new TestCancellationTokenSourceFactory( cancelOnCancellationPointIndex );
+            var testCancellationTokenSourceFactory = new TestCancellationTokenSourceFactory( cancelOnCancellationPointIndex, testContext.CancellationToken );
             var cancellationTokenSource = testCancellationTokenSourceFactory.Create();
 
             using var pipelineFactory = new TestDesignTimeAspectPipelineFactory( testContext );
@@ -341,7 +344,8 @@ public sealed class PipelineCancellationTests : UnitTestClass
     {
         private readonly TestCancellationTokenSourceFactory _factory;
 
-        public TestCancellationTokenSource( TestCancellationTokenSourceFactory factory )
+        public TestCancellationTokenSource( TestCancellationTokenSourceFactory factory, CancellationToken linkedToken )
+            : base( linkedToken )
         {
             this._factory = factory;
         }
@@ -374,10 +378,10 @@ public sealed class PipelineCancellationTests : UnitTestClass
         private int _count;
         private bool _isCounting = true;
 
-        public TestCancellationTokenSourceFactory( int cancelOnCount )
+        public TestCancellationTokenSourceFactory( int cancelOnCount, CancellationToken linkedToken )
         {
             this._cancelOnCount = cancelOnCount;
-            this._source = new TestCancellationTokenSource( this );
+            this._source = new TestCancellationTokenSource( this, linkedToken );
         }
 
         public TestableCancellationTokenSource Create() => this._isCounting ? this._source : new TestableCancellationTokenSource();
