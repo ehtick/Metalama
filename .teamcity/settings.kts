@@ -30,12 +30,12 @@ object DebugBuild : BuildType({
 
     params {
         text("BuildArguments", "", label = "Build Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        text("DefaultBranch", "develop/2025.0", label = "Default Branch", description = "The default branch of this build configuration.")
+        text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
         text("TimeOut", "300", label = "Time-Out Threshold", description = "Seconds after the duration of the last successful build.", regex = """\d+""", validationMessage = "The timeout has to be an integer number.")
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaBackstage"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaBackstage"))
     }
 
     steps {
@@ -95,7 +95,7 @@ object DebugBuild : BuildType({
     triggers {
         vcs {
             watchChangesInDependencies = true
-            branchFilter = "+:develop/2025.0"
+            branchFilter = "+:develop/2025.1"
             // Build will not trigger automatically if the commit message contains comment value.
             triggerRules = "-:comment=<<VERSION_BUMP>>|<<DEPENDENCIES_UPDATED>>:**"
         }
@@ -111,12 +111,12 @@ object ReleaseBuild : BuildType({
 
     params {
         text("BuildArguments", "", label = "Build Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        text("DefaultBranch", "develop/2025.0", label = "Default Branch", description = "The default branch of this build configuration.")
+        text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
         text("TimeOut", "300", label = "Time-Out Threshold", description = "Seconds after the duration of the last successful build.", regex = """\d+""", validationMessage = "The timeout has to be an integer number.")
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaBackstage"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaBackstage"))
     }
 
     steps {
@@ -183,12 +183,12 @@ object PublicBuild : BuildType({
 
     params {
         text("BuildArguments", "", label = "Build Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        text("DefaultBranch", "develop/2025.0", label = "Default Branch", description = "The default branch of this build configuration.")
+        text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
         text("TimeOut", "300", label = "Time-Out Threshold", description = "Seconds after the duration of the last successful build.", regex = """\d+""", validationMessage = "The timeout has to be an integer number.")
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaBackstage"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaBackstage"))
     }
 
     steps {
@@ -255,12 +255,12 @@ object PublicDeployment : BuildType({
 
     params {
         text("PublishArguments", "", label = "Publish Arguments", description = "Arguments to append to the 'Publish' build step.", allowEmpty = true)
-        text("DefaultBranch", "release/2025.0", label = "Default Branch", description = "The default branch of this build configuration.")
+        text("DefaultBranch", "release/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
         text("TimeOut", "300", label = "Time-Out Threshold", description = "Seconds after the duration of the last successful build.", regex = """\d+""", validationMessage = "The timeout has to be an integer number.")
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaBackstage"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaBackstage"))
     }
 
     steps {
