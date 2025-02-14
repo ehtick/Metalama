@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using static System.Reflection.Emit.OpCodes;
@@ -31,9 +32,9 @@ internal sealed class AssemblyLoader : IDisposable
         {
             alcType = Type.GetType( "System.Runtime.Loader.AssemblyLoadContext, System.Runtime.Loader" );
         }
-        catch ( NullReferenceException )
+        catch ( FileLoadException )
         {
-            // .Net Framework sometimes throws NullReferenceException when trying to resolve this type, instead of returning null.
+            // .Net Framework sometimes throws FileLoadException when trying to resolve this type, instead of returning null.
             alcType = null;
         }
 
