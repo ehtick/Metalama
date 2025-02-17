@@ -176,6 +176,19 @@ internal sealed partial class SymbolTranslator
                     }
 
                     types = ns.GetTypeMembers( symbol.Name, symbol.Arity );
+
+                    if ( types.IsDefaultOrEmpty )
+                    {
+                        // Forwarded types do not appear as members of namespaces of the forwarding assembly,
+                        // so they need special handling.
+
+                        var type = this.Translate( symbol.ContainingAssembly )?.ResolveForwardedType( symbol.GetReflectionFullName() );
+
+                        if ( type != null )
+                        {
+                            types = ImmutableArray.Create( type );
+                        }
+                    }
                 }
                 else
                 {
