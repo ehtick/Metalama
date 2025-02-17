@@ -133,7 +133,6 @@ var product = new Product( MetalamaDependencies.Metalama )
 };
 
 product.PrepareCompleted += OnPrepareCompleted;
-product.PrepareCompleted += args => TestLicenseKeyDownloader.Download( args.Context );
 
 return new EngineeringApp( product ).Run( args );
 
