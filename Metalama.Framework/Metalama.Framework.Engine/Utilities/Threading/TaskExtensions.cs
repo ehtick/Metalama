@@ -79,12 +79,15 @@ public static class TaskExtensions
     {
         var taskCompletionSource = new TaskCompletionSource<bool>();
 
-        using ( cancellationToken.Register(
-                   s =>
-                   {
-                       ((TaskCompletionSource<bool>) s).TrySetResult( true );
-                   },
-                   taskCompletionSource ) )
+        var registration = cancellationToken.Register(
+            s => ((TaskCompletionSource<bool>) s!).TrySetResult( true ),
+            taskCompletionSource );
+
+#if NET6_0_OR_GREATER
+        await using ( registration )
+#else
+        using ( registration )
+#endif
         {
             if ( task != await Task.WhenAny( task, taskCompletionSource.Task )
                     .ConfigureAwait( continueOnCapturedContext ) )
@@ -100,12 +103,15 @@ public static class TaskExtensions
     {
         var taskCompletionSource = new TaskCompletionSource<bool>();
 
-        using ( cancellationToken.Register(
-                   s =>
-                   {
-                       ((TaskCompletionSource<bool>) s).TrySetResult( true );
-                   },
-                   taskCompletionSource ) )
+        var registration = cancellationToken.Register(
+            s => ((TaskCompletionSource<bool>) s!).TrySetResult( true ),
+            taskCompletionSource );
+
+#if NET6_0_OR_GREATER
+        await using ( registration )
+#else
+        using ( registration )
+#endif
         {
             if ( task != await Task.WhenAny( task, taskCompletionSource.Task )
                     .ConfigureAwait( continueOnCapturedContext ) )

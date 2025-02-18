@@ -8,6 +8,9 @@
         <!-- Disable vulnerability checking because this project is not surfacing. -->
         <NuGetAudit>false</NuGetAudit>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        
+        <!-- [VSTHRD003] Avoid awaiting or returning a Task representing work that was not started within your context as that can lead to deadlocks. -->
+        <NoWarn>$(NoWarn);VSTHRD003</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -60,7 +63,7 @@
     <Target Name="ILMerge" AfterTargets="Build" Inputs="$(OutDir)$(AssemblyName).dll;@(ILMergeOtherInputs)" Outputs="$(ILMergeTouchFile)" DependsOnTargets="GetILMergeInputs">
         <Error Text="The ILRepack package is not installed or restored in the project." Condition="'$(ILRepack)'==''"/>
         <Move SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(OutDir)$(AssemblyName).input.dll"/>
-        <Exec Command="$(ILRepack) /target:library /copyattrs /allowMultiple /parallel /out:$(OutDir)$(AssemblyName).dll /union /lib:@(ILMergeLibs, ' /lib:') $(OutDir)$(AssemblyName).input.dll @(ILMergeOtherInputs, ' ') /internalize /keyfile:$(AssemblyOriginatorKeyFile)" />
+        <Exec Command="$(ILRepack) /target:library /copyattrs /allowMultiple /union /parallel /out:$(OutDir)$(AssemblyName).dll /lib:@(ILMergeLibs, ' /lib:') $(OutDir)$(AssemblyName).input.dll @(ILMergeOtherInputs, ' ') /internalize /keyfile:$(AssemblyOriginatorKeyFile)" />
         
         <Touch Files="$(ILMergeTouchFile)" AlwaysCreate="true"/>
     </Target>

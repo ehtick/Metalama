@@ -60,13 +60,15 @@
     <PackageVersion Include="ILRepack" Version="2.0.38" />
 
     <!-- The following package is ILMerged so we can take any version we want,
-     as long as the dependency on Newtonsoft.Json is respected. -->
-    <PackageVersion Include="StreamJsonRpc" Version="2.21.10" />
+     however all dependencies must be lower or equal than the minimal we must suppport. -->
+    <PackageVersion Include="StreamJsonRpc" Version="2.14.24" />
     
-    <!-- The following packages are dependencies of StreamJsonRpc and we must match the version. -->
-    <PackageVersion Include="System.IO.Pipelines" Version="8.0.0"/>
-    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="6.0.1"/>
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0"/>
+    <!-- The following packages are dependencies of StreamJsonRpc and we must match the version. 
+        We now target the .NET SDK 6 and equivalent VS.
+    -->
+    <PackageVersion Include="System.IO.Pipelines" Version="6.0.3"/>
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="6.0.0"/>
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0"/>
     
 
 
