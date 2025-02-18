@@ -1,0 +1,1 @@
+﻿We must have our own copy of JsonStreamRpc because we cannot share the static state with the other Visual Studio assemblies.

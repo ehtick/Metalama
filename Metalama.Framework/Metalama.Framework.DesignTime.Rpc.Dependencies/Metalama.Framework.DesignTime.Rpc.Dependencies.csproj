@@ -1,20 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>Metalama.Framework.DesignTime.Rpc</RootNamespace>
-        
-        <!-- Disable vulnerability checking because this project is not surfacing. -->
-        <NuGetAudit>false</NuGetAudit>
+       <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Metalama.Backstage" />
-    </ItemGroup>
-
-       
+    
     <ItemGroup>
         <PackageReference Include="ILRepack">
           <PrivateAssets>all</PrivateAssets>
@@ -31,18 +22,7 @@
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces"/>
     </ItemGroup>
   
-    <!--
-    <ItemGroup>
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.4.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.8.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.12.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.4.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.8.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.12.0" />
-    </ItemGroup>
-    -->
-
-     <Target Name="GetILMergeInputs">
+    <Target Name="GetILMergeInputs">
         <PropertyGroup>
             <ILMergeTouchFile>$(OutDir)repack.touch</ILMergeTouchFile>
         </PropertyGroup>
@@ -60,9 +40,12 @@
     <Target Name="ILMerge" AfterTargets="Build" Inputs="$(OutDir)$(AssemblyName).dll;@(ILMergeOtherInputs)" Outputs="$(ILMergeTouchFile)" DependsOnTargets="GetILMergeInputs">
         <Error Text="The ILRepack package is not installed or restored in the project." Condition="'$(ILRepack)'==''"/>
         <Move SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(OutDir)$(AssemblyName).input.dll"/>
-        <Exec Command="$(ILRepack) /target:library /copyattrs /allowMultiple /parallel /out:$(OutDir)$(AssemblyName).dll /union /lib:@(ILMergeLibs, ' /lib:') $(OutDir)$(AssemblyName).input.dll @(ILMergeOtherInputs, ' ') /internalize /keyfile:$(AssemblyOriginatorKeyFile)" />
+        <Exec Command="$(ILRepack) /target:library /copyattrs /allowMultiple /parallel /out:$(OutDir)$(AssemblyName).dll /union /lib:@(ILMergeLibs, ' /lib:') $(OutDir)$(AssemblyName).input.dll @(ILMergeOtherInputs, ' ')  @(ILInternalize, ' /internalizeassembly:') /keyfile:$(AssemblyOriginatorKeyFile)" />
         
         <Touch Files="$(ILMergeTouchFile)" AlwaysCreate="true"/>
     </Target>
-    
+
+    <!-- Empty test target, so that running tests does not fail on this "solution". -->
+    <Target Name="Test" />
+
 </Project>

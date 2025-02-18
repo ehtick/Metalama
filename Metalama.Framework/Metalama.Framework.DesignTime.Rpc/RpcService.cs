@@ -21,8 +21,7 @@ public abstract class RpcService
         this.Logger = serverEndpoint.LoggerFactory.GetLogger( this.GetType().Name );
     }
 
-    protected Task WaitUntilInitializedAsync( CancellationToken cancellationToken = default )
-        => this._initialized.Task.WithCancellation( cancellationToken );
+    protected Task WaitUntilInitializedAsync( CancellationToken cancellationToken = default ) => this._initialized.Task.WithCancellation( cancellationToken );
 
     internal abstract void ConfigureRpc( JsonRpc rpc );
 
@@ -45,7 +44,7 @@ public abstract class RpcService<TApi> : RpcService, IDisposable where TApi : IR
 
     internal override void ConfigureRpc( JsonRpc rpc )
     {
-        var client = rpc.AttachSafe<IRpcCallback>( this.Logger );
+        var client = rpc.Attach<IRpcCallback>();
         var implementation = this.CreateApi( new EventSender( client ) );
         rpc.AddLocalRpcTarget( implementation, null );
         this._clients.TryAdd( rpc, client );
