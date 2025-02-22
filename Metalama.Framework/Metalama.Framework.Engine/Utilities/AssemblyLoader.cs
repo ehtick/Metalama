@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -80,12 +79,11 @@ internal sealed class AssemblyLoader : IDisposable
             // We are on .NET Framework.
             this._loadFromAssemblyPath = Assembly.LoadFile;
 
-            this._loadFromStream = ( peStream, pdbStream ) => Assembly.Load( ReadBytes( peStream ), ReadBytes( pdbStream ) );
+            this._loadFromStream = ( peStream, pdbStream ) => Assembly.Load( ReadBytes( peStream )!, ReadBytes( pdbStream ) );
 
             AppDomain.CurrentDomain.AssemblyResolve += this.OnAssemblyResolve;
             this._assemblyResolveUnsubscribe = () => AppDomain.CurrentDomain.AssemblyResolve -= this.OnAssemblyResolve;
 
-            [return: NotNullIfNotNull( nameof(stream) )]
             static byte[]? ReadBytes( Stream? stream )
             {
                 if ( stream == null )
