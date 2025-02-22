@@ -35,7 +35,7 @@ namespace Metalama.Testing.UnitTesting
         /// <param name="logger"></param>
         protected UnitTestClass( ITestOutputHelper? logger = null, bool injectLoggingService = true )
         {
-            this._logger = logger;
+            this._logger = logger != null ? new TestOutputHelperWrapper( logger ) : null;
             this._injectLoggingService = injectLoggingService;
         }
 
