@@ -159,7 +159,9 @@ namespace Metalama.Framework.Engine.CompileTime
             {
                 if ( !this._assembliesByName.TryAdd( assemblyName.Name.AssertNotNull(), (assembly, assemblyIdentity) ) )
                 {
-                    throw new AssertionFailedException( "A different assembly of the same name was already added." );
+                    this._assembliesByName.TryGetValue( assemblyName.Name, out var existingAssembly );
+                    
+                    throw new AssertionFailedException( $"Cannot add '{assemblyIdentity}': A different assembly of the same name ('{existingAssembly.Identity}') was already added." );
                 }
             }
 
