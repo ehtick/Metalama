@@ -172,7 +172,7 @@ namespace Metalama.Testing.UnitTesting
         {
             // We generally don't want to see any exceptions reported during the test.
             // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-            Assert.DoesNotContain( this._exceptionReporter.ReportedExceptions, e => e.GetType().Namespace is not "ConnectionLostException" );
+            Assert.DoesNotContain( this._exceptionReporter.ReportedExceptions, e => e.GetType().Name is not "ConnectionLostException" );
         }
     }
 }

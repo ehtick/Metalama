@@ -82,7 +82,7 @@ public sealed partial class ServiceHubRpcService : RpcService<IServiceHubRpcApi>
     {
         var endpoint = await this.GetEndpointAsync( projectKey, cancellationToken );
 
-        return await endpoint.GetClientAsync<T>( cancellationToken );
+        return await endpoint.GetOrWaitForClientAsync<T>( cancellationToken );
     }
 
     private void OnEventReceived( RpcEventData eventData )
