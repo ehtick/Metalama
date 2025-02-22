@@ -256,6 +256,9 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
             {
                 domain.Dispose();
             }
+            
+            // Release all references for GC.
+            this.ServiceProvider = ProjectServiceProvider.Empty;
 
             this._timeoutCancellationTokenSource?.Dispose();
         }
