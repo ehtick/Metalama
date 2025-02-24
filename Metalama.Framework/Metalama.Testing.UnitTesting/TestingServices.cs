@@ -3,7 +3,6 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Maintenance;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Utilities.Diagnostics;
@@ -29,7 +28,7 @@ internal static class TestingServices
                 LicensingOptions = LicensingInitializationOptions.ForTest(
                     license =>
                     {
-                        license.Product = LicensedProduct.MetalamaProfessional;
+                        license.Product = LicenseProduct.MetalamaProfessional;
                         license.LicenseType = LicenseType.Test;
                         license.SubscriptionEndDate = DateTime.MaxValue;
                     } )
