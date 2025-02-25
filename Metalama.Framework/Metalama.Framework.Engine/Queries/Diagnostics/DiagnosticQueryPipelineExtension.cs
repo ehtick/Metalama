@@ -15,7 +15,7 @@ namespace Metalama.Framework.Engine.Queries.Diagnostics;
 
 internal sealed class DiagnosticQueryPipelineExtension : PipelineExtension
 {
-    public override bool Initialize( PipelineExtensionContext context )
+    public override bool Initialize( PipelineExtensionInitializationContext context )
     {
         context.ServiceBuilder.Add<IDiagnosticsQueryService>( _ => new DiagnosticsQueryService() );
 
