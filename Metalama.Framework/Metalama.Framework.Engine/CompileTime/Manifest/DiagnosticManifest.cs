@@ -55,11 +55,9 @@ namespace Metalama.Framework.Engine.CompileTime.Manifest
             this.SuppressionDefinitions = suppressionBuilder.ToImmutable();
         }
 
-        public DiagnosticManifest( IReadOnlyCollection<DiagnosticManifest> items )
-        {
-            this.DiagnosticDefinitions = items.SelectMany( i => i.DiagnosticDefinitions ).ToImmutableDictionary( StringComparer.OrdinalIgnoreCase );
-            this.SuppressionDefinitions = items.SelectMany( i => i.SuppressionDefinitions ).ToImmutableDictionary( StringComparer.OrdinalIgnoreCase );
-        }
+        public DiagnosticManifest( IReadOnlyCollection<DiagnosticManifest> items ) : this(
+            items.SelectMany( i => i.DiagnosticDefinitions.Values ),
+            items.SelectMany( i => i.SuppressionDefinitions.Values ) ) { }
 
         public bool DefinesDiagnostic( string id ) => this.DiagnosticDefinitions.ContainsKey( id );
 
