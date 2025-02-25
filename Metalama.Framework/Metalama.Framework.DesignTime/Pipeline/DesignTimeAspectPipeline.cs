@@ -1193,9 +1193,9 @@ public sealed partial class DesignTimeAspectPipeline : BaseDesignTimeAspectPipel
         {
             // Register user diagnostics.
             // If we have a new compile-time project, we need to register user diagnostics.
-            if ( configuration!.ClosureDiagnosticManifest is { DiagnosticDefinitions.IsEmpty: false } or { SuppressionDefinitions.IsEmpty: false } )
+            if ( configuration!.DiagnosticManifest is { DiagnosticDefinitions.IsEmpty: false } or { SuppressionDefinitions.IsEmpty: false } )
             {
-                this._userDiagnosticsRegistrationService?.RegisterDescriptors( configuration.ClosureDiagnosticManifest );
+                this._userDiagnosticsRegistrationService?.RegisterDescriptors( configuration.DiagnosticManifest );
             }
 
             return true;
