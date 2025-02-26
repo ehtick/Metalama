@@ -11,11 +11,11 @@ using System.Linq.Expressions;
 
 namespace Metalama.Framework.DesignTime.Services;
 
-internal sealed class DesignTimeInvalidationService : IGlobalService
+internal sealed class AnalysisProcessInvalidationService : IGlobalService
 {
     private readonly WorkspaceProvider _workspaceProvider;
 
-    public DesignTimeInvalidationService( GlobalServiceProvider serviceProvider )
+    public AnalysisProcessInvalidationService( GlobalServiceProvider serviceProvider )
     {
         this._workspaceProvider = serviceProvider.GetRequiredService<WorkspaceProvider>();
 
