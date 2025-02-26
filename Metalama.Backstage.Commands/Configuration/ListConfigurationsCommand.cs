@@ -9,8 +9,6 @@ internal class ListConfigurationsCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        this.PrintStandardDirectoryPath( context );
-
         var table = new Table();
         table.AddColumn( "Alias" );
         table.AddColumn( "Environment variable" );

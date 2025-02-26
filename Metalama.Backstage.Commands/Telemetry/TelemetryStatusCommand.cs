@@ -12,8 +12,6 @@ internal class TelemetryStatusCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        this.PrintStandardDirectoryPath( context );
-
         var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var configuration = configurationManager.Get<TelemetryConfiguration>();
 

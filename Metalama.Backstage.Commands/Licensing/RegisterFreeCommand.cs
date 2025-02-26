@@ -9,8 +9,6 @@ internal class RegisterFreeCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        this.PrintStandardDirectoryPath( context );
-
         var service = context.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
 
         if ( !service.TryRegisterFreeEdition( out var errorMessage ) )

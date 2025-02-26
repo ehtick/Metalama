@@ -9,8 +9,6 @@ internal class ResetDeviceIdCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        this.PrintStandardDirectoryPath( context );
-
         context.ServiceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>()
             .ResetDeviceId();
 
