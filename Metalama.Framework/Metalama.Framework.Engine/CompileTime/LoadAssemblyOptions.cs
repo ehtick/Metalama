@@ -9,13 +9,14 @@ public record struct LoadAssemblyOptions
     public static LoadAssemblyOptions Shared => new() { IsShared = true };
 
     /// <summary>
-    /// Gets a value indicating that the assembly is NOT supposed to be collectible after the <see cref="CompileTimeDomain"/>
-    /// is disposed of. This should be <c>false</c> for project-specific assemblies and <c>true</c> for extensions.
+    /// Gets a value indicating whether the assembly is shared by several projects, in which case it is NOT supposed
+    /// to be collectible after the <see cref="CompileTimeDomain"/> is disposed of.
+    /// This should be <c>false</c> for project-specific assemblies and <c>true</c> for extensions.
     /// </summary>
     public bool IsShared { get; init; }
 
     /// <summary>
-    /// Gets a value indicating that the assembly must be first loaded into a buffer to avoid locking the file.
+    /// Gets a value indicating whether the assembly must be first loaded into a buffer to avoid locking the file.
     /// </summary>
     public bool AvoidLocking { get; init; }
 }
