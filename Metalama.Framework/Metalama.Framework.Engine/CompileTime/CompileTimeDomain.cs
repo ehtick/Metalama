@@ -99,19 +99,32 @@ namespace Metalama.Framework.Engine.CompileTime
         /// <param name="path"></param>
         public Assembly LoadAssembly( string path, LoadAssemblyOptions options = default )
         {
+            // Fast path to avoid duplicate assembly loading.
             if ( this._assembliesByPath.TryGetValue( path, out var assembly ) )
             {
                 return assembly;
             }
-
+            
+            // Take a lock to avoid concurrently loading the same assembly twice, which may corrupts the CLR.
             var @lock = _locksByPath.GetOrAdd( path, _ => new object() );
 
             lock ( @lock )
             {
+                // Second cache lookup because there might be a race between getting the lock and releasing it.
+                // In case of a race, the other thread is guaranteed to have added the assembly to _assembliesByPath.
+                if ( this._assembliesByPath.TryGetValue( path, out assembly ) )
+                {
+                    return assembly;
+                }
+                
+                // Loads the assembly.
                 assembly = this.LoadAssemblyCore( path, options );
+                
+                // Adds the assembly to our collections, including _assembliesByPath.
                 this.AddAssembly( assembly, path );
             }
 
+            // Removing the lock.
             _locksByPath.TryRemove( path, out _ );
 
             return assembly;
