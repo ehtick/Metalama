@@ -20,7 +20,7 @@ internal static class TestingServices
             new BackstageInitializationOptions( new TestApiApplicationInfo() )
             {
                 AddSupportServices = true,
-                AddLicensing = true,
+                AddLicensing = false,
                 AddDumperService = true,
                 
                 // Provide a test license for all tests. This is not useful for the open-soure tests,
