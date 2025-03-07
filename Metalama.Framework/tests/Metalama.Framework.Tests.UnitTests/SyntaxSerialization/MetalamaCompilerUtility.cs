@@ -21,6 +21,7 @@ namespace Metalama.Framework.Tests.UnitTests.SyntaxSerialization
         {
             var dir = Path.Combine( baseDirectory, "CompileAssembly", Guid.NewGuid().ToString() );
             Directory.CreateDirectory( dir );
+            var projectName = $"test-{Guid.NewGuid()}";
 
             void WriteFile( string name, string text ) => File.WriteAllText( Path.Combine( dir, name ), text );
 
@@ -41,7 +42,7 @@ namespace Metalama.Framework.Tests.UnitTests.SyntaxSerialization
 </Project>
 ";
 
-            WriteFile( "test.csproj", csproj );
+            WriteFile( $"{projectName}.csproj", csproj );
 
             for ( var i = 0; i < sourceFiles.Length; i++ )
             {
@@ -69,7 +70,7 @@ namespace Metalama.Framework.Tests.UnitTests.SyntaxSerialization
 
 #pragma warning restore VSTHRD002
 
-            return Path.Combine( dir, "bin/Debug/net48/test.dll" );
+            return Path.Combine( dir, $"bin/Debug/net48/{projectName}.dll" );
         }
     }
 }
