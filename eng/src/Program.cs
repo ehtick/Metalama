@@ -94,6 +94,7 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Metalama.Patterns.Memoization.$(PackageVersion).nupkg",
         "Metalama.Patterns.Immutability.$(PackageVersion).nupkg",
         "Metalama.Patterns.Observability.$(PackageVersion).nupkg",
+        "Metalama.Patterns.TestHelpers.$(PackageVersion).nupkg",
         "Metalama.Patterns.Wpf.$(PackageVersion).nupkg",
         "Flashtrace.$(PackageVersion).nupkg",
         "Flashtrace.Formatters.$(PackageVersion).nupkg" ),
