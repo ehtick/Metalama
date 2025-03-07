@@ -19,7 +19,7 @@ class C
 
             const string expression = "System.Reflection.MethodBase.GetMethodFromHandle(Metalama.Compiler.Intrinsics.GetRuntimeMethodHandle(\"M:C.M\"))";
 
-            var methodInfo = (MethodInfo) this.ExecuteExpression( code, expression )!;
+            var methodInfo = this.ExecuteExpression<MethodInfo>( code, expression )!;
 
             Assert.NotNull( methodInfo );
         }
@@ -32,8 +32,8 @@ class C
             const string serialized =
                 "System.Reflection.MethodBase.GetMethodFromHandle(Metalama.Compiler.Intrinsics.GetRuntimeMethodHandle(\"M:Target.Method``1(``0)~``0\"))";
 
-            var methodInfo = (MethodInfo) this.ExecuteExpression( code, serialized )!;
-            Assert.Equal( 42, methodInfo.MakeGenericMethod( typeof(int) ).Invoke( null, new object[] { 21 } ) );
+            var methodInfo = this.ExecuteExpression<MethodInfo>( code, serialized )!;
+            Assert.Equal( 42, methodInfo.MakeGenericMethod( typeof(int) ).Invoke( null, [21] ) );
         }
 
         [Fact]
@@ -46,7 +46,7 @@ System.Reflection.FieldInfo.GetFieldFromHandle(
     Metalama.Compiler.Intrinsics.GetRuntimeFieldHandle(""F:Target`1.f""),
     Metalama.Compiler.Intrinsics.GetRuntimeTypeHandle(""T:Target`1""))";
 
-            var fieldInfo = (FieldInfo) this.ExecuteExpression( code, serialized )!;
+            var fieldInfo = this.ExecuteExpression<FieldInfo>( code, serialized )!;
             Assert.Equal( "f", fieldInfo.Name );
         }
 
@@ -55,7 +55,7 @@ System.Reflection.FieldInfo.GetFieldFromHandle(
         {
             const string code = "class Target<T> { }";
             const string serialized = "System.Type.GetTypeFromHandle(Metalama.Compiler.Intrinsics.GetRuntimeTypeHandle(\"T:Target`1\"))";
-            var type = (Type) this.ExecuteExpression( code, serialized )!;
+            var type = this.ExecuteExpression<Type>( code, serialized )!;
             Assert.Equal( "Target`1", type.FullName );
         }
     }

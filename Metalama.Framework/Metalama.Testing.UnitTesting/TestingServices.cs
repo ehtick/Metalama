@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
 using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Utilities.Diagnostics;
@@ -20,7 +19,7 @@ internal static class TestingServices
             new BackstageInitializationOptions( new TestApiApplicationInfo() )
             {
                 AddSupportServices = true,
-                AddLicensing = true,
+                AddLicensing = false,
                 AddDumperService = true,
                 
                 // Provide a test license for all tests. This is not useful for the open-soure tests,
