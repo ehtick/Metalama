@@ -18,7 +18,7 @@ internal static class DesignTimeServices
         BackstageServiceFactoryInitializer.Initialize(
             new BackstageInitializationOptions( new MetalamaDesignTimeApplicationInfo() )
             {
-                AddSupportServices = true, AddUserInterface = true, AddLicensing = true
+                AddSupportServices = true, AddUserInterface = true, AddLicensing = false
             } );
     }
 }

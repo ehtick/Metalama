@@ -43,7 +43,7 @@ public sealed partial class SourceTransformer : ISourceTransformerWithServices
 
             var backstageOptions = new BackstageInitializationOptions( applicationInfo )
             {
-                AddLicensing = true, AddUserInterface = true, AddSupportServices = true, DotNetSdkDirectory = dotNetSdkDirectory
+                AddLicensing = false, AddUserInterface = true, AddSupportServices = true, DotNetSdkDirectory = dotNetSdkDirectory
             };
 
             BackstageServiceFactoryInitializer.Initialize( backstageOptions );

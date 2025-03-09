@@ -15,7 +15,7 @@ internal static class WorkspaceServices
         {
             // Don't enforce licensing in workspaces.
 
-            BackstageServiceFactoryInitializer.Initialize( new BackstageInitializationOptions( new WorkspaceApplicationInfo() ) );
+            BackstageServiceFactoryInitializer.Initialize( new BackstageInitializationOptions( new WorkspaceApplicationInfo() ) { AddLicensing = false } );
         }
     }
 }
