@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../build/RoslynVersion/Latest.imports" />
+    <Import Project="../../build/RoslynVersion/Latest.imports" />
 
     <PropertyGroup>
         <TargetFrameworks>net472;net6.0</TargetFrameworks>

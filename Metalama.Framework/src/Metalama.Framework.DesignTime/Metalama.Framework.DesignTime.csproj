@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../build/RoslynVersion/Latest.imports" />
+    <Import Project="../../build/RoslynVersion/Latest.imports" />
     
     <PropertyGroup>
         <TargetFrameworks>net472;net6.0</TargetFrameworks>
@@ -28,8 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="../.generated/$(ThisRoslynVersionNoPreview)/Metalama.Framework.DesignTime/*.cs" Condition="Exists('../.generated/$(ThisRoslynVersionNoPreview)')" />
-        <Compile Include="../.generated/$(ThisRoslynVersionNoPreview)-stubs/Metalama.Framework.DesignTime/*.cs" Condition="!Exists('../.generated/$(ThisRoslynVersionNoPreview)')" />
+        <Compile Include="../../.generated/$(ThisRoslynVersionNoPreview)/Metalama.Framework.DesignTime/*.cs" Condition="Exists('../../.generated/$(ThisRoslynVersionNoPreview)')" />
+        <Compile Include="../../.generated/$(ThisRoslynVersionNoPreview)-stubs/Metalama.Framework.DesignTime/*.cs" Condition="!Exists('../../.generated/$(ThisRoslynVersionNoPreview)')" />
     </ItemGroup>
 
     <!-- Packaging -->
