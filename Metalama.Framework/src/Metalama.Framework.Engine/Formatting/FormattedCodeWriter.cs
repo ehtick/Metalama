@@ -123,7 +123,7 @@ public abstract partial class FormattedCodeWriter
             .OrderBy( c => c.TextSpan.Start )
             .ThenBy( c => c.ClassificationType );
 
-        bool withinHeaderCommentSequence = true;
+        var withinHeaderCommentSequence = true;
 
         foreach ( var csharpSpan in classifiedSpans )
         {
