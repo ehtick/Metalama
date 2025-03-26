@@ -260,6 +260,8 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
     {
         if ( this._isRoot )
         {
+            this._applicationExitManager.Dispose();
+            
             this.TestProjectOptions.Dispose();
 
             if ( this.ServiceProvider.Global.Underlying.TryGetService<CompileTimeDomain>( out var domain ) )
@@ -274,8 +276,6 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
             this._timer?.Dispose();
         }
         
-        this._applicationExitManager.OnApplicationExiting();
-
         if ( disposing )
         {
             GC.SuppressFinalize( this );

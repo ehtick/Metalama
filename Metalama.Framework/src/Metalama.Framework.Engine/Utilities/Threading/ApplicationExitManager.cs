@@ -11,13 +11,26 @@ namespace Metalama.Framework.Engine.Utilities.Threading;
 public sealed class ApplicationExitManager : IGlobalService, IDisposable
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private bool _isDisposed;
     
     public void OnApplicationExiting()
     {
-        this._cancellationTokenSource.Cancel();
+        if ( !this._isDisposed )
+        {
+            this._cancellationTokenSource.Cancel();
+        }
     }
 
     public CancellationToken Token => this._cancellationTokenSource.Token;
 
-    public void Dispose() => this._cancellationTokenSource.Dispose();
+    public void Dispose()
+    {
+        if ( !this._isDisposed )
+        {
+            this._isDisposed = true;
+            
+            this._cancellationTokenSource.Cancel();
+            this._cancellationTokenSource.Dispose();
+        }
+    }
 }
