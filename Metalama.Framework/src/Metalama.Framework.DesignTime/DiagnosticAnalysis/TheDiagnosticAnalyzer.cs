@@ -58,8 +58,12 @@ namespace Metalama.Framework.DesignTime.DiagnosticAnalysis
             this._exceptionHandler = serviceProvider.GetRequiredService<DesignTimeExceptionHandler>();
         }
 
+#pragma warning disable RS1025 // Code analysis configured in base method.
         public override void Initialize( AnalysisContext context )
+#pragma warning restore RS1025
         {
+            base.Initialize( context );
+
             if ( MetalamaCompilerInfo.IsActive )
             {
                 // This analyzer should work only at design time.
@@ -69,8 +73,6 @@ namespace Metalama.Framework.DesignTime.DiagnosticAnalysis
             {
                 DebuggingHelper.RequireMetalamaCompiler();
             }
-
-            context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
 
             context.RegisterSemanticModelAction( this.AnalyzeSemanticModel );
         }
