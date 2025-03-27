@@ -13,8 +13,8 @@ namespace PostSharp.Aspects
     /// In Metalama, you can add aspects using fabrics. In aspects, implement the <see cref="IAspect{T}.BuildAspect"/>.
     /// In fabrics, implement <see cref="TypeFabric.AmendType"/>, <see cref="ProjectFabric.AmendProject"/> or <see cref="NamespaceFabric.AmendNamespace"/>.
     /// In both cases,
-    /// call the <see cref="IAspectReceiverSelector{TTarget}.With{TMember}(System.Func{TTarget,System.Collections.Generic.IEnumerable{TMember}})"/>
-    /// method, then call <see cref="IAspectReceiver{TDeclaration}.AddAspect{TAspect}()"/>.
+    /// call the <see cref="IQuery{TDeclaration}.Select{TMember}"/> or <see cref="IQuery{TDeclaration}.SelectMany{TMember}"/>
+    /// method, then call <see cref="AspectQueryExtensions.AddAspect{TDeclaration}(Metalama.Framework.Fabrics.IQuery{TDeclaration},System.Type,System.Func{TDeclaration,Metalama.Framework.Aspects.IAspect})"/>.
     /// </summary>
     /// <seealso href="@child-aspects"/>
     /// <seealso href="@fabrics-aspects"/>

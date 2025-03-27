@@ -9,7 +9,7 @@ using System.Reflection;
 namespace PostSharp.Constraints
 {
     /// <summary>
-    /// In Metalama, use <see cref="Metalama.Extensions.Architecture.Aspects.ExperimentalAttribute"/>.
+    /// In Metalama, use <c>Metalama.Extensions.Architecture.Aspects.ExperimentalAttribute</c>.
     /// </summary>
     [AttributeUsage(
         AttributeTargets.All & ~(AttributeTargets.Parameter | AttributeTargets.ReturnValue | AttributeTargets.GenericParameter),
