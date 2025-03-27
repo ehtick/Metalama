@@ -42,7 +42,6 @@ namespace Metalama.Framework.Engine.CompileTime
         private readonly ILogger _logger;
         private readonly object _sync = new();
         private readonly ConcurrentDictionary<string, (Assembly Assembly, AssemblyIdentity Identity)> _assembliesByName = new();
-        private readonly ConcurrentDictionary<string, Assembly> _assembliesByPath = new();
 
         private AssemblyLoader? _assemblyLoader;
         private ImmutableDictionaryOfArray<string, string> _assemblyPathsByName = ImmutableDictionaryOfArray<string, string>.Empty;
@@ -103,43 +102,36 @@ namespace Metalama.Framework.Engine.CompileTime
         /// <param name="path"></param>
         public Assembly LoadAssembly( string path, LoadAssemblyOptions options = default )
         {
-            // Fast path to avoid duplicate assembly loading.
-            if ( this._assembliesByPath.TryGetValue( path, out var assembly ) )
+            this._logger.Trace?.Log( $"Loading '{path}'." );
+
+            // We intentionally do not cache assemblies by path because files can be rewritten. We can only cache based on the full identity.
+
+            var assemblyName = AssemblyName.GetAssemblyName( path );
+
+            // Verify that the assembly is not already in the current CompileTimeDomain.
+            if ( this.TryGetLoadedAssembly( assemblyName, out var existingAssembly ) )
             {
-                return assembly;
+                return existingAssembly;
+            }
+
+            // The assembly might already be loaded in the AppDomain or AssemblyLoadContext.
+            if ( this._assemblyLoader!.TryGetLoadedAssembly( assemblyName, out existingAssembly ) )
+            {
+                this.AddAssembly( existingAssembly! );
             }
 
             // Take a lock to avoid concurrently loading the same assembly twice, which may corrupts the CLR.
             var @lock = _locksByPath.GetOrAdd( path, _ => new object() );
 
+            Assembly assembly;
+
             lock ( @lock )
             {
-                // Second cache lookup because there might be a race between getting the lock and releasing it.
-                // In case of a race, the other thread is guaranteed to have added the assembly to _assembliesByPath.
-                if ( this._assembliesByPath.TryGetValue( path, out assembly ) )
-                {
-                    return assembly;
-                }
-
-                // In .NET Framework, we must checks if an assembly with the same name is already loaded in the AppDomain because there is no AssemblyLoadContext.
-                if ( RuntimeInformation.FrameworkDescription.StartsWith( ".NET Framework", StringComparison.InvariantCulture ) )
-                {
-                    var assemblyName = AssemblyName.GetAssemblyName( path );
-                    var assembliesOfSameName = AppDomain.CurrentDomain.GetAssemblies().Where( a => a.GetName().Name == assemblyName.Name ).ToList();
-
-                    if ( assembliesOfSameName.Count == 1 && AssemblyName.ReferenceMatchesDefinition( assemblyName, assembliesOfSameName[0].GetName() ) )
-                    {
-                        this._assembliesByPath[path] = assembliesOfSameName[0];
-
-                        return assembliesOfSameName[0];
-                    }
-                }
-
                 // Loads the assembly.
                 assembly = this.LoadAssemblyCore( path, options );
 
                 // Adds the assembly to our collections, including _assembliesByPath.
-                this.AddAssembly( assembly, path );
+                this.AddAssembly( assembly );
             }
 
             // Removing the lock.
@@ -176,9 +168,10 @@ namespace Metalama.Framework.Engine.CompileTime
         }
 
         public bool TryGetLoadedAssembly( string assemblyQualifiedName, [NotNullWhen( true )] out Assembly? assembly )
-        {
-            var assemblyName = new AssemblyName( assemblyQualifiedName );
+            => this.TryGetLoadedAssembly( new AssemblyName( assemblyQualifiedName ), out assembly );
 
+        public bool TryGetLoadedAssembly( AssemblyName assemblyName, [NotNullWhen( true )] out Assembly? assembly )
+        {
             if ( !this._assembliesByName.TryGetValue( assemblyName.Name.AssertNotNull(), out var assemblyInfo ) )
             {
                 assembly = null;
@@ -201,9 +194,8 @@ namespace Metalama.Framework.Engine.CompileTime
             return true;
         }
 
-        internal void AddAssembly( Assembly assembly, string? path = null )
+        internal void AddAssembly( Assembly assembly )
         {
-            path ??= assembly.Location;
             var assemblyIdentity = assembly.GetName().ToAssemblyIdentity();
 
             if ( this._assemblyCache.TryAdd( assemblyIdentity, assembly ) )
@@ -216,8 +208,6 @@ namespace Metalama.Framework.Engine.CompileTime
                         $"Cannot add '{assemblyIdentity}': A different assembly of the same name ('{existingAssembly.Identity}') was already added." );
                 }
             }
-
-            this._assembliesByPath[path] = assembly;
         }
 
         /// <summary>
@@ -271,7 +261,6 @@ namespace Metalama.Framework.Engine.CompileTime
                 // may want to collect them.
                 this._assemblyCache.Clear();
                 this._assembliesByName.Clear();
-                this._assembliesByPath.Clear();
 
                 this._assemblyLoader?.Dispose();
                 this._assemblyLoader = null;
