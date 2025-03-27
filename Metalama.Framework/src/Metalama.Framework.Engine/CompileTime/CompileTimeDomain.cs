@@ -20,7 +20,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 // Resharper disable ClassWithVirtualMembersNeverInherited.Global

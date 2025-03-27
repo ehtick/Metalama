@@ -15,6 +15,7 @@ namespace Metalama.Framework.Engine.Utilities;
 internal sealed class AssemblyLoader : IDisposable
 {
     private static readonly PropertyInfo? _isCollectibleProperty = typeof(Assembly).GetProperty( "IsCollectible" );
+    private static readonly Version _defaultVersion = new();
 
     private static Type? _metalamaAlcType;
 
@@ -68,7 +69,7 @@ internal sealed class AssemblyLoader : IDisposable
                 metalamaAlc,
                 loadFromStreamMethod );
 
-            var getAssembliesMethod = alcType!.GetProperty( "Assemblies" )!.GetMethod;
+            var getAssembliesMethod = alcType!.GetProperty( "Assemblies" )!.GetMethod!;
 
             this._getAssemblies = (Func<IEnumerable<Assembly>>?) Delegate.CreateDelegate(
                 typeof(Func<IEnumerable<Assembly>>),
@@ -253,7 +254,7 @@ internal sealed class AssemblyLoader : IDisposable
                     var candidateName = a.GetName();
 
                     return candidateName.Name == assemblyName.Name &&
-                           candidateName.Version.Equals( assemblyName.Version ) &&
+                           (candidateName.Version ?? _defaultVersion).Equals( assemblyName.Version ?? _defaultVersion ) &&
                            (candidateName.GetPublicKeyToken() ?? []).SequenceEqual( assemblyName.GetPublicKeyToken() ?? [] );
                 } )
             .ToList();
