@@ -43,7 +43,7 @@ namespace Metalama.Framework.DesignTime.CodeFixes
         {
             this._logger = serviceProvider.GetLoggerFactory().GetLogger( "CodeRefactoring" );
             this._extensionManager = serviceProvider.GetRequiredService<DesignTimeExtensionManager>();
-            this._localWorkspaceProvider = serviceProvider.GetService<LocalWorkspaceProvider>();
+            this._localWorkspaceProvider = serviceProvider.GetService<WorkspaceProvider>() as LocalWorkspaceProvider;
             this._projectOptionsFactory = serviceProvider.GetRequiredService<IProjectOptionsFactory>();
             this._exceptionHandler = serviceProvider.GetRequiredService<DesignTimeExceptionHandler>();
         }
