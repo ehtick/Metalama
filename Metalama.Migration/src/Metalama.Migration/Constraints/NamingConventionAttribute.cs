@@ -9,7 +9,7 @@ using System;
 namespace PostSharp.Constraints
 {
     /// <summary>
-    /// In Metalama, use <see cref="Metalama.Extensions.Architecture.Aspects.DerivedTypesMustRespectNamingConventionAttribute"/>
+    /// In Metalama, use <c>Metalama.Extensions.Architecture.Aspects.DerivedTypesMustRespectNamingConventionAttribute</c>.
     /// </summary>
     [MulticastAttributeUsage( MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Strict )]
     [AttributeUsage( AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Assembly )]

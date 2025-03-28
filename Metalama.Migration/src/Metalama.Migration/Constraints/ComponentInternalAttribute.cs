@@ -17,7 +17,7 @@ namespace PostSharp.Constraints
     {
         /// <summary>
         /// In Metalama, use <c>Metalama.Extensions.Architecture.Aspects.CanOnlyBeUsedFromAttribute</c> and
-        /// set the <see cref="BaseUsageValidationAttribute.CurrentNamespace"/> property to <c>true</c>.
+        /// set the <c>CurrentNamespace</c> property to <c>true</c>.
         /// </summary>
         public ComponentInternalAttribute()
         {
@@ -28,7 +28,7 @@ namespace PostSharp.Constraints
 
         /// <summary>
         /// In Metalama, use <c>Metalama.Extensions.Architecture.Aspects.CanOnlyBeUsedFromAttribute</c> and
-        /// set the <see cref="BaseUsageValidationAttribute.Types"/> property.
+        /// set the <c>Types</c> property.
         /// </summary>
         public ComponentInternalAttribute( params Type[] friendTypes )
             : this()
@@ -38,7 +38,7 @@ namespace PostSharp.Constraints
 
         /// <summary>
         /// In Metalama, use <c>Metalama.Extensions.Architecture.Aspects.CanOnlyBeUsedFromAttribute</c> and
-        /// set the <see cref="BaseUsageValidationAttribute.Namespaces"/> property.
+        /// set the <c>Namespaces</c> property.
         /// </summary>
         public ComponentInternalAttribute( params string[] friendNamespaces )
             : this()

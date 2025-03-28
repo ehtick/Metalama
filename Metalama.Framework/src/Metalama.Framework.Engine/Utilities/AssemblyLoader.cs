@@ -3,7 +3,9 @@
 // Refer to LICENSE.md in the repository root for complete details.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using static System.Reflection.Emit.OpCodes;
@@ -13,15 +15,20 @@ namespace Metalama.Framework.Engine.Utilities;
 internal sealed class AssemblyLoader : IDisposable
 {
     private static readonly PropertyInfo? _isCollectibleProperty = typeof(Assembly).GetProperty( "IsCollectible" );
+    private static readonly Version _defaultVersion = new();
 
     private static Type? _metalamaAlcType;
 
     private readonly Func<string, Assembly?> _resolveAssembly;
     private readonly Func<string, Assembly> _loadFromAssemblyPath;
     private readonly Func<Stream, Stream?, Assembly> _loadFromStream;
+    private readonly Func<IEnumerable<Assembly>> _getAssemblies;
     private readonly Action? _assemblyResolveUnsubscribe;
 
-    public AssemblyLoader( Func<string, Assembly?> resolveAssembly, Func<Assembly?, bool>? globalResolveHandlerFilter = null, string? debugName = null )
+    public AssemblyLoader(
+        Func<string, Assembly?> resolveAssembly,
+        Func<Assembly?, bool>? globalResolveHandlerFilter = null,
+        string? debugName = null )
     {
         this._resolveAssembly = resolveAssembly;
 
@@ -55,12 +62,19 @@ internal sealed class AssemblyLoader : IDisposable
             var loadByPathMethod = alcType!.GetMethod( "LoadFromAssemblyPath" )!;
             this._loadFromAssemblyPath = (Func<string, Assembly>) Delegate.CreateDelegate( typeof(Func<string, Assembly>), metalamaAlc, loadByPathMethod );
 
-            var loadFromStreamMethod = alcType!.GetMethod( "LoadFromStream", [typeof(Stream), typeof(Stream)] )!;
+            var loadFromStreamMethod = alcType.GetMethod( "LoadFromStream", [typeof(Stream), typeof(Stream)] )!;
 
             this._loadFromStream = (Func<Stream, Stream?, Assembly>) Delegate.CreateDelegate(
                 typeof(Func<Stream, Stream?, Assembly>),
                 metalamaAlc,
                 loadFromStreamMethod );
+
+            var getAssembliesMethod = alcType.GetProperty( "Assemblies" )!.GetMethod!;
+
+            this._getAssemblies = (Func<IEnumerable<Assembly>>?) Delegate.CreateDelegate(
+                typeof(Func<IEnumerable<Assembly>>),
+                metalamaAlc,
+                getAssembliesMethod )!;
 
             if ( globalResolveHandlerFilter != null )
             {
@@ -85,6 +99,7 @@ internal sealed class AssemblyLoader : IDisposable
 
             AppDomain.CurrentDomain.AssemblyResolve += this.OnAssemblyResolve;
             this._assemblyResolveUnsubscribe = () => AppDomain.CurrentDomain.AssemblyResolve -= this.OnAssemblyResolve;
+            this._getAssemblies = () => AppDomain.CurrentDomain.GetAssemblies();
 
             static byte[]? ReadBytes( Stream? stream )
             {
@@ -227,4 +242,34 @@ internal sealed class AssemblyLoader : IDisposable
     internal static bool IsCollectible( Assembly assembly ) => _isCollectibleProperty != null && (bool) _isCollectibleProperty.GetValue( assembly )!;
 
     public void Dispose() => this._assemblyResolveUnsubscribe?.Invoke();
+
+    public bool TryGetLoadedAssembly( AssemblyName assemblyName, out Assembly? existingAssembly )
+    {
+        // The assembly might have been already loaded. In this situation, we must use the copy that was previously loaded.
+
+        var assembliesOfSameIdentity = this._getAssemblies()
+            .Where(
+                a =>
+                {
+                    var candidateName = a.GetName();
+
+                    return candidateName.Name == assemblyName.Name &&
+                           (candidateName.Version ?? _defaultVersion).Equals( assemblyName.Version ?? _defaultVersion ) &&
+                           (candidateName.GetPublicKeyToken() ?? []).SequenceEqual( assemblyName.GetPublicKeyToken() ?? [] );
+                } )
+            .ToList();
+
+        if ( assembliesOfSameIdentity.Count >= 1 )
+        {
+            existingAssembly = assembliesOfSameIdentity[0];
+
+            return true;
+        }
+        else
+        {
+            existingAssembly = null;
+
+            return false;
+        }
+    }
 }

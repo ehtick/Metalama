@@ -13,7 +13,7 @@ using System.Windows.Input;
 namespace Metalama.Patterns.Wpf.Configuration;
 
 /// <summary>
-/// Arguments of the <see cref="CommandExtensions.ConfigureCommand(Metalama.Framework.Aspects.IAspectReceiver{Metalama.Framework.Code.ICompilation},System.Action{Metalama.Patterns.Wpf.Configuration.CommandOptionsBuilder})"/>
+/// Arguments of the <see cref="CommandExtensions.ConfigureCommand(Metalama.Framework.Fabrics.IQuery{Metalama.Framework.Code.ICompilation},System.Action{Metalama.Patterns.Wpf.Configuration.CommandOptionsBuilder})"/>
 /// method.
 /// </summary>
 [PublicAPI]
