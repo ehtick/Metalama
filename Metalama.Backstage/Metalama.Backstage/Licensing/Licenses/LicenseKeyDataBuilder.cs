@@ -148,7 +148,6 @@ public partial class LicenseKeyDataBuilder : ILicenseKeyData
     /// <summary>
     /// Gets or sets the licensed namespace.
     /// </summary>
-    [Obsolete( "Redistribution keys are no longer supported." )]
     public string? Namespace
     {
         get => (string?) this.GetFieldValue( LicenseFieldIndex.Namespace );
@@ -289,25 +288,25 @@ public partial class LicenseKeyDataBuilder : ILicenseKeyData
         init => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.OriginVersion, value );
     }
 
-    public LicenseSupportPolicy SupportPolicy
+    public ServicingPhase ServicingPhase
     {
         get
-            => this.GetFieldValue( LicenseFieldIndex.SupportLevel ) switch
+            => this.GetFieldValue( LicenseFieldIndex.ServicingPhase ) switch
             {
-                null => LicenseSupportPolicy.None,
-                byte supportLevel => (LicenseSupportPolicy) supportLevel,
+                null => ServicingPhase.Default,
+                byte supportLevel => (ServicingPhase) supportLevel,
                 _ => throw new InvalidCastException( "Invalid support level." )
             };
 
         set
         {
-            if ( value != LicenseSupportPolicy.None )
+            if ( value != ServicingPhase.Default )
             {
-                this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.SupportLevel, (byte) value );
+                this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.ServicingPhase, (byte) value );
             }
             else
             {
-                this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.SupportLevel, null );
+                this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.ServicingPhase, null );
             }
         }
     }

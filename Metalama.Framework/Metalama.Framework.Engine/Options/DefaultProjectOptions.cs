@@ -86,10 +86,6 @@ public class DefaultProjectOptions : IProjectOptions
 
     public virtual string? AdditionalCompilationOutputDirectory => null;
 
-    public virtual string? License => null;
-
-    public virtual bool IgnoreUserProfileLicense => false;
-
     public virtual bool? WriteLicenseUsageData => null;
 
     public virtual bool RoslynIsCompileTimeOnly => true;
@@ -115,6 +111,8 @@ public class DefaultProjectOptions : IProjectOptions
     public virtual ImmutableArray<ExtensionAssemblyReference> ExtensionAssemblies => ImmutableArray<ExtensionAssemblyReference>.Empty;
 
     public virtual ImmutableArray<ExtensionAssemblyReference> DesignTimeExtensionAssemblies => ImmutableArray<ExtensionAssemblyReference>.Empty;
+
+    public virtual bool AvoidLockingExtensionAssemblies => false;
 
     // IProjectOptions is currently not used as a dictionary key, so we can throw here.
     public sealed override int GetHashCode() => throw new NotImplementedException();

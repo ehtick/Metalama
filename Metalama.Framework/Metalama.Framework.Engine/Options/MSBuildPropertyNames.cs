@@ -33,8 +33,6 @@ public static class MSBuildPropertyNames
     public const string MetalamaWriteHtml = nameof(MetalamaWriteHtml);
     public const string ProjectAssetsFile = nameof(ProjectAssetsFile);
     public const string MetalamaReferenceAssemblyRestoreTimeout = nameof(MetalamaReferenceAssemblyRestoreTimeout);
-    public const string MetalamaLicense = nameof(MetalamaLicense);
-    public const string MetalamaIgnoreUserLicenses = nameof(MetalamaIgnoreUserLicenses);
     public const string MetalamaWriteLicenseUsageData = nameof(MetalamaWriteLicenseUsageData);
     public const string MetalamaRoslynIsCompileTimeOnly = nameof(MetalamaRoslynIsCompileTimeOnly);
     public const string MetalamaCompileTimeTargetFrameworks = nameof(MetalamaCompileTimeTargetFrameworks);
@@ -48,6 +46,7 @@ public static class MSBuildPropertyNames
     public const string MetalamaSourceGeneratorAttributes = nameof(MetalamaSourceGeneratorAttributes);
     public const string MetalamaExtensionAssemblies = nameof(MetalamaExtensionAssemblies);
     public const string MetalamaDesignTimeExtensionAssemblies = nameof(MetalamaDesignTimeExtensionAssemblies);
+    public const string MetalamaAvoidLockingExtensionAssemblies = nameof(MetalamaAvoidLockingExtensionAssemblies);
 
     public static ImmutableArray<string> All { get; } = ImmutableArray.Create(
         MetalamaBuildTouchFile,
@@ -72,7 +71,6 @@ public static class MSBuildPropertyNames
         MetalamaWriteHtml,
         ProjectAssetsFile,
         MetalamaReferenceAssemblyRestoreTimeout,
-        MetalamaLicense,
         MetalamaWriteLicenseUsageData,
         MetalamaRoslynIsCompileTimeOnly,
         MetalamaCompileTimeTargetFrameworks,
@@ -83,5 +81,6 @@ public static class MSBuildPropertyNames
         MetalamaCompilerVisiblePropertiesList,
         MetalamaAssemblyLocatorHooksDirectory,
         MetalamaExtensionAssemblies,
-        MetalamaDesignTimeExtensionAssemblies );
+        MetalamaDesignTimeExtensionAssemblies,
+        MetalamaAvoidLockingExtensionAssemblies );
 }

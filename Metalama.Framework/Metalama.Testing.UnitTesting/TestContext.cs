@@ -5,7 +5,6 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
 using Metalama.Framework.Code;
 using Metalama.Framework.Code.SyntaxBuilders;
@@ -115,9 +114,6 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
                 .WithService( BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<IFileSystem>() )
                 .WithService( BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>() );
 
-            var licenseConsumptionService = BackstageServiceFactory.ServiceProvider.GetRequiredBackstageService<ILicenseConsumptionService>();
-
-            backstageServices = backstageServices.WithService( licenseConsumptionService );
             backstageServices = backstageServices.WithService( new InMemoryConfigurationManager( backstageServices ), true );
 
             var typedAdditionalServices = (AdditionalServiceCollection?) additionalServices ?? new AdditionalServiceCollection();
@@ -168,7 +164,7 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
         // Ensure extensions have been loaded.
         foreach ( var extensionAssembly in options.ExtensionAssemblies )
         {
-            this.Domain.LoadAssembly( extensionAssembly, false );
+            this.Domain.LoadAssembly( extensionAssembly, LoadAssemblyOptions.Shared );
         }
 
         // Load plug-ins.
@@ -264,7 +260,7 @@ public partial class TestContext : IDisposable, ITempFileManager, IApplicationIn
             {
                 domain.Dispose();
             }
-            
+
             // Release all references for GC.
             this.ServiceProvider = ProjectServiceProvider.Empty;
 

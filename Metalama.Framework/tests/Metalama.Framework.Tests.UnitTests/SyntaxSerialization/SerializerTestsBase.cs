@@ -7,6 +7,7 @@ using Metalama.Testing.UnitTesting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Immutable;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Metalama.Framework.Tests.UnitTests.SyntaxSerialization
@@ -20,7 +21,7 @@ namespace Metalama.Framework.Tests.UnitTests.SyntaxSerialization
         /// </summary>
         private const bool _doCodeExecutionTests = false;
 
-        protected object? ExecuteExpression( string context, string expression )
+        protected T? ExecuteExpression<T>( string context, string expression )
         {
             using var testContext = this.CreateTestContext();
 
@@ -38,7 +39,9 @@ class Expression
 
             var assembly = testContext.Domain.LoadAssembly( assemblyPath );
 
-            return assembly.GetType( "Expression" )!.GetMethod( "Execute" )!.Invoke( null, null );
+            var result = assembly.GetType( "Expression" )!.GetMethod( "Execute" )!.Invoke( null, null );
+
+            return Assert.IsAssignableFrom<T>( result );
         }
 
         /// <summary>
@@ -57,7 +60,7 @@ class Expression
 
             if ( _doCodeExecutionTests )
             {
-                var t = (T) this.ExecuteExpression( context, expression )!;
+                var t = this.ExecuteExpression<T>( context, expression )!;
                 withResult( t );
             }
 #pragma warning restore CS0162 // Unreachable code detected

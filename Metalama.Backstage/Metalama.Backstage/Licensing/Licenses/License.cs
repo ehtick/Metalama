@@ -189,6 +189,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 case LicenseProduct.MetalamaCommunity:
                 case LicenseProduct.MetalamaProfessional:
+                case LicenseProduct.MetalamaEnterprise:
                 case LicenseProduct.PostSharpFramework:
                 case LicenseProduct.PostSharpUltimate:
                     break;
@@ -227,14 +228,15 @@ namespace Metalama.Backstage.Licensing.Licenses
                 product,
                 licenseType,
                 licenseKeyData.Namespace,
-                $"{licenseKeyData.GetProductName()}, Id={licenseKeyData.LicenseUniqueId}",
+                $"{licenseKeyData.GetDisplayName()}, Id={licenseKeyData.LicenseUniqueId}",
                 licenseKeyData.GetMinPostSharpVersion(),
                 licenseKeyData.LicenseString,
                 isRedistributable,
                 licenseKeyData.Auditable ?? true,
                 licenseKeyData.SubscriptionEndDate,
                 subscriptionStatus,
-                licenseKeyData.Generation );
+                licenseKeyData.Generation.GetValueOrDefault(),
+                licenseKeyData.NormalizeServicingPhase() );
 
             return true;
         }

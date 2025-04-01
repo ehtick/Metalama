@@ -119,12 +119,6 @@ public partial class MSBuildProjectOptions : DefaultProjectOptions
     public override int? ReferenceAssemblyRestoreTimeout => this.GetNullableInt32Option( MSBuildPropertyNames.MetalamaReferenceAssemblyRestoreTimeout );
 
     [Memo]
-    public override string? License => this.GetStringOption( MSBuildPropertyNames.MetalamaLicense );
-
-    [Memo]
-    public override bool IgnoreUserProfileLicense => this.GetBooleanOption( MSBuildPropertyNames.MetalamaIgnoreUserLicenses );
-
-    [Memo]
     public override bool WriteHtml => this.GetBooleanOption( MSBuildPropertyNames.MetalamaWriteHtml );
 
     [Memo]
@@ -156,6 +150,8 @@ public partial class MSBuildProjectOptions : DefaultProjectOptions
 
     [Memo]
     public override ImmutableArray<string> SourceGeneratorAttributes => this.GetListOption( MSBuildPropertyNames.MetalamaSourceGeneratorAttributes );
+
+    public override bool AvoidLockingExtensionAssemblies => this.GetBooleanOption( MSBuildPropertyNames.MetalamaAvoidLockingExtensionAssemblies );
 
     [Memo]
     public override ImmutableArray<ExtensionAssemblyReference> DesignTimeExtensionAssemblies
