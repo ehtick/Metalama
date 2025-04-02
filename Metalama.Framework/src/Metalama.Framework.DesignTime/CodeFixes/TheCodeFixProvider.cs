@@ -62,7 +62,7 @@ namespace Metalama.Framework.DesignTime.CodeFixes
 
             this._logger.Trace?.Log( $"Registered {fixableDiagnosticIds.Length} fixable diagnostic ids : {string.Join( ", ", fixableDiagnosticIds )}." );
 
-            this._localWorkspaceProvider = serviceProvider.GetService<LocalWorkspaceProvider>();
+            this._localWorkspaceProvider = serviceProvider.GetService<WorkspaceProvider>() as LocalWorkspaceProvider;
             this._projectOptionsFactory = serviceProvider.GetRequiredService<IProjectOptionsFactory>();
             this._exceptionHandler = serviceProvider.GetRequiredService<DesignTimeExceptionHandler>();
             this._extensionManager = serviceProvider.GetRequiredService<DesignTimeExtensionManager>();

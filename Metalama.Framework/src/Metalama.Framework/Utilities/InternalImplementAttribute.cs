@@ -12,6 +12,4 @@ namespace Metalama.Framework.Utilities
     /// </summary>
     [AttributeUsage( AttributeTargets.Interface )]
     public sealed class InternalImplementAttribute : Attribute;
-
-    // TODO: Implement with an analyzer.
 }

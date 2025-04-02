@@ -23,7 +23,7 @@ namespace PostSharp.Aspects.Configuration
         public TypeIdentity SerializerType { get; set; }
 
         /// <summary>
-        /// In Metalama, use <see cref="IAspectBuilder{TAspectTarget}"/>.<see cref="IAspectReceiver{TDeclaration}.RequireAspect{TAspect}"/>.
+        /// In Metalama, use <see cref="IAspectBuilder{TAspectTarget}"/>.<see cref="AspectQueryExtensions.RequireAspect{TAspect}"/>.
         /// </summary>
         public AspectDependencyAttributeCollection Dependencies { get; set; }
 

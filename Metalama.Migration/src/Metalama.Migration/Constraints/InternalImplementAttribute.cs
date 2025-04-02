@@ -9,7 +9,7 @@ using System.Reflection;
 namespace PostSharp.Constraints
 {
     /// <summary>
-    /// In Metalama, use <see cref="Metalama.Extensions.Architecture.Aspects.InternalOnlyImplementAttribute"/>.
+    /// In Metalama, use <see cref="Metalama.Framework.Utilities.InternalImplementAttribute"/>.
     /// </summary>
     [AttributeUsage(
         AttributeTargets.All & ~(AttributeTargets.Parameter | AttributeTargets.ReturnValue | AttributeTargets.GenericParameter),
