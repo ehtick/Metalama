@@ -13,10 +13,6 @@ internal sealed class JsonSerializationBinderProvider : IJsonSerializationBinder
         configuration =>
         {
             configuration.AddAssemblyOfType( typeof(IAspect) );
-#if ROSLYN_4_4_0
-            configuration.AddAssemblyWithSameVersionThanType( typeof(ProjectKey), "Metalama.Framework.DesignTime.4.4.0" );
-            configuration.AddAssemblyWithSameVersionThanType( typeof(ProjectKey), "Metalama.Framework.Engine.4.4.0" );
-#endif
 
 #if ROSLYN_4_8_0
             configuration.AddAssemblyWithSameVersionThanType( typeof(ProjectKey), "Metalama.Framework.DesignTime.4.8.0" );

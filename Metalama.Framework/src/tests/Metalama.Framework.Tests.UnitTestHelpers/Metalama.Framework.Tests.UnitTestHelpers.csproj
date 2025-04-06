@@ -1,4 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="$(MSBuildThisFileFullPath) == $(MSBuildProjectFullPath)" />
 
     <Import Project="../../../build/RoslynVersion/Latest.imports" />
 
@@ -24,6 +26,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.$(ThisRoslynVersionNoPreview)" />
     </ItemGroup>
-    
+
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="$(MSBuildThisFileFullPath) == $(MSBuildProjectFullPath)" />
 
 </Project>

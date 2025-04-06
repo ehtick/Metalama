@@ -3,24 +3,15 @@
     <Import Project="../../build/RoslynVersion/Latest.imports" />
     
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <MetalamaCompilerDisablePackCustomization>True</MetalamaCompilerDisablePackCustomization>
         <UseMetalamaCompiler>Private</UseMetalamaCompiler>
         <AssemblyName>Metalama.Framework.Engine.$(ThisRoslynVersionNoPreview)</AssemblyName>
-        <PackageId>Metalama.Framework.Engine</PackageId>
         <!-- We need to pack Metalama.SystemTypes.dll because the test projects will not include it if they do not target .NET Standard 2.0 themselves. -->
         <PackMetalamaSystemTypes>True</PackMetalamaSystemTypes>
         <!-- Packaging -->
-        <PackageDescription>The main implementation of Metalama.Framework. It should normally never be referenced in any user project.</PackageDescription>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-
-        <!-- warning NU5118: File 'C:/src/Metalama/Metalama.Framework.Engine.Analyzers/bin/Debug/netstandard2.0/Metalama.Framework.Engine.Analyzers.dll' is not
-added because the package already contains file 'analyzers/dotnet/cs/Metalama.Framework.Engine.Analyzers.dll' -->
-        <NoWarn>$(NoWarn);NU5118</NoWarn>
-
-        <!-- Disable vulnerability checking because this project is not surfacing. -->
-        <NuGetAudit>false</NuGetAudit>
+        <IsPackable>False</IsPackable>
 
     </PropertyGroup>
 

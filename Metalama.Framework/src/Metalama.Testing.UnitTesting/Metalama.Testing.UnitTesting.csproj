@@ -31,6 +31,9 @@
         <PackageReference Include="System.Text.Json" VersionOverride="$(SystemTextJsonLatestVersion)" />
         <PackageReference Include="System.Net.Http" VersionOverride="$(SystemNetHttpLatestVersion)" />
         <PackageReference Include="System.Text.RegularExpressions" VersionOverride="$(SystemTextRegularExpressionsLatestVersion)" />
+
+        <ProjectReference Condition="$(ThisRoslynVersion) == $(RoslynMaxVersion)" Include="../Metalama.Framework.Implementation.Package/Metalama.Framework.Implementation.Package.csproj" PrivateAssets="all" />
+        
     </ItemGroup>
 
     <ItemGroup>

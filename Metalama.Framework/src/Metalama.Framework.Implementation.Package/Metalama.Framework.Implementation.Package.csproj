@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- Packaging -->
+        <IsPackable>true</IsPackable>
+        <PackageId>Metalama.Framework.Implementation</PackageId>
+        <IncludeBuildOutput>False</IncludeBuildOutput>
+        
+        <PackageDescription>The implementation assemblies of Metalama.Framework. It should normally never be referenced in any user project.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <!-- warning NU5118: File 'C:/src/Metalama/Metalama.Framework.Engine.Analyzers/bin/Debug/netstandard2.0/Metalama.Framework.Engine.Analyzers.dll' is not
+added because the package already contains file 'analyzers/dotnet/cs/Metalama.Framework.Engine.Analyzers.dll' -->
+        <NoWarn>$(NoWarn);NU5118</NoWarn>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Metalama.Framework.DesignTime\Metalama.Framework.DesignTime.csproj" />
+        <ProjectReference Include="..\Metalama.Framework.DesignTime.Contracts\Metalama.Framework.DesignTime.Contracts.csproj" />
+        <ProjectReference Include="..\Metalama.Framework.DesignTime.Rpc\Metalama.Framework.DesignTime.Rpc.csproj" />
+        <ProjectReference Include="..\Metalama.Framework.Engine\Metalama.Framework.Engine.csproj" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddLibrariesToPackage</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <Target Name="_AddLibrariesToPackage">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Rpc.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Contracts.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.Engine.dll" PackagePath="lib/$(TargetFramework)" />
+        </ItemGroup>
+    </Target>
+    
+</Project>
