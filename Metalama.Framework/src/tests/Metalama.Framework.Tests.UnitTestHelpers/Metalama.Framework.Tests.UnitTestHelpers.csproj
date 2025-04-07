@@ -23,6 +23,9 @@
         <ProjectReference Include="..\..\Metalama.Framework.Engine$(ThisRoslynVersionProjectSuffix)\Metalama.Framework.Engine$(ThisRoslynVersionProjectSuffix).csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Metalama.Framework.DesignTime$(ThisRoslynVersionProjectSuffix)\Metalama.Framework.DesignTime$(ThisRoslynVersionProjectSuffix).csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix)\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix).csproj" />
+
+        <!-- Dependency of the resulting package should be on Implementation package. -->
+        <ProjectReference Condition="$(ThisRoslynVersion) == $(RoslynMaxVersion)" Include="../Metalama.Framework.Implementation.Package/Metalama.Framework.Implementation.Package.csproj" />
     </ItemGroup>
 
     <ItemGroup>
