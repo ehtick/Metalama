@@ -1,9 +1,6 @@
-# License
-
 SPDX-License-Identifier: MIT
-This repository is licensed under the MIT License, reproduced in full below.
 
----
+This repository is licensed under the MIT License, reproduced in full below.
 
 ## Copyright (c) 2020-2025 SharpCrafters s.r.o. and contributors.
 
@@ -12,8 +9,6 @@ Each contributor has granted SharpCrafters s.r.o. the right to distribute and su
 those contributions under the terms of this license. Unless otherwise agreed in writing,
 contributors retain their own copyrights.
 
----
- 
 ## MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,7 +29,6 @@ furnished to do so, subject to the following conditions:
    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
    DEALINGS IN THE SOFTWARE.
 
----
 
 ## Contributor License Agreement (CLA)
 
