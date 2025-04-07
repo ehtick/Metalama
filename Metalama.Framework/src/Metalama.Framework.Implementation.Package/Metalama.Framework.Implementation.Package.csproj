@@ -24,10 +24,13 @@ added because the package already contains file 'analyzers/dotnet/cs/Metalama.Fr
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Metalama.Framework.DesignTime\Metalama.Framework.DesignTime.csproj" />
-        <ProjectReference Include="..\Metalama.Framework.DesignTime.Contracts\Metalama.Framework.DesignTime.Contracts.csproj" />
-        <ProjectReference Include="..\Metalama.Framework.DesignTime.Rpc\Metalama.Framework.DesignTime.Rpc.csproj" />
-        <ProjectReference Include="..\Metalama.Framework.Engine\Metalama.Framework.Engine.csproj" />
+        <ProjectReference Include="../Metalama.Framework.Introspection/Metalama.Framework.Introspection.csproj" />
+        <ProjectReference Include="../Metalama.Framework.Sdk/Metalama.Framework.Sdk.csproj" />
+        <ProjectReference Include="../Metalama.Framework.CompileTimeContracts/Metalama.Framework.CompileTimeContracts.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime/Metalama.Framework.DesignTime.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime.Contracts/Metalama.Framework.DesignTime.Contracts.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime.Rpc/Metalama.Framework.DesignTime.Rpc.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.Engine/Metalama.Framework.Engine.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -47,6 +50,7 @@ added because the package already contains file 'analyzers/dotnet/cs/Metalama.Fr
 
     <Target Name="_AddLibrariesToPackage">
         <ItemGroup>
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.CompileTimeContracts.dll" PackagePath="lib/$(TargetFramework)" />
             <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.$(ThisRoslynVersionNoPreview).dll" PackagePath="lib/$(TargetFramework)" />
             <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Rpc.dll" PackagePath="lib/$(TargetFramework)" />
             <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Contracts.dll" PackagePath="lib/$(TargetFramework)" />
