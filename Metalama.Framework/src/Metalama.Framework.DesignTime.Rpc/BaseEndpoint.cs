@@ -123,7 +123,7 @@ public abstract class BaseEndpoint : IDisposable
     /// <summary>
     /// Executes a background type without awaiting for the result. Reports exceptions to the logger and the <see cref="IRpcExceptionHandler"/>.
     /// </summary>
-    protected void ExecuteBackgroundTask( Func<CancellationToken, Task> action, string description, bool registerTask = false )
+    protected void ExecuteBackgroundTask( Func<CancellationToken, Task> action, string description, bool registerTask = true )
     {
         var taskId = Interlocked.Increment( ref this._nextBackgroundTaskId );
 
@@ -141,7 +141,7 @@ public abstract class BaseEndpoint : IDisposable
                 }
                 finally
                 {
-                    if ( !registerTask )
+                    if ( registerTask )
                     {
                         lock ( this._backgroundTasks )
                         {
@@ -152,7 +152,7 @@ public abstract class BaseEndpoint : IDisposable
             },
             this.DisposeCancellationToken );
 
-        if ( !registerTask )
+        if ( registerTask )
         {
             lock ( this._backgroundTasks )
             {

@@ -24,7 +24,7 @@ public sealed class RpcServiceProviderTests : UnitTestClass
     public RpcServiceProviderTests( ITestOutputHelper logger ) : base( logger ) { }
 
     [Fact]
-    public async Task Test()
+    public async Task RegisterServiceBeforeExtensionRegisteredInClient()
     {
         using var testContext = this.CreateTestContext();
 
@@ -54,6 +54,7 @@ public sealed class RpcServiceProviderTests : UnitTestClass
 
         // Register the extension.
         clientExtensionManager.OnExtensionDiscovered( new Extension() );
+        await clientEndpoint.WhenBackgroundTasksCompletedAsync( testContext.CancellationToken );
 
         Assert.True( clientEndpoint.IsClientAvailable<ExtensionServiceClient>() );
     }
