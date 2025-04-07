@@ -100,7 +100,8 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Flashtrace.$(PackageVersion).nupkg",
         "Flashtrace.Formatters.$(PackageVersion).nupkg" ),
     PrivateArtifacts = Pattern.Create(
-        "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg" ),
+        "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg",
+        "Metalama.Framework.DesignTime.Contracts.$(PackageVersion).nupkg" ),
     ParametrizedDependencies =
     [
         DevelopmentDependencies.PostSharpEngineering.ToDependency(),

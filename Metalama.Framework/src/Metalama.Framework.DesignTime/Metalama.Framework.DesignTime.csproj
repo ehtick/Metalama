@@ -7,6 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Metalama.Framework.DesignTime.$(ThisRoslynVersionNoPreview)</AssemblyName>
+        
         <!-- Packaging -->
         <IsPackable>false</IsPackable>
     </PropertyGroup>

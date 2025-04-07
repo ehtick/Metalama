@@ -11,6 +11,9 @@
         
         <!-- [VSTHRD003] Avoid awaiting or returning a Task representing work that was not started within your context as that can lead to deadlocks. -->
         <NoWarn>$(NoWarn);VSTHRD003</NoWarn>
+        
+        <!-- Packaging -->
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

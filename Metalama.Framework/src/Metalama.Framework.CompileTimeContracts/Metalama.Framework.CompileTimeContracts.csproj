@@ -3,7 +3,9 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>Metalama.Framework.CompileTimeContracts</RootNamespace>
-        <IsPackable>False</IsPackable>
+        
+        <!-- Packaging -->
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

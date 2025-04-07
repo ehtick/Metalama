@@ -4,8 +4,10 @@
         <TargetFrameworks>net472;net6.0</TargetFrameworks>
         <RootNamespace>Metalama.Framework.DesignTime.Contracts</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
         <!-- Packaging -->
-        <IsPackable>false</IsPackable>
+        <IsPackable>true</IsPackable>
+        <PackageId>Metalama.Framework.DesignTime.Contracts</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
