@@ -10,6 +10,8 @@ namespace Metalama.Framework.DesignTime.VisualStudio.AspectExplorer;
 
 internal sealed class AspectExplorerRpcServiceFactory : IRpcServiceFactory
 {
+    public string? ExtensionName => null;
+
     public RpcService CreateRpcService( GlobalServiceProvider serviceProvider, ServerEndpoint endpoint )
         => new AspectExplorerRpcService( serviceProvider, endpoint );
 

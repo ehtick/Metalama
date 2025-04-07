@@ -10,6 +10,8 @@ namespace Metalama.Framework.DesignTime.VisualStudio.CodeLens;
 
 internal sealed class CodeLensRpcServiceFactory : IRpcServiceFactory
 {
+    public string? ExtensionName => null;
+
     public RpcService CreateRpcService( GlobalServiceProvider serviceProvider, ServerEndpoint endpoint ) => new CodeLensRpcService( serviceProvider, endpoint );
 
     public RpcClient CreateRpcClient( GlobalServiceProvider serviceProvider, ClientEndpoint endpoint ) => new CodeLensRpcClient( endpoint );

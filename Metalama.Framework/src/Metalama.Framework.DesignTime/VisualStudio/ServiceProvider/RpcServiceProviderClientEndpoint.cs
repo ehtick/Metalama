@@ -2,6 +2,7 @@
 // SharpCrafters s.r.o. licenses this file to you under either the MIT license or a proprietary license, depending on the repository from which it was obtained.
 // Refer to LICENSE.md in the repository root for complete details.
 
+using Metalama.Framework.DesignTime.Extensibility;
 using Metalama.Framework.DesignTime.Rpc;
 using Metalama.Framework.Engine;
 using Metalama.Framework.Engine.Services;
@@ -17,6 +18,8 @@ public sealed class RpcServiceProviderClientEndpoint : ClientEndpoint
 {
     private readonly GlobalServiceProvider _serviceProvider;
     private readonly RpcServiceProviderClient _serviceProviderClient;
+    private readonly DesignTimeExtensionManager? _extensionManager;
+
     private Task? _ensureInitialServicesRetrievedTask;
 
     internal RpcServiceProviderClientEndpoint( GlobalServiceProvider serviceProvider, string pipeName ) : base(
@@ -24,6 +27,7 @@ public sealed class RpcServiceProviderClientEndpoint : ClientEndpoint
         pipeName )
     {
         this._serviceProvider = serviceProvider;
+        this._extensionManager = serviceProvider.GetService<DesignTimeExtensionManager>();
         this._serviceProviderClient = new RpcServiceProviderClient( this );
     }
 
@@ -117,8 +121,32 @@ public sealed class RpcServiceProviderClientEndpoint : ClientEndpoint
     private void OnServicesAdded( ServicesAddedEventData servicesAdded )
     {
         var pipeName = servicesAdded.Services.Select( s => s.PipeName ).Distinct().Single();
-        var clients = this.CreateClientsFromServiceInfo( servicesAdded.Services );
 
-        this.ExecuteBackgroundTask( ct => this.AddServiceClientsAsync( pipeName, clients, ct ) );
+        foreach ( var group in servicesAdded.Services.GroupBy( s => s.ExtensionName ) )
+        {
+            this.ExecuteBackgroundTask( ct => this.AddServiceClientGroupAsync( pipeName, group.Key, group, ct ) );
+        }
+    }
+
+    private async Task AddServiceClientGroupAsync(
+        string pipeName,
+        string? extensionName,
+        IEnumerable<RpcServiceInfo> services,
+        CancellationToken cancellationToken )
+    {
+        if ( extensionName != null )
+        {
+            if ( this._extensionManager == null )
+            {
+                throw new InvalidOperationException( $"There is no {nameof(DesignTimeExtensionManager)}." );
+            }
+
+            // Wait until the extension is registered.
+            await this._extensionManager.GetExtensionAsync( extensionName, cancellationToken );
+        }
+
+        var clients = this.CreateClientsFromServiceInfo( services );
+
+        await this.AddServiceClientsAsync( pipeName, clients, cancellationToken );
     }
 }

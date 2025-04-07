@@ -10,6 +10,8 @@ namespace Metalama.Framework.DesignTime.VisualStudio.SourceGenerating;
 
 internal sealed class SourceGeneratorRpcServiceFactory : IRpcServiceFactory
 {
+    public string? ExtensionName => null;
+
     public RpcService CreateRpcService( GlobalServiceProvider serviceProvider, ServerEndpoint endpoint )
         => new SourceGeneratorRpcService( serviceProvider, endpoint );
 

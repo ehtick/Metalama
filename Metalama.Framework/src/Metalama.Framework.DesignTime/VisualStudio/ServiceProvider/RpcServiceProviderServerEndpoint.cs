@@ -70,7 +70,10 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
     {
         this._serviceProvider = serviceProvider;
         this._serviceFactories = (serviceFactories ?? _defaultServiceFactories).ToImmutableArray();
-        this._rpcServiceProviderService = new RpcServiceProviderService( this, this._serviceFactories.Select( x => x.GetType() ) );
+
+        this._rpcServiceProviderService = new RpcServiceProviderService(
+            this,
+            this._serviceFactories.Select( x => new ServiceRegistrationInfo( x.GetType(), x.ExtensionName ) ) );
 
         // This service is optional because some tests don't supply it.
         this._serviceHubApiClientProvider = serviceProvider.GetService<IServiceHubClientEndpointProvider>();

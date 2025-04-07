@@ -7,4 +7,6 @@ namespace Metalama.Framework.DesignTime.Extensibility;
 public interface IDesignTimeExtension
 {
     bool Initialize( DesignTimeInitializationContext context );
+
+    string Name { get; }
 }
