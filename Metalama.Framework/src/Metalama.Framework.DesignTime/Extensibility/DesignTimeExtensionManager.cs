@@ -11,6 +11,7 @@ using Metalama.Framework.Engine.CompileTime;
 using Metalama.Framework.Engine.Extensibility;
 using Metalama.Framework.Engine.Options;
 using Metalama.Framework.Engine.Services;
+using Metalama.Framework.Engine.Utilities.Threading;
 using Metalama.Framework.Services;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -27,6 +28,7 @@ public sealed class DesignTimeExtensionManager : IGlobalService
     private readonly ConcurrentDictionary<Type, IDesignTimeExtension> _extensions = new();
     private readonly IRpcServiceProviderServerEndpointProvider? _rpcServiceProviderServerEndpointProvider;
     private readonly IExtensionLoader _extensionLoader;
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<IDesignTimeExtension>> _extensionsByName = new();
 
     private GlobalServiceProvider ServiceProvider { get; }
 
@@ -73,7 +75,13 @@ public sealed class DesignTimeExtensionManager : IGlobalService
     public ImmutableArray<ICodeRefactoringProviderExtension> CodeRefactoringProviderExtensions { get; private set; } =
         ImmutableArray<ICodeRefactoringProviderExtension>.Empty;
 
-    private void OnExtensionDiscovered( IDesignTimeExtension extension )
+    private TaskCompletionSource<IDesignTimeExtension> GetExtensionAwaiter( string extensionName )
+        => this._extensionsByName.GetOrAdd( extensionName, n => new TaskCompletionSource<IDesignTimeExtension>() );
+
+    public Task<IDesignTimeExtension> GetExtensionAsync( string extensionName, CancellationToken cancellationToken )
+        => this.GetExtensionAwaiter( extensionName ).Task.WithCancellation( cancellationToken );
+
+    internal void OnExtensionDiscovered( IDesignTimeExtension extension )
     {
         var context = new DesignTimeInitializationContext( this.ServiceProvider, this._processKind );
 
@@ -83,6 +91,8 @@ public sealed class DesignTimeExtensionManager : IGlobalService
             this.CodeRefactoringProviderExtensions = this.CodeRefactoringProviderExtensions.AddRange( context.CodeRefactoringProviderExtensions );
 
             this._rpcServiceProviderServerEndpointProvider?.Endpoint.AddServices( context.RpcServices );
+
+            this.GetExtensionAwaiter( extension.Name ).SetResult( extension );
         }
     }
 }

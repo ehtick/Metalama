@@ -10,6 +10,8 @@ namespace Metalama.Framework.DesignTime.VisualStudio.Preview;
 
 internal sealed class PreviewTransformationRpcServiceFactory : IRpcServiceFactory
 {
+    public string? ExtensionName => null;
+
     public RpcService CreateRpcService( GlobalServiceProvider serviceProvider, ServerEndpoint endpoint )
         => new PreviewTransformationRpcService( serviceProvider, endpoint );
 

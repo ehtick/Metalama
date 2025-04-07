@@ -13,9 +13,12 @@ internal sealed class RpcServiceInfo
 
     public string FactoryTypeName { get; }
 
-    public RpcServiceInfo( string pipeName, string factoryTypeName )
+    public string? ExtensionName { get; }
+
+    public RpcServiceInfo( string pipeName, string factoryTypeName, string? extensionName )
     {
         this.FactoryTypeName = factoryTypeName;
+        this.ExtensionName = extensionName;
         this.PipeName = pipeName;
     }
 }
