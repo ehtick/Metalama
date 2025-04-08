@@ -10,6 +10,8 @@ namespace Metalama.Framework.DesignTime.VisualStudio.CompilationResultObserver;
 
 internal sealed class CompilationResultObserverRpcServiceFactory : IRpcServiceFactory
 {
+    public string? ExtensionName => null;
+
     public RpcService CreateRpcService( GlobalServiceProvider serviceProvider, ServerEndpoint endpoint )
         => new CompilationResultObserverRpcApi( serviceProvider, endpoint );
 

@@ -15,9 +15,10 @@ internal sealed partial class RpcServiceProviderService : RpcService<IRpcService
 {
     private ImmutableArray<RpcServiceInfo> _registeredServices;
 
-    public RpcServiceProviderService( RpcServiceProviderServerEndpoint serverEndpoint, IEnumerable<Type> serviceFactoryTypes ) : base( serverEndpoint )
+    public RpcServiceProviderService( RpcServiceProviderServerEndpoint serverEndpoint, IEnumerable<ServiceRegistrationInfo> services ) : base( serverEndpoint )
     {
-        this._registeredServices = serviceFactoryTypes.Select( t => new RpcServiceInfo( serverEndpoint.PipeName, t.AssemblyQualifiedName.AssertNotNull() ) )
+        this._registeredServices = services
+            .Select( t => new RpcServiceInfo( serverEndpoint.PipeName, t.ServiceFactoryType.AssemblyQualifiedName.AssertNotNull(), t.ExtensionName ) )
             .ToImmutableArray();
     }
 
@@ -25,7 +26,8 @@ internal sealed partial class RpcServiceProviderService : RpcService<IRpcService
 
     public Task AddServicesAsync( string pipeName, IEnumerable<IRpcServiceFactory> serviceFactories, CancellationToken cancellationToken )
     {
-        var serviceInfo = serviceFactories.Select( t => new RpcServiceInfo( pipeName, t.GetType().AssemblyQualifiedName.AssertNotNull() ) ).ToImmutableArray();
+        var serviceInfo = serviceFactories.Select( t => new RpcServiceInfo( pipeName, t.GetType().AssemblyQualifiedName.AssertNotNull(), t.ExtensionName ) )
+            .ToImmutableArray();
 
         this._registeredServices = this._registeredServices.AddRange( serviceInfo );
 
