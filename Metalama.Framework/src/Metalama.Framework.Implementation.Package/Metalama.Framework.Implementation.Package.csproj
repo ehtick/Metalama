@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../build/RoslynVersion/Latest.imports" />
+
+    <PropertyGroup>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- Packaging -->
+        <IsPackable>true</IsPackable>
+        <PackageId>Metalama.Framework.Implementation</PackageId>
+        <IncludeBuildOutput>False</IncludeBuildOutput>
+        
+        <PackageDescription>The implementation assemblies of Metalama.Framework. It should normally never be referenced in any user project.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <!-- warning NU5118: File 'C:/src/Metalama/Metalama.Framework.Engine.Analyzers/bin/Debug/netstandard2.0/Metalama.Framework.Engine.Analyzers.dll' is not
+added because the package already contains file 'analyzers/dotnet/cs/Metalama.Framework.Engine.Analyzers.dll' -->
+        <NoWarn>$(NoWarn);NU5118</NoWarn>
+
+        <!-- Disable vulnerability checking because this project is not surfacing. -->
+        <NuGetAudit>false</NuGetAudit>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Metalama.Framework.Introspection/Metalama.Framework.Introspection.csproj" />
+        <ProjectReference Include="../Metalama.Framework.Sdk/Metalama.Framework.Sdk.csproj" />
+        <ProjectReference Include="../Metalama.Framework.CompileTimeContracts/Metalama.Framework.CompileTimeContracts.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime/Metalama.Framework.DesignTime.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime.Contracts/Metalama.Framework.DesignTime.Contracts.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.DesignTime.Rpc/Metalama.Framework.DesignTime.Rpc.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../Metalama.Framework.Engine/Metalama.Framework.Engine.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+    
+    <ItemGroup>
+        <!-- Should contain all package references that projects with PrivateAssets="all" have. -->
+
+        <PackageReference Include="Metalama.Backstage" />
+        <PackageReference Include="Metalama.Backstage.Tools" />
+        <PackageReference Include="Metalama.Compiler.Sdk" />
+
+        <PackageReference Include="DiffPlex" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="$(ThisRoslynVersion)" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" VersionOverride="$(ThisRoslynVersion)" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" VersionOverride="$(ThisRoslynVersion)" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" />
+        <PackageReference Include="K4os.Hash.xxHash" />
+        <PackageReference Include="Microsoft.CSharp" />
+        <PackageReference Include="Newtonsoft.Json" NoWarn="NU1903" />
+        <PackageReference Include="System.Reflection.Emit" />
+        <PackageReference Include="System.Runtime.Serialization.Formatters" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddLibrariesToPackage;_AddAnalyzerToPackage</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <!-- Packaging -->
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+    <Target Name="_AddAnalyzerToPackage">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/../Metalama.Framework.Engine.Analyzers/bin/$(Configuration)/netstandard2.0/Metalama.Framework.Engine.Analyzers.dll" PackagePath="analyzers/dotnet/cs" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_AddLibrariesToPackage">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.CompileTimeContracts.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.$(ThisRoslynVersionNoPreview).dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Rpc.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.DesignTime.Contracts.dll" PackagePath="lib/$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Metalama.Framework.Engine.$(ThisRoslynVersionNoPreview).dll" PackagePath="lib/$(TargetFramework)" />
+        </ItemGroup>
+    </Target>
+    
+</Project>

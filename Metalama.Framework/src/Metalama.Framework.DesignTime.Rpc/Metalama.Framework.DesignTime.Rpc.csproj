@@ -11,6 +11,10 @@
         
         <!-- [VSTHRD003] Avoid awaiting or returning a Task representing work that was not started within your context as that can lead to deadlocks. -->
         <NoWarn>$(NoWarn);VSTHRD003</NoWarn>
+
+        <!-- Packaging -->
+        <IsPackable>true</IsPackable>
+        <PackageId>Metalama.Framework.DesignTime.Rpc</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,10 +43,8 @@
   in the unit test project.-->
     <!--
     <ItemGroup>
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.4.0" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.8.0" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.4.12.0" />
-        <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.4.0" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.8.0" />
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTestHelpers.4.12.0" />
     </ItemGroup>

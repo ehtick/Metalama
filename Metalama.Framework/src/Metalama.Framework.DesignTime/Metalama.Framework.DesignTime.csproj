@@ -7,13 +7,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Metalama.Framework.DesignTime.$(ThisRoslynVersionNoPreview)</AssemblyName>
+        
         <!-- Packaging -->
-        <PackageId>Metalama.Framework.DesignTime</PackageId>
-        <PackageDescription>The design-time implementation package of Metalama.Framework. It should normally never be referenced in any user project.</PackageDescription>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <!-- Disable vulnerability checking because this project is not surfacing. -->
-        <NuGetAudit>false</NuGetAudit>
-
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,9 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="$(MSBuildThisFileFullPath) == $(MSBuildProjectFullPath)" />
 
     <Import Project="../../../build/RoslynVersion/Latest.imports" />
 
     <PropertyGroup>
-        <TargetFrameworks>netframework4.8;net8.0</TargetFrameworks>
+        <TargetFrameworks>net48;net8.0</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IsPackable>true</IsPackable>
         <RootNamespace>Metalama.Framework.Tests.UnitTestHelpers</RootNamespace>
@@ -18,12 +20,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix)\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix).csproj" />
+        <ProjectReference Include="..\..\Metalama.Framework.Engine$(ThisRoslynVersionProjectSuffix)\Metalama.Framework.Engine$(ThisRoslynVersionProjectSuffix).csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\..\Metalama.Framework.DesignTime$(ThisRoslynVersionProjectSuffix)\Metalama.Framework.DesignTime$(ThisRoslynVersionProjectSuffix).csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\..\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix)\Metalama.Testing.UnitTesting$(ThisRoslynVersionProjectSuffix).csproj" />
+
+        <!-- Dependency of the resulting package should be on Implementation package. -->
+        <ProjectReference Condition="$(ThisRoslynVersion) == $(RoslynMaxVersion)" Include="..\..\Metalama.Framework.Implementation.Package/Metalama.Framework.Implementation.Package.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <InternalsVisibleTo Include="Metalama.Framework.Tests.UnitTests.$(ThisRoslynVersionNoPreview)" />
     </ItemGroup>
-    
+
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="$(MSBuildThisFileFullPath) == $(MSBuildProjectFullPath)" />
 
 </Project>

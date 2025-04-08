@@ -73,8 +73,7 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Metalama.Testing.AspectTesting.$(PackageVersion).nupkg",
         "Metalama.Framework.Redist.$(PackageVersion).nupkg",
         "Metalama.Framework.Sdk.$(PackageVersion).nupkg",
-        "Metalama.Framework.Engine.$(PackageVersion).nupkg",
-        "Metalama.Framework.CompileTimeContracts.$(PackageVersion).nupkg",
+        "Metalama.Framework.Implementation.$(PackageVersion).nupkg",
         "Metalama.Framework.Introspection.$(PackageVersion).nupkg",
         "Metalama.Framework.Workspaces.$(PackageVersion).nupkg",
         "Metalama.Tool.$(PackageVersion).nupkg",
@@ -101,7 +100,9 @@ var product = new Product( MetalamaDependencies.Metalama )
         "Flashtrace.$(PackageVersion).nupkg",
         "Flashtrace.Formatters.$(PackageVersion).nupkg" ),
     PrivateArtifacts = Pattern.Create(
-        "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg" ),
+        "Metalama.Framework.Tests.UnitTestHelpers.$(PackageVersion).nupkg",
+        "Metalama.Framework.DesignTime.Contracts.$(PackageVersion).nupkg",
+        "Metalama.Framework.DesignTime.Rpc.$(PackageVersion).nupkg" ),
     ParametrizedDependencies =
     [
         DevelopmentDependencies.PostSharpEngineering.ToDependency(),
