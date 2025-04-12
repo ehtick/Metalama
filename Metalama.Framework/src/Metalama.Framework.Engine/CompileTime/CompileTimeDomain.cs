@@ -79,7 +79,7 @@ namespace Metalama.Framework.Engine.CompileTime
             else
             {
                 var matchingAssemblies = this._assemblyPathsByName[assemblyName.Name.AssertNotNull()]
-                    .Select( x => (Path: x, AssemblyName: AssemblyName.GetAssemblyName( x )) )
+                    .Select( x => (Path: x, AssemblyName: MetadataReferenceCache.GetAssemblyName( x )) )
                     .Where( x => AssemblyName.ReferenceMatchesDefinition( assemblyName, x.AssemblyName ) )
                     .ToOrderedList( x => x.AssemblyName.Version, descending: true );
 
@@ -108,7 +108,7 @@ namespace Metalama.Framework.Engine.CompileTime
 
             // We intentionally do not cache assemblies by path because files can be rewritten. We can only cache based on the full identity.
 
-            var assemblyName = AssemblyName.GetAssemblyName( path );
+            var assemblyName = MetadataReferenceCache.GetAssemblyName( path );
 
             // Verify that the assembly is not already in the current CompileTimeDomain.
             if ( this.TryGetLoadedAssembly( assemblyName, out var existingAssembly ) )

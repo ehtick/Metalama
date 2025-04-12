@@ -43,7 +43,7 @@ namespace Metalama.Framework.Engine.Utilities
         private static MetadataInfo GetMetadataCore( string path )
         {
             var timestamp = File.GetLastWriteTime( path );
-            var assemblyIdentity = AssemblyName.GetAssemblyName( path ).ToAssemblyIdentity();
+            var assemblyIdentity = MetadataReferenceCache.GetAssemblyName( path ).ToAssemblyIdentity();
 
             using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             using var peReader = new PEReader( stream );
