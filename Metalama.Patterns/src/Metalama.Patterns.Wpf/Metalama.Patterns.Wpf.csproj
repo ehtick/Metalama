@@ -8,7 +8,7 @@
     <Configurations>Debug;Release;LamaDebug</Configurations>
     <!-- Support unit testing -->
     <MetalamaRemoveCompileTimeOnlyCode>false</MetalamaRemoveCompileTimeOnlyCode>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
     <PackageDescription>
       Automatically implements WPF dependency properties from a C# automatic property and WPF commands from a C# method
       thanks to Metalama.

@@ -6,7 +6,7 @@
         <UseMetalamaCompiler>Private</UseMetalamaCompiler>
         <!-- Packaging -->
         <PackageDescription>A Metalama package that allows you to load solutions and projects, get their code model, execute Metalama on them, and get the introspection model of the compilation result.</PackageDescription>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
         
         <!-- disable warning NU5100: The assembly 'contentFiles\any\any\**\*.dll' is not inside the 'lib' folder and hence it won't be added as a reference when the package is installed into a
             project. Move it into the 'lib' folder if it needs to be referenced. -->

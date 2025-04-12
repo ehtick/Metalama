@@ -7,7 +7,7 @@
     <Configurations>Debug;Release;LamaDebug</Configurations>
     <!-- Support unit testing -->
     <MetalamaRemoveCompileTimeOnlyCode>false</MetalamaRemoveCompileTimeOnlyCode>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
     <PackageDescription>
       Implements the Observable pattern and the INotifyPropertyChanged interface with a single [Observable] attribute
       thanks to Metalama. Supports both automatic and explicit properties and child objects.

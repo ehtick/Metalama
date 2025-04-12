@@ -11,6 +11,7 @@
         <MetalamaCompilerTransformerOrder>Metalama.Framework.CompilerExtensions.MetalamaSourceTransformer,Metalama.Migration.Transformer.Transformer</MetalamaCompilerTransformerOrder>
         <MetalamaEmitCompilerTransformedFiles>True</MetalamaEmitCompilerTransformedFiles>
         <PackageDescription>A package containing annotated PostSharp API, documenting its Metalama equivalent.</PackageDescription>
+        
     </PropertyGroup>
 
     <ItemGroup>

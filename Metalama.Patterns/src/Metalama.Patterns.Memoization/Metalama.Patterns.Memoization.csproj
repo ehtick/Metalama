@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TransformOnBuild>true</TransformOnBuild>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
     <PackageDescription>
       Simple and high-performance caching of properties or parameterless methods with a single
       [Memo] custom attribute thanks to Metalama.

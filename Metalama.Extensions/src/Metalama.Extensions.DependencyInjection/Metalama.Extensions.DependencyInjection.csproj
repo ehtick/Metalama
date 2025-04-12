@@ -4,6 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <Nullable>enable</Nullable>
         <PackageDescription>An official and open-source Metalama extension that allows aspects to consume dependencies from an arbitrary dependency injection framework.</PackageDescription>
+        
     </PropertyGroup>
 
     <ItemGroup>

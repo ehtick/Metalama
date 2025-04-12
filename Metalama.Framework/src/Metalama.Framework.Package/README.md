@@ -27,15 +27,11 @@ It's main use cases are:
 - **DevOps**: [Logging & Tracing](https://metalama.net/applications/devops/logging), [Metrics](https://metalama.net/applications/devops/metrics), [Caching](https://metalama.net/applications/devops/caching), [Exception Handling](https://metalama.net/applications/devops/exception-handling)
 
 
----
-
 ## License
 
 Metalama is released under the MIT license.
 
 Some optional extensions and IDE tooling are released under a proprietary license. 💎
-
----
 
 ## Features
 
@@ -51,8 +47,6 @@ Some optional extensions and IDE tooling are released under a proprietary licens
 - [Roslyn Extensibility SDK](https://metalama.net/features/extensibility/roslyn)
 - [Code Query API](https://metalama.net/features/extensibility/code-query)
 
----
-
 ## Resources
 
 - 🌐 [Metalama Website](https://metalama.net)
@@ -61,8 +55,6 @@ Some optional extensions and IDE tooling are released under a proprietary licens
 - 📜 [Changelogs](https://github.com/orgs/metalama/discussions/categories/changelog)
 - 📢 [Release Notes](https://doc.metalama.net/conceptual/aspects/release-notes)
 - ✨ [Metalama Tools for Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=PostSharpTechnologies.PostSharp)
-
----
 
 ## Quick Start
 
@@ -78,13 +70,9 @@ Some optional extensions and IDE tooling are released under a proprietary licens
 
 4. Follow the [Getting Started](https://doc.metalama.net/conceptual/getting-started) guide to create your first aspect.
 
----
-
 ## Building Metalama from Source
 
 Please check instructions [here](https://metalama.net/contributing/build-from-source).
-
----
 
 ## Contributing
 
@@ -99,23 +87,18 @@ We welcome contributions! Here's how you can help:
 
 For more details, see [Contributing to Metalama](https://metalama.net/contributing).
 
----
-
 ## Support & Community
 
 - Report issues on GitHub. Follow [these recommendations](https://metalama.net/contributing/file-an-issue).
 - Join [GitHub discussions](https://github.com/orgs/metalama/discussions) for questions and proposals.
 - Enterprise support is available. Learn more about [premium support](https://metalama.net/premium/enterprise-support). 💎
 
----
 
-## Related Repositories
+## Related Packages
 
-| Repository                                                                 | License          | Description                                                                 |
-| ------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------- |
-| [Metalama.Compiler](https://github.com/metalama/Metalama.Compiler)        | MIT              | A [Roslyn](https://github.com/dotnet/roslyn) fork for source code transformations. |
-| [Metalama.Premium](https://github.com/metalama/Metalama.Premium) 💎         | Proprietary      | Extensions available to customers with a paid license.                      |
-| [PostSharp.Engineering](https://github.com/postsharp/PostSharp.Engineering) | MIT              | A custom multi-repo build and CI framework.                                 |
-| [Metalama.Community](https://github.com/metalama/Metalama.Community)     | MIT              | Community-contributed aspects repository.                                   |
-| [Metalama.Documentation](https://github.com/metalama/Metalama.Documentation) | MIT              | Source for documentation hosted on [Metalama Docs](https://doc.metalama.net/). |
-| [Metalama.Samples](https://github.com/metalama/Metalama.Samples)          | MIT              | Illustrative samples available at [Metalama Examples](https://doc.metalama.net/examples). |
+- [Metalama.Extensions.DependencyInjection](https://www.nuget.org/packages/Metalama.Extensions.DependencyInjection): allows you to inject services into your aspects using a dependency injection framework.
+- [Metalama.Extensions.Metrics](https://www.nuget.org/packages/Metalama.Extensions.Metrics): allows your aspects or fabrics to rely on code metrics, e.g. number of lines of code.
+- [Metalama.Extensions.Validation](https://www.nuget.org/packages/Metalama.Extensions.Validation) 💎: provides an API allowing to validate code and references, usages and dependencies.
+- [Metalama.Extensions.Architecture](https://www.nuget.org/packages/Metalama.Extensions.Architecture) 💎: built on `Metalama.Extensions.Validation`, implements concrete rules for architecture verification.
+- [Metalama.Extensions.CodeFixes](https://www.nuget.org/packages/Metalama.Extensions.CodeFixes) 💎: allows you to attach code fix suggestions to errors and warnings or to suggest code refactorings.
+- [Metalama.Patterns.*](https://www.nuget.org/packages?q=Metalama.Patterns&includeComputedFrameworks=true&prerel=true&sortby=relevance): a set of ready-made, professionally-built aspect libraries built with `Metalama.Framework`, most of them open-source.

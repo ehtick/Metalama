@@ -6,9 +6,10 @@
     <PropertyGroup>
         <Authors>PostSharp Technologies</Authors>
         <PackageProjectUrl>https://github.com/metalama/Metalama</PackageProjectUrl>
-        <PackageTags>PostSharp Metalama AOP</PackageTags>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageTags Condition="'$PackageTags()'==''">Metalama</PackageTags>
+        <PackageRequireLicenseAcceptance Condition="'$(InternalOnlyPackage)'!='True'">true</PackageRequireLicenseAcceptance>
+        <PackageLicenseFile Condition="'$(InternalOnlyPackage)'!='True'">LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile Condition="'$(InternalOnlyPackage)'!='True'">README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <!-- Additional content of NuGet packages -->
@@ -16,5 +17,11 @@
         <None Include="$(MSBuildThisFileDirectory)../LICENSE.md" Visible="false" Pack="true" PackagePath="" />
         <None Include="$(MSBuildThisFileDirectory)../THIRD-PARTY-NOTICES.TXT" Visible="false" Pack="true" PackagePath="" />
     </ItemGroup>
+
+    
+    <Target Name="CheckPackaging" BeforeTargets="Build" Condition="'$(IsPackable)' == 'true' And '$(InternalOnlyPackage)'!='True'">
+        <Error Text="The PackageDescription property must be defined for packable projects." Condition="'$(PackageDescription.Trim())' == ''"/>
+    </Target>
+
 
 </Project>

@@ -32,7 +32,7 @@
         <PackageType>DotNetCliTool</PackageType>
         <ToolCommandName>metalama</ToolCommandName>
 		<PackageDescription>A Metalama command line tool. Used for registering a license key or accessing some configuration settings.</PackageDescription>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
         <RollForward>Major</RollForward>
     </PropertyGroup>
 

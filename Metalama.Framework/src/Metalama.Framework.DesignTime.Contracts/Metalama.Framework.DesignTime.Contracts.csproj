@@ -8,6 +8,8 @@
         <!-- Packaging -->
         <IsPackable>true</IsPackable>
         <PackageId>Metalama.Framework.DesignTime.Contracts</PackageId>
+        <InternalOnlyPackage>True</InternalOnlyPackage>
+
     </PropertyGroup>
 
     <ItemGroup>

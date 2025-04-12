@@ -5,12 +5,13 @@
         <PackageDescription>
             Metalama SDK. A tool for custom source code modifying extensions using the Roslyn API. More powerful than source generators.
         </PackageDescription>
+        
         <RootNamespace>Metalama.Framework.Engine</RootNamespace>
 
         <!-- This is to prevent the Metalama.Compiler.Sdk package to change our nuspec -->
         <MetalamaCompilerDisablePackCustomization>True</MetalamaCompilerDisablePackCustomization>
 
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
     </PropertyGroup>
 
     <ItemGroup>
