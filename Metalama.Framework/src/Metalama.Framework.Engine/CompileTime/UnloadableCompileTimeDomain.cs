@@ -27,6 +27,7 @@ namespace Metalama.Framework.Engine.CompileTime
     /// </summary>
     public sealed class UnloadableCompileTimeDomain : CompileTimeDomain
     {
+        private static bool _alreadyHasUnloadingTimeout;
         private readonly List<WeakReference> _collectibleAssemblies = new();
         private readonly TaskCompletionSource<bool> _unloadedTask = new();
         private readonly ITaskRunner _taskRunner;
@@ -104,12 +105,18 @@ namespace Metalama.Framework.Engine.CompileTime
             {
                 throw new InvalidOperationException( "The Dispose method has not been called." );
             }
-
+            
             return this.WaitForDisposalCoreAsync();
         }
 
         private async Task WaitForDisposalCoreAsync()
         {
+            // Don't wait twice, because this slows down the tests too significantly and we don't know which one is wrong anyway.
+            if ( _alreadyHasUnloadingTimeout )
+            {
+                return;
+            }
+            
             if ( Interlocked.CompareExchange( ref this._isWaitingForDisposal, 1, 0 ) != 0 )
             {
                 // Another thread has won.
@@ -152,6 +159,10 @@ namespace Metalama.Framework.Engine.CompileTime
 
                     if ( stopwatch.Elapsed.TotalSeconds > 30 )
                     {
+                       
+                        
+                        _alreadyHasUnloadingTimeout = true;
+                        
                         var assemblies = string.Join(
                             ",",
                             aliveAssemblies.SelectAsReadOnlyList( r => (Assembly?) r.Target ).WhereNotNull().Select( a => a.GetName().Name ) );

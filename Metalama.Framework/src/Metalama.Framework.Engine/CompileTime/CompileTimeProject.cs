@@ -124,7 +124,7 @@ internal sealed class CompileTimeProject : IProjectService
     public IReadOnlyList<string> ClosureOptionTypes
         => this.ClosureProjects.SelectMany( p => p.Manifest?.OptionTypes ?? Enumerable.Empty<string>() )
             .ToReadOnlyList();
-    
+
     /// <summary>
     /// Gets a <see cref="MetadataReference"/> corresponding to the current project.
     /// </summary>
@@ -328,7 +328,7 @@ internal sealed class CompileTimeProject : IProjectService
 
         // Ignore collectible assemblies now, as they are not considered later when resolving.
         var assembly = AppDomainUtility
-            .GetLoadedAssemblies( a => !AssemblyLoader.IsCollectible( a ) && AssemblyName.ReferenceMatchesDefinition( assemblyName, a.GetName() ) )
+            .GetLoadedAssemblies( a => !domain.IsCollectible( a ) && AssemblyName.ReferenceMatchesDefinition( assemblyName, a.GetName() ) )
             .FirstOrDefault();
 
         if ( assembly == null )

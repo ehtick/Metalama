@@ -7,7 +7,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
 using Metalama.Framework.Engine.Collections;
 using Metalama.Framework.Engine.Services;
-using Metalama.Framework.Engine.Utilities;
+using Metalama.Framework.Engine.Utilities.AssemblyLoaders;
 using Metalama.Framework.Engine.Utilities.Diagnostics;
 using Metalama.Framework.Engine.Utilities.Roslyn;
 using Metalama.Framework.Services;
@@ -53,7 +53,10 @@ namespace Metalama.Framework.Engine.CompileTime
             this.Observer = serviceProvider.GetService<ICompileTimeDomainObserver>();
             this.Observer?.OnDomainCreated( this );
 
-            this._assemblyLoader = new AssemblyLoader( this.ResolveAssembly, debugName: $"CompileTimeDomain {debugName}".TrimEnd() );
+            this._assemblyLoader = AssemblyLoaderFactory.CreateAssemblyLoader(
+                this.ResolveAssembly,
+                null,
+                debugName: $"CompileTimeDomain {debugName}".TrimEnd() );
 
             this._logger = Logger.Domain;
 
@@ -272,8 +275,10 @@ namespace Metalama.Framework.Engine.CompileTime
         {
             lock ( this._sync )
             {
-                this._assemblyPathsByName = this._assemblyPathsByName.AddRange( systemAssemblyPaths, x => Path.GetFileNameWithoutExtension( x ), x => x );
+                this._assemblyPathsByName = this._assemblyPathsByName.AddRange( systemAssemblyPaths, Path.GetFileNameWithoutExtension, x => x );
             }
         }
+
+        public bool IsCollectible( Assembly assembly ) => this._assemblyLoader?.IsCollectible( assembly ) ?? throw new ObjectDisposedException( this.ToString() );
     }
 }

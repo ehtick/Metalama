@@ -20,7 +20,7 @@
     </ItemGroup>
      
     <ItemGroup>
-      <Compile Include="../Metalama.Framework.Engine/Utilities/AssemblyLoader.cs" Link="AssemblyLoader.cs" />
+      <Compile Include="../Metalama.Framework.Engine/Utilities/AssemblyLoaders/*.cs"  />
       <Compile Include="..\Metalama.Framework.DesignTime\RoslynEntryPointTypeNames.cs" Link="RoslynEntryPointTypeNames.cs" />
     </ItemGroup>
 
