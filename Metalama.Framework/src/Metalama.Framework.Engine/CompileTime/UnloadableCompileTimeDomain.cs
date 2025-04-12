@@ -67,25 +67,20 @@ namespace Metalama.Framework.Engine.CompileTime
                 throw new ObjectDisposedException( nameof(UnloadableCompileTimeDomain) );
             }
 
-            // When using LoadFromAssemblyPath, the file is locked and the lock is not disposed when the AssemblyLoadContext is unloaded.
-            // Therefore, we're loading from bytes.
-
             Assembly assembly;
 
             try
             {
-                if ( options.AvoidLocking )
-                {
-                    using var peStream = RetryHelper.Retry( () => File.OpenRead( path ) );
-                    var pdbPath = Path.ChangeExtension( path, ".pdb" );
-                    using var pdbStream = File.Exists( pdbPath ) ? RetryHelper.Retry( () => File.OpenRead( pdbPath ) ) : null;
+                // There seems to be several issues with LoadFromAssemblyPath:
+                // - Performance issues during tests. Tests seem to be very slow. 
+                //   Breaking into the process with the debugger shows of lot of threads are inside LoadFromAssemblyPath.
+                // - Possibly file lock issues, where files are not unlocked, even when the AssemblyLoadContext is disposed of.
+                // Therefore, we always use LoadFromStream. 
+                using var peStream = RetryHelper.Retry( () => File.OpenRead( path ) );
+                var pdbPath = Path.ChangeExtension( path, ".pdb" );
+                using var pdbStream = File.Exists( pdbPath ) ? RetryHelper.Retry( () => File.OpenRead( pdbPath ) ) : null;
 
-                    assembly = this._assemblyLoadContext.AssertNotNull().LoadFromStream( peStream, pdbStream );
-                }
-                else
-                {
-                    assembly = this._assemblyLoadContext.AssertNotNull().LoadFromAssemblyPath( path );
-                }
+                assembly = this._assemblyLoadContext.AssertNotNull().LoadFromStream( peStream, pdbStream );
             }
             catch ( Exception e )
             {
