@@ -6,5 +6,5 @@ if (Test-Path -Path "artifacts") {
 
 mkdir artifacts | Out-Null
 docker build . -t build-metalama
-docker run -v ".\artifacts:c:/src/artifacts" build-metalama pwsh ./Build.ps1 $args
+docker run -v ".\artifacts:c:/src/artifacts" build-metalama pwsh ./Build.ps1 build $args
 docker rmi build-metalama
