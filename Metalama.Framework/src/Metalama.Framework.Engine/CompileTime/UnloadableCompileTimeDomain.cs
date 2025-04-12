@@ -4,20 +4,26 @@
 
 #if NET5_0_OR_GREATER
 using Metalama.Backstage.Utilities;
-using Metalama.Framework.Code.Collections;
 using Metalama.Framework.Engine.Services;
-using Metalama.Framework.Engine.Utilities;
-using Metalama.Framework.Engine.Utilities.Threading;
 using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Loader;
+
+// Memory leak verification is currently disabled because it systematically fails on Gael's computer,
+// although it works on other computers.
+
+#if VERIFY_MEMORY_LEAKS
+using Metalama.Framework.Code.Collections;
+using Metalama.Framework.Engine.Utilities;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Metalama.Framework.Engine.Utilities.Threading;
+#endif
 
 namespace Metalama.Framework.Engine.CompileTime
 {
@@ -27,25 +33,32 @@ namespace Metalama.Framework.Engine.CompileTime
     /// </summary>
     public sealed class UnloadableCompileTimeDomain : CompileTimeDomain
     {
-        private static bool _alreadyHasUnloadingTimeout;
-        private readonly List<WeakReference> _collectibleAssemblies = new();
-        private readonly TaskCompletionSource<bool> _unloadedTask = new();
-        private readonly ITaskRunner _taskRunner;
         private readonly object _disposeLock = new();
 
         private AssemblyLoadContext? _assemblyLoadContext;
-        private int _isWaitingForDisposal;
         private volatile bool _disposed;
+
+#if VERIFY_MEMORY_LEAKS
+        private static bool _alreadyHasUnloadingTimeout;
+        private readonly List<WeakReference> _collectibleAssemblies = new();
+        private readonly ITaskRunner _taskRunner;
+        private int _isWaitingForDisposal;
+        private readonly TaskCompletionSource<bool> _unloadedTask = new();
+#endif
 
         public UnloadableCompileTimeDomain( GlobalServiceProvider serviceProvider ) : base( serviceProvider )
         {
-            CollectibleExecutionContext.RegisterDisposeAction( this.WaitForDisposal );
             this._assemblyLoadContext = new AssemblyLoadContext( "Metalama_" + Guid.NewGuid(), isCollectible: true );
 
+#if VERIFY_MEMORY_LEAKS
+            CollectibleExecutionContext.RegisterDisposeAction( this.WaitForDisposal );
             this._taskRunner = serviceProvider.GetRequiredService<ITaskRunner>();
+#endif
         }
 
+#pragma warning disable CS0067 // Event is never used
         public event Action<string>? UnloadError;
+#pragma warning restore CS0067 // Event is never used
 
         protected override Assembly LoadAssemblyCore( string path, LoadAssemblyOptions options )
         {
@@ -87,14 +100,19 @@ namespace Metalama.Framework.Engine.CompileTime
             return assembly;
         }
 
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        // ReSharper disable once UnusedParameter.Local
         private void AddCollectibleAssembly( Assembly assembly )
         {
+#if VERIFY_MEMORY_LEAKS
             lock ( this._collectibleAssemblies )
             {
                 this._collectibleAssemblies.Add( new WeakReference( assembly ) );
             }
+#endif
         }
 
+#if VERIFY_MEMORY_LEAKS
         [ExcludeFromCodeCoverage]
         private void WaitForDisposal() => this._taskRunner.RunSynchronously( this.WaitForDisposalAsync );
 
@@ -205,6 +223,7 @@ namespace Metalama.Framework.Engine.CompileTime
                 throw;
             }
         }
+#endif
 
         protected override void Dispose( bool disposing )
         {

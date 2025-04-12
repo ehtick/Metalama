@@ -22,7 +22,7 @@ internal sealed class VsAnalysisProcessProjectSourceGenerator : AnalysisProcessP
     private readonly Task _initializationTask;
 
     private SourceGeneratorRpcService? _sourceGeneratorRpcService;
-    
+
     public VsAnalysisProcessProjectSourceGenerator( GlobalServiceProvider serviceProvider, IProjectOptions projectOptions, ProjectKey projectKey ) : base(
         serviceProvider,
         projectOptions,
@@ -43,9 +43,11 @@ internal sealed class VsAnalysisProcessProjectSourceGenerator : AnalysisProcessP
 
     private async Task InitializeAsync()
     {
-        this._sourceGeneratorRpcService = await this._serviceProviderEndpoint!.GetRequiredServiceAsync<SourceGeneratorRpcService>( this.ApplicationExitingToken );
+        this._sourceGeneratorRpcService =
+            await this._serviceProviderEndpoint!.GetRequiredServiceAsync<SourceGeneratorRpcService>( this.ApplicationExitingToken );
+
         this._sourceGeneratorRpcService.ClientConnected += this.OnClientConnected;
-        await this._serviceProviderEndpoint.RegisterProjectAsync( this.ProjectKey, this.ApplicationExitingToken );
+        this.PendingTasks.Enqueue( () => this._serviceProviderEndpoint!.RegisterProjectAsync( this.ProjectKey, this.ApplicationExitingToken ) );
     }
 
     private void OnClientConnected( ProjectKey projectKey )
@@ -74,7 +76,7 @@ internal sealed class VsAnalysisProcessProjectSourceGenerator : AnalysisProcessP
 
             return;
         }
-        
+
         this.Logger.Trace?.Log( $"Publishing generated source of '{projectKey}' to the user process." );
 
         var generatedSources = this.LastSourceGeneratorResult.AdditionalSources

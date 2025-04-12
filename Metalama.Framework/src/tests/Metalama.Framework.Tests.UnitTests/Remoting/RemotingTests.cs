@@ -113,7 +113,7 @@ public sealed class RemotingTests : UnitTestClass
         await clientEndpoint.ConnectAsync( cancellationToken );
 
         // Publish from the server.
-        var sourceGeneratorService = await server.GetRequiredServiceAsync<SourceGeneratorRpcService>(testContext.CancellationToken);
+        var sourceGeneratorService = await server.GetRequiredServiceAsync<SourceGeneratorRpcService>( testContext.CancellationToken );
 
         await sourceGeneratorService.PublishGeneratedSourcesAsync(
             projectKey,
@@ -148,7 +148,7 @@ public sealed class RemotingTests : UnitTestClass
         server.Start();
 
         // Publish from the server.
-        var sourceGeneratorService = await server.GetRequiredServiceAsync<SourceGeneratorRpcService>(testContext.CancellationToken);
+        var sourceGeneratorService = await server.GetRequiredServiceAsync<SourceGeneratorRpcService>( testContext.CancellationToken );
 
         await sourceGeneratorService.PublishGeneratedSourcesAsync(
             projectKey,
