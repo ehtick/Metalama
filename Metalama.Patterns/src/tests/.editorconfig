@@ -5,3 +5,4 @@
 dotnet_diagnostic.IDE0009.severity = none
 dotnet_diagnostic.IDE0027.severity = none
 dotnet_diagnostic.IDE0051.severity = none
+dotnet_diagnostic.IDE0040.severity = none
