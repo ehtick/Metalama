@@ -18,10 +18,16 @@ jobs:
     - name: Prepare the Docker image
       run: docker build . -t build-metalama
     - name: Build Metalama inside the Docker image
-      run: docker run -v ".\artifacts:c:/src/artifacts" build-metalama pwsh ./Build.ps1 build
+      run: docker run -v ".\artifacts:c:/src/artifacts" build-metalama pwsh ./Build.ps1 build -c Public
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: artifacts
+        path: artifacts/publish/private
         retention-days: 3
+    - name: Upload logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs
+        path: artifacts/logs
+        retention-days: 3        
