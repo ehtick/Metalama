@@ -9,4 +9,19 @@ We welcome contributions! Here's how you can help:
 - 📚 Improve the documentation. [Learn how](https://metalama.net/contributing/contribute-docs).
 - 🐛 Fix bugs or contribute code. [Learn how](https://metalama.net/contributing/contribute-code).
 
-For more security guidelines, see <https://metalama.net/contributing>. See also our [Code of Conduct](CODE_OF_CONDUCT.md).
+For more security guidelines, see <https://metalama.net/contributing>. 
+
+## Code of Conduct
+
+We are committed to fostering an inclusive and respectful community. All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md), which outlines our expectations for participant behavior and the consequences of unacceptable actions.
+
+Please review it carefully before contributing. If you experience or witness any violations, contact us at <hello@postsharp.net>.
+
+## Contributor License Agreement (CLA)
+
+To contribute to this repository, you must sign a [Contributor License Agreement (CLA)](CLA.md) with SharpCrafters s.r.o. By signing, you confirm that:
+
+- You have the legal right to license your contributions.
+- You grant SharpCrafters s.r.o. the right to re-license your contributions under different terms.
+
+This ensures that all contributions remain legally compliant and maintainable. If you have questions, contact <hello@postsharp.net>.
