@@ -1,7 +1,5 @@
 SPDX-License-Identifier: MIT
 
-This repository is licensed under the MIT License, reproduced in full below.
-
 ## MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
