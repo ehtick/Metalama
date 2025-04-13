@@ -12,7 +12,6 @@ The most critical risk associated with Metalama would be a supply chain attack w
 
 - The product is open source, with some extensions being source-available.
 - We sign our binaries using an Authenticode key on a secure and isolated device, separate from build agents and development machines. Before signing, we scan the binaries for malware.
-- We produce deterministic builds, enabling customers to independently build and compare the binaries.
 - We regularly audit our dependencies and use automated tools (e.g., NuGet Package Vulnerability Scanner, GitHub dependabot, GitHub code scanning) to scan for known vulnerabilities. Any flagged issues are promptly addressed.
 
 ## Supported Versions
