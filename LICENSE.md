@@ -1,4 +1,6 @@
-SPDX-License-Identifier: MIT
+<!-- SPDX-License-Identifier: MIT -->
+
+Copyright 2020-2025, SharpCrafters s.r.o. and contributors.
 
 ## MIT License
 
