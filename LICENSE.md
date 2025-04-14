@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 
-Copyright 2020-2025, SharpCrafters s.r.o. and contributors.
-
 ## MIT License
+
+Copyright 2020-2025, SharpCrafters s.r.o. and contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
