@@ -66,13 +66,15 @@ internal static class MutexAcl
                 switch ( errorCode )
                 {
                     case Interop.Errors.ERROR_FILENAME_EXCED_RANGE:
-                        throw new ArgumentException( "Mutex name too long", nameof(name) );
+                        throw new ArgumentException( "Mutex name too long.", nameof(name) );
 
                     case Interop.Errors.ERROR_INVALID_HANDLE:
-                        throw new WaitHandleCannotBeOpenedException( $"Mutex {name} cannot be opened" );
+                        throw new WaitHandleCannotBeOpenedException( $"Mutex {name} cannot be opened." );
 
                     default:
-                        throw Marshal.GetExceptionForHR( errorCode ) ?? throw new InvalidOperationException( "Handle was invalid, but there was no error" );
+                        throw Marshal.GetExceptionForHR( errorCode ) ?? throw new Win32Exception(
+                            errorCode,
+                            $"CreateMutexEx failed with error code 0x{errorCode:x8}." );
                 }
             }
 
@@ -85,7 +87,7 @@ internal static class MutexAcl
         // The value of initiallyOwned should not matter since we are replacing the
         // handle with one from an existing Mutex, and disposing the old one
         // We should only make sure that it is a valid value
-        var mutex = new Mutex( initiallyOwned: default );
+        var mutex = new Mutex( initiallyOwned: false );
 
         var old = mutex.SafeWaitHandle;
         mutex.SafeWaitHandle = replacementHandle;
@@ -140,7 +142,9 @@ internal static class MutexAcl
                             {
                                 Debug.Fail( $"Unexpected error out of Win32.ConvertStringSdToSd: {error}" );
 
-                                throw new Win32Exception( error, $"Unexpected error 0x{error:x8}" );
+                                throw Marshal.GetExceptionForHR( error ) ?? throw new Win32Exception(
+                                    error,
+                                    $"ConvertStringSdToSd failed with error code 0x{error:x8}." );
                             }
 
                             break;
