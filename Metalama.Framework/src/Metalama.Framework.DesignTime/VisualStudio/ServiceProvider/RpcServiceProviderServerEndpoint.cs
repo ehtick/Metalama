@@ -2,6 +2,7 @@
 // SharpCrafters s.r.o. licenses this file to you under either the MIT license or a proprietary license, depending on the repository from which it was obtained.
 // Refer to LICENSE.md in the repository root for complete details.
 
+using JetBrains.Annotations;
 using Metalama.Framework.DesignTime.Rpc;
 using Metalama.Framework.DesignTime.VisualStudio.AspectExplorer;
 using Metalama.Framework.DesignTime.VisualStudio.CodeLens;
@@ -125,7 +126,8 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
         }
     }
 
-    internal async Task RegisterProjectAsync( ProjectKey projectKey, CancellationToken cancellationToken )
+    [PublicAPI( "Used by Metalama.Premium tests." )]
+    public async Task RegisterProjectAsync( ProjectKey projectKey, CancellationToken cancellationToken )
     {
         await this._hubRegistrationTask.Task.WarnIfLongAsync( this.Logger, "Awaiting for _hubRegistrationTask", cancellationToken );
 
