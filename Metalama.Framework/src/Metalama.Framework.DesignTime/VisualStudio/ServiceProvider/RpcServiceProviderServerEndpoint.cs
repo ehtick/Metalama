@@ -2,6 +2,7 @@
 // SharpCrafters s.r.o. licenses this file to you under either the MIT license or a proprietary license, depending on the repository from which it was obtained.
 // Refer to LICENSE.md in the repository root for complete details.
 
+using JetBrains.Annotations;
 using Metalama.Framework.DesignTime.Rpc;
 using Metalama.Framework.DesignTime.VisualStudio.AspectExplorer;
 using Metalama.Framework.DesignTime.VisualStudio.CodeLens;
@@ -33,15 +34,15 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
         new AspectExplorerRpcServiceFactory()
     ];
 
-    private readonly GlobalServiceProvider _serviceProvider;
-    private ImmutableArray<IRpcServiceFactory> _serviceFactories;
     private static readonly object _initializeLock = new();
     private static RpcServiceProviderServerEndpoint? _instance;
+    private readonly GlobalServiceProvider _serviceProvider;
     private readonly IServiceHubClientEndpointProvider? _serviceHubApiClientProvider;
     private readonly RpcServiceProviderService _rpcServiceProviderService;
     private readonly object _addServiceLock = new();
-
-    private bool _isHubRegistrationProcessed;
+    private readonly TaskCompletionSource<bool> _hubRegistrationTask = new();
+    private ImmutableArray<IRpcServiceFactory> _serviceFactories;
+    private int _pipeCount;
 
     /// <summary>
     /// Initializes the global instance of the service.
@@ -86,40 +87,49 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
 
     protected override async Task OnServerPipeCreatedAsync( CancellationToken cancellationToken )
     {
-        // We must connect to the service hub here and now, otherwise the caller would wait forever for a client.
+        // We must connect to the service hub after the pipe is created but before a client is attached because the client
+        // won't attach unless we register ourselves.
 
-        if ( this._isHubRegistrationProcessed )
+        if ( Interlocked.Increment( ref this._pipeCount ) > 1 )
         {
-            this.Logger.Trace?.Log( $"Registering '{this.PipeName}' to the hub has already been done." );
-
+            // We only want to register the endpoint once.
             return;
         }
 
-        this._isHubRegistrationProcessed = true;
-
-        if ( this._serviceHubApiClientProvider != null )
+        try
         {
-            if ( !this._serviceHubApiClientProvider.TryGetEndpoint( out var serviceHubEndpoint ) )
+            if ( this._serviceHubApiClientProvider != null )
             {
-                this.Logger.Warning?.Log( "Cannot get the ServiceHubClientEndpoint." );
+                if ( !this._serviceHubApiClientProvider.TryGetEndpoint( out var serviceHubEndpoint ) )
+                {
+                    this.Logger.Warning?.Log( "Cannot get the ServiceHubClientEndpoint." );
 
-                return;
+                    return;
+                }
+
+                this.Logger.Trace?.Log( $"Registering the endpoint '{this.PipeName}' on the hub." );
+                var registrationService = await serviceHubEndpoint.Client.GetApiAsync( cancellationToken );
+                await registrationService.RegisterAnalysisServiceAsync( this.PipeName, cancellationToken );
+                this.Logger.Trace?.Log( $"Registering the endpoint '{this.PipeName}' on the hub: completed." );
+            }
+            else
+            {
+                this.Logger.Warning?.Log( "ServiceHubClientEndpointProvider is not available." );
             }
 
-            this.Logger.Trace?.Log( $"Registering the endpoint '{this.PipeName}' on the hub." );
-            var registrationService = await serviceHubEndpoint.Client.GetApiAsync( cancellationToken );
-            await registrationService.RegisterAnalysisServiceAsync( this.PipeName, cancellationToken );
-            this.Logger.Trace?.Log( $"Registering the endpoint '{this.PipeName}' on the hub: completed." );
+            this._hubRegistrationTask.SetResult( true );
         }
-        else
+        catch ( Exception ex )
         {
-            this.Logger.Warning?.Log( "ServiceHubClientEndpointProvider is not available." );
+            this.Logger.Error?.Log( $"Cannot register the endpoint '{this.PipeName}' on the hub: {ex}" );
+            this._hubRegistrationTask.SetException( ex );
         }
     }
 
-    internal async Task RegisterProjectAsync( ProjectKey projectKey, CancellationToken cancellationToken )
+    [PublicAPI( "Used by Metalama.Premium tests." )]
+    public async Task RegisterProjectAsync( ProjectKey projectKey, CancellationToken cancellationToken )
     {
-        await this.WaitUntilInitializedAsync( cancellationToken );
+        await this._hubRegistrationTask.Task.WarnIfLongAsync( this.Logger, "Awaiting for _hubRegistrationTask", cancellationToken );
 
         if ( this._serviceHubApiClientProvider != null )
         {
