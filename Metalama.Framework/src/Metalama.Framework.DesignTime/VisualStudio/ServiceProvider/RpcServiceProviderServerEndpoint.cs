@@ -86,7 +86,8 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
 
     protected override async Task OnServerPipeCreatedAsync( CancellationToken cancellationToken )
     {
-        // We must connect to the service hub after the pipe is created but before a client is attached.
+        // We must connect to the service hub after the pipe is created but before a client is attached because the client
+        // won't attach unless we register ourselves.
 
         if ( Interlocked.Increment( ref this._pipeCount ) > 1 )
         {
