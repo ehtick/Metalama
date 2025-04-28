@@ -4,7 +4,6 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,7 +13,6 @@ namespace Metalama.Backstage.Licensing.Licenses;
 [PublicAPI( "Used by the license generator web page and service." )]
 public partial class LicenseKeyDataBuilder : ILicenseKeyData
 {
-    public static readonly string? CurrentVersion = AssemblyMetadataReader.GetInstance( typeof(License).Assembly ).PackageVersion;
 
     private readonly ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Builder _fields;
 
@@ -282,12 +280,6 @@ public partial class LicenseKeyDataBuilder : ILicenseKeyData
     {
         get => (bool?) this.GetFieldValue( LicenseFieldIndex.LicenseServerEligible );
         set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible, value );
-    }
-
-    public string? OriginVersion
-    {
-        get => (string?) this.GetFieldValue( LicenseFieldIndex.OriginVersion );
-        init => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.OriginVersion, value );
     }
 
     public ServicingPhase ServicingPhase
