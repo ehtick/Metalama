@@ -16,8 +16,8 @@ namespace Metalama.LinqPad
     internal sealed class ConnectionData : INotifyPropertyChanged
     {
         private string? _project;
-        private  string? _displayName;
-        private  bool _persist;
+        private string? _displayName;
+        private bool _persist;
         private bool _reportWorkspaceErrors = true;
 
         public ConnectionData( IConnectionInfo connectionInfo )
@@ -69,7 +69,7 @@ namespace Metalama.LinqPad
         public bool ReportWorkspaceErrors
         {
             get => this._reportWorkspaceErrors;
-            
+
             set
             {
                 this._reportWorkspaceErrors = value;

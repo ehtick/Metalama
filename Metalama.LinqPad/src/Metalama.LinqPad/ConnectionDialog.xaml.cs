@@ -27,7 +27,6 @@ namespace Metalama.LinqPad
             // DataContext must be set after InitializeComponent is called
             // because we need to override design-time data.
             this.DataContext = this._connectionData;
-
         }
 
         private void OnOkButtonClick( object sender, RoutedEventArgs e )
