@@ -99,10 +99,9 @@ namespace Metalama.Framework.Engine.CodeModel.Source
                     return null;
                 }
 
-                // TODO: Take accessibility into account.
-
                 // This can be either the default constructor of the base type or any constructor where all parameters are optional.
-                var mainConstructor = this.DeclaringType.BaseType.Constructors.SingleOrDefault( c => c.Parameters.Count == 0 );
+                var mainConstructor = this.DeclaringType.BaseType.Constructors.SingleOrDefault( c => c.Parameters.Count == 0
+                                                                                                     && c.IsAccessibleFrom( this.DeclaringType ) );
 
                 if ( mainConstructor != null )
                 {
@@ -111,7 +110,7 @@ namespace Metalama.Framework.Engine.CodeModel.Source
                 else
                 {
                     var possibleConstructors = this.DeclaringType.BaseType.Constructors
-                        .Where( c => c.Parameters.All( p => p.DefaultValue != null ) )
+                        .Where( c => c.Parameters.All( p => p.DefaultValue != null ) && this.IsAccessibleFrom( this.DeclaringType ) )
                         .ToReadOnlyList();
 
                     if ( possibleConstructors.Count == 1 )
