@@ -13,6 +13,7 @@ on:
     - cron: '16 3 * * 5'
   push:
     branches: [ "release/2025.1" ]
+  workflow_dispatch: # Allow manual triggering of the workflow on any branch
 
 # Declare default permissions as read only.
 permissions: read-all
