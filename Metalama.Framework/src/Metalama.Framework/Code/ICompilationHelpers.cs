@@ -29,5 +29,7 @@ namespace Metalama.Framework.Code
         bool TryConstructAttribute( IAttribute attribute, ScopedDiagnosticSink diagnosticSink, [NotNullWhen( true )] out Attribute? constructedAttribute );
 
         Attribute ConstructAttribute( IAttribute attribute );
+
+        bool IsAccessibleFrom( IMemberOrNamedType accessedMember, INamedType accessingType );
     }
 }

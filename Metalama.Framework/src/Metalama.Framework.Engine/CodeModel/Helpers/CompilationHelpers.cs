@@ -166,4 +166,37 @@ internal sealed class CompilationHelpers : ICompilationHelpers
 
         throw new AssertionFailedException( "The attribute construction failed, but no error message was reported." );
     }
+
+    public bool IsAccessibleFrom( IMemberOrNamedType accessedMember, INamedType accessingType )
+    {
+        bool? hasInternalAccess = null;
+
+        return IsAccessibleFromCore( accessedMember, accessingType, ref hasInternalAccess );
+    }
+
+    private static bool IsAccessibleFromCore( IMemberOrNamedType accessedMember, INamedType accessingType, ref bool? hasInternalAccess )
+        => accessedMember.Accessibility switch
+        {
+            Accessibility.Public => accessedMember.DeclaringType == null
+                                    || IsAccessibleFromCore( accessedMember.DeclaringType, accessingType, ref hasInternalAccess ),
+            Accessibility.Protected => IsDerivedFromOrContainedIn( accessedMember.DeclaringType.AssertNotNull(), accessingType ),
+            Accessibility.Private => accessingType.IsContainedIn( accessedMember.DeclaringType.AssertNotNull() ),
+            Accessibility.Internal when accessedMember.DeclaringType == null => AreInternalsVisibleFrom(
+                accessedMember.Compilation,
+                accessingType.Compilation,
+                ref hasInternalAccess ),
+            Accessibility.Internal => IsAccessibleFromCore( accessedMember.DeclaringType, accessingType, ref hasInternalAccess ),
+            Accessibility.PrivateProtected => IsDerivedFromOrContainedIn( accessedMember.DeclaringType.AssertNotNull(), accessingType )
+                                              && IsAccessibleFromCore( accessedMember.DeclaringType, accessingType, ref hasInternalAccess ),
+            Accessibility.ProtectedInternal =>
+                IsDerivedFromOrContainedIn( accessedMember.DeclaringType.AssertNotNull(), accessingType )
+                || IsAccessibleFromCore( accessedMember.DeclaringType, accessingType, ref hasInternalAccess ),
+            _ => throw new AssertionFailedException( $"Unexpected accessibility: {accessedMember.Accessibility}." )
+        };
+
+    private static bool AreInternalsVisibleFrom( ICompilation accessed, ICompilation accessing, ref bool? cached )
+        => cached ??= accessed.AreInternalsVisibleFrom( accessing );
+
+    private static bool IsDerivedFromOrContainedIn( INamedType baseType, INamedType derivedType )
+        => derivedType.IsConvertibleTo( baseType, ConversionKind.Reference ) || derivedType.IsContainedIn( baseType );
 }

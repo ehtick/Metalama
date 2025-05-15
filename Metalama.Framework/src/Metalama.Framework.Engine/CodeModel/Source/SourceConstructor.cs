@@ -94,8 +94,35 @@ namespace Metalama.Framework.Engine.CodeModel.Source
 
             if ( initializer == null )
             {
-                // This is necessarily the default constructor of the base type, if any.
-                return this.DeclaringType.BaseType?.Constructors.SingleOrDefault( c => c.Parameters.Count == 0 );
+                if ( this.DeclaringType.BaseType == null )
+                {
+                    return null;
+                }
+
+                // This can be either the default constructor of the base type or any constructor where all parameters are optional.
+                var mainConstructor = this.DeclaringType.BaseType.Constructors.SingleOrDefault( c => c.Parameters.Count == 0
+                                                                                                     && c.IsAccessibleFrom( this.DeclaringType ) );
+
+                if ( mainConstructor != null )
+                {
+                    return mainConstructor;
+                }
+                else
+                {
+                    var possibleConstructors = this.DeclaringType.BaseType.Constructors
+                        .Where( c => c.Parameters.All( p => p.DefaultValue != null ) && this.IsAccessibleFrom( this.DeclaringType ) )
+                        .ToReadOnlyList();
+
+                    if ( possibleConstructors.Count == 1 )
+                    {
+                        return possibleConstructors[0];
+                    }
+                    else
+                    {
+                        throw new AmbiguousMatchException(
+                            $"The base type '{this.DeclaringType.BaseType}' has several constructors where all parameters are optional." );
+                    }
+                }
             }
             else
             {
