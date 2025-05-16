@@ -26,7 +26,8 @@ jobs:
         # DS172412 - Review unsafe code
         # DS176209 - TODO
           exclude-rules: DS172412,DS176209
-          ignore-globs: '**/lib/bootstrap,**/bin.**,**/obj.**,**/.git/**'
+          ignore-globs: '**/bin.**,**/obj.**,**/.git/**'
+          extra-options: '-s 'Critical,Important,Moderate,BestPractice'
             
 
       - name: Upload DevSkim scan results to GitHub Security tab
