@@ -21,8 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run DevSkim scanner
-        # Intentionally uses the latest version.
-        uses: microsoft/DevSkim-Action
+        uses: microsoft/DevSkim-Action@v1
         with:
         # DS172412 - Review unsafe code
         # DS176209 - TODO
