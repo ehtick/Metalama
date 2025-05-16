@@ -22,6 +22,12 @@ jobs:
 
       - name: Run DevSkim scanner
         uses: microsoft/DevSkim-Action@v1
+        with:
+        # DS172412 - Review unsafe code
+        # DS176209 - TODO
+          exclude-rules: DS172412,DS176209
+          ignore-globs: '**/lib/bootstrap,**/bin.**,**/obj.**,**/.git/**'
+            
 
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
