@@ -27,7 +27,7 @@ jobs:
         # DS176209 - TODO
           exclude-rules: DS172412,DS176209
           ignore-globs: '**/bin.**,**/obj.**,**/.git/**'
-          extra-options: '-s 'Critical,Important,Moderate,BestPractice'
+          extra-options: '-s Critical,Important,Moderate,BestPractice'
             
 
       - name: Upload DevSkim scan results to GitHub Security tab
