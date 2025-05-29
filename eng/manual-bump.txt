@@ -1,1 +1,1 @@
-2025.1.7 - Critical bug fix in Metalama.Vsx.
+2025.1.9 - Critical bug fix in Metalama.Vsx.
