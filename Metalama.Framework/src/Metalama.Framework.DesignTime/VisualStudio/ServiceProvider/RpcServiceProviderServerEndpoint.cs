@@ -3,6 +3,7 @@
 // Refer to LICENSE.md in the repository root for complete details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Framework.DesignTime.Rpc;
 using Metalama.Framework.DesignTime.VisualStudio.AspectExplorer;
 using Metalama.Framework.DesignTime.VisualStudio.CodeLens;
@@ -121,7 +122,7 @@ public sealed class RpcServiceProviderServerEndpoint : ServerEndpoint
         }
         catch ( Exception ex )
         {
-            this.Logger.Error?.Log( $"Cannot register the endpoint '{this.PipeName}' on the hub: {ex}" );
+            this.Logger.LogException( ex, $"Cannot register the endpoint '{this.PipeName}' on the hub" );
             this._hubRegistrationTask.SetException( ex );
         }
     }

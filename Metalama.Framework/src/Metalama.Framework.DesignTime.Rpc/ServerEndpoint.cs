@@ -2,6 +2,7 @@
 // SharpCrafters s.r.o. licenses this file to you under either the MIT license or a proprietary license, depending on the repository from which it was obtained.
 // Refer to LICENSE.md in the repository root for complete details.
 
+using Metalama.Backstage.Diagnostics;
 using Microsoft.VisualStudio.Threading;
 using StreamJsonRpc;
 using System.Collections.Concurrent;
@@ -91,7 +92,7 @@ public abstract class ServerEndpoint : BaseEndpoint
         }
         catch ( Exception ex )
         {
-            this.Logger.Error?.Log( ex.ToString() );
+            this.Logger.LogException( ex );
         }
     }
 

@@ -626,7 +626,7 @@ internal sealed partial class CompileTimeCompilationBuilder
             }
             catch ( Exception e )
             {
-                this._logger.Error?.Log( $"Cannot delete directory '{outputDirectory}': {e.Message}" );
+                this._logger.LogException( e, $"Cannot delete directory '{outputDirectory}'" );
             }
         }
     }

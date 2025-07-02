@@ -3,6 +3,7 @@
 // Refer to LICENSE.md in the repository root for complete details.
 
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Framework.DesignTime.Pipeline;
 using Metalama.Framework.DesignTime.Utilities;
 using Metalama.Framework.Diagnostics;
@@ -70,7 +71,7 @@ namespace Metalama.Framework.DesignTime.Diagnostics
             catch ( Exception e )
             {
                 // We swallow exceptions because we don't want to fail the pipeline in case of error here.
-                this._configurationManager.Logger.Error?.Log( $"Cannot register user diagnostics and registrations: {e.Message}." );
+                this._configurationManager.Logger.LogException( e, $"Cannot register user diagnostics and registrations" );
                 this._exceptionHandler.ReportException( e );
             }
         }

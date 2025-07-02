@@ -142,7 +142,7 @@ public abstract class BaseEndpoint : IDisposable
                 }
                 catch ( Exception e ) when ( this.ExceptionHandler != null )
                 {
-                    this.Logger.Error?.Log( e.ToString() );
+                    this.Logger.LogException( e );
                     this.ExceptionHandler?.OnException( e, this.Logger, this.DisposeCancellationToken.IsCancellationRequested );
                 }
                 finally
@@ -182,7 +182,7 @@ public abstract class BaseEndpoint : IDisposable
         }
         catch ( Exception e )
         {
-            this.Logger.Error?.Log( e.ToString() );
+            this.Logger.LogException( e );
         }
 
         GC.SuppressFinalize( this );
