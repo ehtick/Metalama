@@ -22,30 +22,21 @@ namespace Metalama.Framework.DesignTime.Utilities
 
         // It is critical that OperationCanceledException is NOT handled, i.e. this exception should flow to the caller, otherwise VS will be satisfied
         // with the incomplete results it received, and cache them. 
-        internal static bool MustHandle( Exception e )
-            => e switch
-            {
-                OperationCanceledException => false,
-                AggregateException { InnerException: not null } => MustHandle( e.InnerException ),
-                _ => true
-            };
+        internal static bool MustHandle( Exception e ) => ExceptionClassifier.Classify( e ).IsError;
 
         internal void ReportException( Exception e, ILogger? logger = null )
         {
             logger ??= Logger.DesignTime;
 
-            if ( MustHandle( e ) )
-            {
-                logger.Error?.Log( e.ToString() );
+            var classifiedException = ExceptionClassifier.Classify( e );
+            logger.LogException( classifiedException );
 
+            if ( classifiedException.IsError )
+            {
                 // TODO: Is this guaranteed not to be called before the BackstageServiceFactory is initialized?
                 var exceptionReporter = this._exceptionReporter ?? BackstageServiceFactory.ServiceProvider.GetBackstageService<IExceptionReporter>();
 
-                exceptionReporter?.ReportException( e );
-            }
-            else
-            {
-                logger.Warning?.Log( $"Got an acceptable exception {e.GetType().Name}." );
+                exceptionReporter?.ReportException( classifiedException );
             }
         }
     }

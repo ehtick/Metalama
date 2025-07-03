@@ -3,6 +3,7 @@
 // Refer to LICENSE.md in the repository root for complete details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
 using StreamJsonRpc;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -243,7 +244,7 @@ public abstract partial class ClientEndpoint : BaseEndpoint
         }
         catch ( Exception e )
         {
-            this.Logger.Error?.Log( $"Cannot connect to the endpoint '{pipeName}': " + e.Message );
+            this.Logger.LogException( e, $"Cannot connect to the endpoint '{pipeName}'" );
 
             this.ExceptionHandler?.OnException( e, this.Logger, this.DisposeCancellationToken.IsCancellationRequested );
 
