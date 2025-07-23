@@ -14,7 +14,7 @@
     <PackageVersion Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Update="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    <PackageVersion Update="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageVersion Update="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageVersion Update="StackExchange.Redis" Version="2.8.16" />
     <PackageVersion Include="System.Reflection.Metadata" Version="8.0.1" />
