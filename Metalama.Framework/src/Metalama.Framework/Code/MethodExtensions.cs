@@ -23,5 +23,11 @@ namespace Metalama.Framework.Code
 
         [CompileTime]
         public static AsyncInfo GetAsyncInfo( this IMethod method ) => ((ICompilationInternal) method.Compilation).Helpers.GetAsyncInfo( method );
+
+        [CompileTime]
+        public static bool IsCovariantReturnType( this IMethod method ) => 
+            method.OverriddenMethod != null &&
+            !method.ReturnType.Equals( method.OverriddenMethod.ReturnType )
+            && method.ReturnType.IsConvertibleTo( method.OverriddenMethod.ReturnType );
     }
 }
