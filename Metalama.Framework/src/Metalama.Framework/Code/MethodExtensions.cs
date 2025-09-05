@@ -37,12 +37,12 @@ namespace Metalama.Framework.Code
         }
         
         /// <summary>
-        /// Determines whether a property or indexer override has a covariant return type with respect to the base implementation.
+        /// Determines whether a read-only property or indexer override has a covariant type with respect to the base implementation.
         /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/>
         /// </summary>
         /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/> 
         [CompileTime]
-        public static bool HasCovariantReturnType( this IPropertyOrIndexer propertyOrIndexer )
+        public static bool HasCovariantType( this IPropertyOrIndexer propertyOrIndexer )
         {
             return propertyOrIndexer.OverriddenMember is IPropertyOrIndexer overriddenMember
                    && !propertyOrIndexer.Type.Equals( overriddenMember.Type )
