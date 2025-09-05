@@ -6,6 +6,7 @@ namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.DesignTime.Covarian
 
 #if TEST_OPTIONS
 // @TestScenario(DesignTime)
+// @RequiredConstant(NET5_0_OR_GREATER)
 #endif
 
 
