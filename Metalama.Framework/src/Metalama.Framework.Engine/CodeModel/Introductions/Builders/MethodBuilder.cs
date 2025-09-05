@@ -183,8 +183,7 @@ internal sealed class MethodBuilder : MethodBaseBuilder, IMethodBuilderImpl
 
     public override IMember? OverriddenMember => (IMemberImpl?) this.OverriddenMethod;
         
-    public override bool IsDesignTimeObservable => base.IsDesignTimeObservable
-        || this.HasCovariantReturnType();
+    public override bool IsDesignTimeObservable => base.IsDesignTimeObservable || this.HasCovariantReturnType();
 
     public new IRef<IMethod> ToRef() => this.Ref;
 

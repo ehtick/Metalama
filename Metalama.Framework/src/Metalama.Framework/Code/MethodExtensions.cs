@@ -26,16 +26,27 @@ namespace Metalama.Framework.Code
 
         /// <summary>
         /// Determines whether a method override has a covariant return type with respect to the base implementation.
-        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/>
         /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/>
         [CompileTime]
         public static bool HasCovariantReturnType( this IMethod method )
         {
             return method.OverriddenMethod != null
-                && !method.ReturnType.Equals( method.OverriddenMethod.ReturnType )
-                && method.ReturnType.IsConvertibleTo( method.OverriddenMethod.ReturnType );
+                   && !method.ReturnType.Equals( method.OverriddenMethod.ReturnType )
+                   && method.ReturnType.IsConvertibleTo( method.OverriddenMethod.ReturnType, ConversionKind.Reference );
+        }
+        
+        /// <summary>
+        /// Determines whether a property or indexer override has a covariant return type with respect to the base implementation.
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/>
+        /// </summary>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/covariant-returns"/> 
+        [CompileTime]
+        public static bool HasCovariantReturnType( this IPropertyOrIndexer propertyOrIndexer )
+        {
+            return propertyOrIndexer.OverriddenMember is IPropertyOrIndexer overriddenMember
+                   && !propertyOrIndexer.Type.Equals( overriddenMember.Type )
+                   && propertyOrIndexer.Type.IsConvertibleTo( overriddenMember.Type, ConversionKind.Reference );
         }
     }
 }
