@@ -24,7 +24,6 @@ var product = new Product( MetalamaDependencies.Metalama )
     {
         Components =
         [
-            // Must match global.json.
             new DotNetComponent( dotNetSdkVersion, DotNetComponentKind.Sdk ),
 
             // For PostSharp.Engineering.
