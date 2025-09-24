@@ -54,7 +54,7 @@ var product = new Product( MetalamaDependencies.Metalama )
         ]
     },
     GenerateNuGetConfig = true,
-    DotNetSdkVersion = new DotNetSdkVersion( dotNetSdkVersion ) { AllowPrerelease = true },
+    DotNetSdkVersion = new DotNetSdkVersion( dotNetSdkVersion ),
     MSBuildVersion = new Version( 17, 14 ),
     Solutions =
     [
