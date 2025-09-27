@@ -39,7 +39,7 @@ object DebugBuild : BuildType({
 
     params {
         text("Build.Arguments", "", label = "DockerBuild.ps1 Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        param("Build.Timeout", "30")
+        param("Build.Timeout", "45")
         text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
     }
 
@@ -116,7 +116,7 @@ object ReleaseBuild : BuildType({
 
     params {
         text("Build.Arguments", "", label = "DockerBuild.ps1 Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        param("Build.Timeout", "30")
+        param("Build.Timeout", "45")
         text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
     }
 
@@ -184,7 +184,7 @@ object PublicBuild : BuildType({
 
     params {
         text("Build.Arguments", "", label = "DockerBuild.ps1 Arguments", description = "Arguments to append to the 'Build' build step.", allowEmpty = true)
-        param("Build.Timeout", "30")
+        param("Build.Timeout", "45")
         text("DefaultBranch", "develop/2025.1", label = "Default Branch", description = "The default branch of this build configuration.")
     }
 
