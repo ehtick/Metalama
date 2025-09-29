@@ -1,9 +1,9 @@
 [MyAspect]
 public class MyClass
 {
-  public global::System.Collections.Generic.IEnumerable<global::ConsoleApp1.MyClass.IntroducedType> Method()
+  public global::System.Collections.Generic.IEnumerable<global::Metalama.Framework.Tests.AspectTests.Tests.Aspects.Bugs.ReturnGenericTypeWithGeneratedTypeArgument.MyClass.IntroducedType> Method()
   {
-    return (global::System.Collections.Generic.IEnumerable<global::ConsoleApp1.MyClass.IntroducedType>)new IntroducedType[0];
+    return default;
   }
   public class IntroducedType
   {
