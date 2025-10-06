@@ -66,7 +66,7 @@ internal sealed class ServiceHubClientEndpoint : ClientEndpoint
         }
         else if ( parentProcesses.Count >= 1 && string.Equals( parentProcesses[0].ProcessName, "devenv", StringComparison.OrdinalIgnoreCase ) )
         {
-            // VS 2025.
+            // VS 2026.
             devEnvProcess = parentProcesses[0];
         }
         else
