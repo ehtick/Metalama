@@ -63,7 +63,7 @@ Some optional extensions and IDE tooling are released under a proprietary licens
 - 📖 [Documentation](https://doc.metalama.net)
 - 📝 [Annotated Examples](https://doc.metalama.net/examples)
 - 📢 [Release Notes](https://doc.metalama.net/conceptual/release-notes)
-- 📜 [Builds]([https://github.com/orgs/metalama/discussions/categories/changelog](https://github.com/metalama/Metalama/releases)
+- 📜 [Builds](https://github.com/metalama/Metalama/releases)
 - ✨ [Metalama Tools for Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=PostSharpTechnologies.PostSharp)
 
 ## Quick Start
