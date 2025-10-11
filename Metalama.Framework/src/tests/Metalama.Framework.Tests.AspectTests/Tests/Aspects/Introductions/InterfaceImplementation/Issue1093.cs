@@ -3,13 +3,13 @@
 // Refer to LICENSE.md in the repository root for complete details.
 
 using System;
+using Metalama.Framework.Advising;
+using Metalama.Framework.Aspects;
+using Metalama.Framework.Code;
 
 namespace Metalama.Framework.Tests.AspectTests.Tests.Aspects.Introductions.InterfaceImplementation.Issue1093;
 
 // https://github.com/metalama/Metalama/issues/1093
-using Advising;
-using Framework.Aspects;
-using Code;
 
 internal interface IGotParent
 {
